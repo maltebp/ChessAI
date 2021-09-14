@@ -5,6 +5,7 @@
 
 
 
+
 char getPieceChar(Piece piece) {
 	char colorOffset = piece.getColor() == PieceColor::BLACK ? 32 : 0;
 
@@ -31,9 +32,9 @@ void printBoard(const State& state) {
 			Piece piece = state.board[x][y];
 			bool isWhiteField = (x + y) % 2;
 			if( isWhiteField ) {
-				std::cout << "\033[47;30m";
+				std::cout << "\033[47;30m"; // 47 = white background, 30 = black text
 				std::cout << getPieceChar(piece) << ' ';
-				std::cout << "\033[0m";
+				std::cout << "\033[0m"; // Reset terminal colors
 			}
 			else {
 				std::cout << getPieceChar(piece) << ' ';
