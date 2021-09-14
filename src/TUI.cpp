@@ -5,7 +5,7 @@
 
 
 
-unsigned char getPieceChar(Piece piece) {
+char getPieceChar(Piece piece) {
 	char colorOffset = piece.getColor() == PieceColor::BLACK ? 32 : 0;
 
 	switch(piece.getType()) {
@@ -36,7 +36,7 @@ void printBoard(const State& state) {
 				std::cout << "\033[0m";
 			}
 			else {
-				std::cout << getPieceChar(piece);
+				std::cout << getPieceChar(piece) << ' ';
 			}
 		}
 		std::cout << std::endl;	
