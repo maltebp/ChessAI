@@ -147,6 +147,7 @@
     <ClCompile Include="src\TUI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Piece.h" />
     <ClInclude Include="src\State.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
