@@ -1,10 +1,12 @@
+#pragma once
 #include "Piece.h"
 
 
-struct State {
+class State {
+public:
+	int turn = 0;
 
     Piece board[8][8];
-
 
     static State createDefault() {
 		State state;
@@ -46,4 +48,8 @@ struct State {
 		return state;
     }
 
+	PieceColor getTurnColor() const {
+		return turn % 2 ? PieceColor::BLACK: PieceColor::WHITE;
+	}
+	 
 };

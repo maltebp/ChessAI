@@ -1,32 +1,10 @@
 #include <iostream>
 #include <exception>
 #include <sstream>
-
+#include "Move.h"
 #include "State.h"
+#include "MoveUtil.h"
 
-
-struct Position {
-	unsigned int x;
-	unsigned int y;
-};
-
-
-std::ostream& operator<<(std::ostream& stream, const Position& pos) {
-	stream << "(" << pos.x << "," << pos.y << ")";
-	return stream;		
-}
-
-
-// TODO: Not sure if "algorithmic position" is correct term
-Position algorithmicPositionToPosition(const std::string& str) {
-	
-	Position position = {
-		7 - (unsigned int)('h' - str.at(0)),
-		7 - (unsigned int)('8' - str.at(1))
-	};
-
-	return position;
-}
 
 
 char getPieceChar(Piece piece) {
@@ -43,6 +21,14 @@ char getPieceChar(Piece piece) {
 	}
 	
 	throw std::exception("Unknown piece type");
+}
+
+
+void printMoves(const State& state) {
+	std::vector<Move> moves = MoveUtil::getAllMoves(state);
+	for (Move move : moves) {
+		std::cout << move << std::endl;
+	}
 }
 
 
@@ -87,16 +73,20 @@ int main(int arc, char** argv) {
 
 		printBoard(state);
 
+		printMoves(state);
+
 		if( !previousOutput.empty() ) {
 			std::cout << "\n" << previousOutput << std::endl;;
 		}
+
+
 
 		std::cout << "\n>";
 		std::string a;
 		std::cin >> a;
 
 		std::stringstream ss;
-		ss << algorithmicPositionToPosition(a);
+		ss << Position::fromAlgebraicNotation(a);
 
 		previousOutput = ss.str();
 

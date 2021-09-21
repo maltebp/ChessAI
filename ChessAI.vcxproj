@@ -143,11 +143,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\MoveUtil.cpp" />
     <ClCompile Include="src\State.cpp" />
     <ClCompile Include="src\TUI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Move.h" />
+    <ClInclude Include="src\MoveUtil.h" />
     <ClInclude Include="src\Piece.h" />
+    <ClInclude Include="src\Position.h" />
     <ClInclude Include="src\State.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

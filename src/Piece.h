@@ -1,3 +1,4 @@
+#pragma once
 #include <cstdint>
 #include <vector>
 
@@ -34,13 +35,13 @@ public:
     { }
 
 
-    PieceType getType() {
+    PieceType getType() const {
         uint8_t typeBits = data & 0b01111111;
         return static_cast<PieceType>(typeBits);
     }
 
 
-    PieceColor getColor() {
+    PieceColor getColor() const {
         uint8_t colorBit = data & 0b10000000;
         return static_cast<PieceColor>(colorBit);
     }
