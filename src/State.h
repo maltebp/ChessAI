@@ -10,7 +10,6 @@ public:
 
     static State createDefault() {
 		State state;
-
 		state.board[0][0] = Piece(PieceColor::WHITE, PieceType::ROOK);
 		state.board[1][0] = Piece(PieceColor::WHITE, PieceType::KNIGHT);
 		state.board[2][0] = Piece(PieceColor::WHITE, PieceType::BISHOP);
@@ -27,6 +26,7 @@ public:
 		state.board[5][1] = Piece(PieceColor::WHITE, PieceType::PAWN);
 		state.board[6][1] = Piece(PieceColor::WHITE, PieceType::PAWN);
 		state.board[7][1] = Piece(PieceColor::WHITE, PieceType::PAWN);
+
 
 		state.board[0][7] = Piece(PieceColor::BLACK, PieceType::ROOK);
 		state.board[1][7] = Piece(PieceColor::BLACK, PieceType::KNIGHT);

@@ -1,10 +1,92 @@
 #include "MoveUtil.h"
 
 namespace MoveUtil {
-
 	
+	void getAllPawnMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
+		std::vector<Position> positions;
 
-	
+		if (piece.getColor() == PieceColor::BLACK) {
+			//Forward
+			Position candidatePos = oldPos.getNeighbourS();
+			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
+			if (fieldEmpty) {
+				positions.push_back(candidatePos);
+			}
+
+			//Left capture
+			candidatePos = oldPos.getNeighbourSE();
+			bool enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() == PieceColor::WHITE;
+			if (enemyOnField) {
+				positions.push_back(candidatePos);
+			}
+
+			//Right capture
+			candidatePos = oldPos.getNeighbourSW();
+			enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() == PieceColor::WHITE;
+			if (enemyOnField) {
+				positions.push_back(candidatePos);
+			}
+
+			//Double forward move
+			candidatePos = oldPos.getNeighbourS().getNeighbourS();
+			bool isInInitialPosition = oldPos.y == 6;
+			bool wayIsClear = state.board[oldPos.getNeighbourS().x][oldPos.getNeighbourS().y].getType() != PieceType::NONE;
+			bool goalIsClear = state.board[candidatePos.x][candidatePos.y].getType() != PieceType::NONE;
+			if (isInInitialPosition && wayIsClear && goalIsClear) {
+				positions.push_back(candidatePos);
+			}
+
+
+		}
+		else {
+			//TODO Add logic for white
+
+		}
+
+
+		for (Position newPos : positions)
+		{
+			//Add to list of moves
+			Move move = { oldPos,newPos };
+			moves.push_back(move);
+		}
+
+
+
+
+	}
+
+	void addSlidingPositions(int dx, int dy, const State& state, Position oldPos, Piece piece, std::vector<Position>& positions) {
+		Position currentPos = oldPos;
+		while (true) {
+			currentPos.x += dx;
+			currentPos.y += dy;
+
+			if (!currentPos.isFieldInBoard()) {
+				break;
+			}
+
+			Piece currentPiece = state.board[currentPos.x][currentPos.y];
+
+
+			if (currentPiece.getType() == PieceType::NONE) {
+				positions.push_back(currentPos);
+				continue;
+			}
+
+			bool isFriendlyPiece = currentPiece.getColor() == piece.getColor();
+			if (isFriendlyPiece) {
+				break;
+			}
+
+			positions.push_back(currentPos);
+
+			bool isEnemyPiece = currentPiece.getColor() != piece.getColor();
+			if (isEnemyPiece) {
+				break;
+			}
+		}
+	}
 
 	void getAllKingMoves(const State& state,Position oldPos, Piece piece, std::vector<Move>& moves) {
 		Position positions[] = {
@@ -38,10 +120,6 @@ namespace MoveUtil {
 			Move move = { oldPos,newPos };
 			moves.push_back(move);
 		}
-
-	
-
-
 	}
 
 	void getAllKnightMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
@@ -77,6 +155,31 @@ namespace MoveUtil {
 		}
 	}
 
+	void getAllSliderMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
+		std::vector<Position> positions;
+		//NSEW
+		if (piece.getType() != PieceType::BISHOP) {
+			addSlidingPositions(1, 0, state, oldPos, piece, positions);
+			addSlidingPositions(-1, 0, state, oldPos, piece, positions);
+			addSlidingPositions(0, 1, state, oldPos, piece, positions);
+			addSlidingPositions(0, -1, state, oldPos, piece, positions);
+		}
+
+		//Diagonals
+		if (piece.getType() != PieceType::ROOK) {
+			addSlidingPositions(1, 1, state, oldPos, piece, positions);
+			addSlidingPositions(-1, -1, state, oldPos, piece, positions);
+			addSlidingPositions(-1, 1, state, oldPos, piece, positions);
+			addSlidingPositions(1, -1, state, oldPos, piece, positions);
+		}
+
+		for (Position newPos : positions)
+		{
+			Move move = { oldPos,newPos };
+			moves.push_back(move);
+		}
+	}
+
 
 	void getMovesForPiece(const State& state, const Piece piece, Position position, std::vector<Move>& moves) {
 
@@ -86,17 +189,18 @@ namespace MoveUtil {
 		case PieceType::KING:
 			getAllKingMoves(state, position, piece, moves);
 			break;
+		case PieceType::ROOK:
 		case PieceType::BISHOP:
+		case PieceType::QUEEN:
+			getAllSliderMoves(state, position, piece, moves);
 			break;
 		case PieceType::PAWN:
-			break;
-		case PieceType::QUEEN:
+			getAllPawnMoves(state, position, piece, moves);
 			break;
 		case PieceType::KNIGHT:
 			getAllKnightMoves(state, position, piece, moves);
 			break;
-		case PieceType::ROOK:
-			break;
+		
 
 		default:
 			break;
