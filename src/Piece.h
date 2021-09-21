@@ -1,5 +1,5 @@
 #include <cstdint>
-
+#include <vector>
 
 enum class PieceColor {
     BLACK = 0b00000000,
@@ -48,6 +48,6 @@ public:
 
 private:
 
-        uint8_t data = 0;
+    uint8_t data = 0;
 
 };
