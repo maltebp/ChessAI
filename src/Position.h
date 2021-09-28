@@ -2,6 +2,7 @@
 #include <iostream>
 
 struct Position {
+
 	unsigned int x;
 	unsigned int y;
 
@@ -56,6 +57,10 @@ struct Position {
 
 	bool isFieldInBoard() const {
 		return x <= 7 && y <= 7;
+	}
+	
+	bool operator==(const Position& other) const {
+		return this->x == other.x && this->y == other.y;
 	}
 
 	friend std::ostream& operator<<(std::ostream& stream, const Position pos) {

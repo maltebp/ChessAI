@@ -1,3 +1,5 @@
+#include "TUIPlayer.h"
+
 #include <iostream>
 #include <exception>
 #include <sstream>
@@ -45,16 +47,13 @@ void printBoard(const State& state) {
 }
 
 
-int main(int arc, char** argv) {
-
-	State state = State::createDefault();
+Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves) {
 
 	std::string previousOutput = "";
 
 	while( true ) {
 
 		std::system("cls");
-
 
 		printBoard(state);
 
@@ -63,8 +62,6 @@ int main(int arc, char** argv) {
 		if( !previousOutput.empty() ) {
 			std::cout << "\n" << previousOutput << std::endl;;
 		}
-
-
 
 		std::cout << "\n>";
 		std::string a;
@@ -75,9 +72,8 @@ int main(int arc, char** argv) {
 
 		previousOutput = ss.str();
 
-
 		std::cout << "\n" << a;
 	}
 
-	return 0;
+	return Move();
 }
