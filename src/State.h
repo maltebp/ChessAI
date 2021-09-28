@@ -51,5 +51,5 @@ public:
 	PieceColor getTurnColor() const {
 		return turn % 2 ? PieceColor::BLACK: PieceColor::WHITE;
 	}
-	 
+
 };
