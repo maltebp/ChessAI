@@ -4,6 +4,7 @@
 
 class State {
 public:
+
 	int turn = 0;
 
     Piece board[8][8];
@@ -51,5 +52,7 @@ public:
 	PieceColor getTurnColor() const {
 		return turn % 2 ? PieceColor::BLACK: PieceColor::WHITE;
 	}
+
+
 	 
 };
