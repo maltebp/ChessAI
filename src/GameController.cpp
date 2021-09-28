@@ -12,19 +12,19 @@ void GameController::start() {
     bool running = true;
     while(running) {
 
-        PlayerController* currentPlayer = state.turn == 0 ? whitePlayer : blackPlayer;
+        PlayerController& currentPlayer = state.turn == 0 ? whitePlayer : blackPlayer;
         
         // TODO: Either pass vector to getAllMoves or remove this line
-        std::vector<Move> initialMoves = MoveUtil::getAllMoves(state);
+        std::vector<Move> availableMoves = MoveUtil::getAllMoves(state);
 
-        Move move = currentPlayer->getMove(state, initialMoves);
+        Move move = currentPlayer.getMove(state, availableMoves);
 
-        auto iterator = std::find(initialMoves.begin(), initialMoves.end(), move);
-        assert(iterator != initialMoves.end());
+        auto iterator = std::find(availableMoves.begin(), availableMoves.end(), move);
+        assert(iterator != availableMoves.end());
 
         // Execute move
 
-        state.turn = state.turn + 1 % 2;
+        state.turn = (state.turn + 1) % 2;
 
     }
 

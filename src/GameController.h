@@ -6,7 +6,7 @@
 class GameController {
 public:
 
-    GameController(PlayerController* whitePlayer, PlayerController* blackPlayer)
+    GameController(PlayerController& whitePlayer, PlayerController& blackPlayer)
         :   whitePlayer(whitePlayer),
             blackPlayer(blackPlayer)
     { }
@@ -15,9 +15,9 @@ public:
 
 private:
 
-    PlayerController* whitePlayer;
+    PlayerController& whitePlayer;
 
-    PlayerController* blackPlayer;
+    PlayerController& blackPlayer;
 
     State state;
 
