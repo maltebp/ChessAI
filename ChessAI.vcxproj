@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\MinMax.cpp" />
     <ClCompile Include="src\MoveUtil.cpp" />
     <ClCompile Include="src\State.cpp" />
     <ClCompile Include="src\TUI.cpp" />

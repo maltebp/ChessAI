@@ -27,7 +27,6 @@ public:
     // Create empty piece
     Piece() { }
 
-
     Piece(PieceColor color, PieceType type)
         :   data( 
                 static_cast<std::underlying_type_t<PieceColor>>(color) |
