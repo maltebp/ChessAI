@@ -1,11 +1,11 @@
 #include "TUIPlayer.h"
-
 #include <iostream>
 #include <exception>
 #include <sstream>
 #include "Move.h"
 #include "State.h"
 #include "MoveUtil.h"
+#include "MinMax.h"
 
 
 // x-grow, y-grow
@@ -48,6 +48,10 @@ void printBoard(const State& state) {
 
 
 Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves) {
+
+
+	//MinMaxSearcher::search(state, 2, -1000, 1000);
+
 
 	std::string previousOutput = "";
 

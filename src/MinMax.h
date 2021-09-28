@@ -3,7 +3,7 @@
 class MinMaxSearcher {
 public:
 
-	std::tuple<Move ,int> search(State state, int depth, int alpha, int beta) {
+	static std::tuple<Move, int> search(State state, int depth, int alpha, int beta) {
 		//Base case: Leaf node
 		if (depth == 0) {
 			int score = randomHeuristic(state);
@@ -23,13 +23,13 @@ public:
 
 			State resultState = MoveUtil::executeMove(state, move);
 
-			auto [resultMove,resultScore] = search(resultState, depth-1, alpha, beta);
+			auto [resultMove, resultScore] = search(resultState, depth - 1, alpha, beta);
 
 			if (isMaximizer) {
 				alpha = std::max(alpha, resultScore);
 			}
 			else {
-				beta = std::min(alpha, resultScore);
+				beta = std::min(beta, resultScore);
 			}
 
 		}
@@ -38,7 +38,7 @@ public:
 		return { bestMove,score };
 	}
 
-	int randomHeuristic(State state) {
+	static int randomHeuristic(State state) {
 		return rand() % 100;
 	}
 };
