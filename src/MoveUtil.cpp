@@ -248,6 +248,9 @@ namespace MoveUtil {
 
 		//"Put on" new field
 		newState.board[move.toField.x][move.toField.y] = piece;
+
+		//Increment turn counter
+		newState.turn++;
 		return newState;
 	}
 
