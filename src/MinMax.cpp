@@ -2,38 +2,16 @@
 class MinMaxSearcher {
 public:
 
+	Move search(State state, int depth) {
+		bool isMaximizer = state.turn % 2 == 0;
+		return Move();
+	}
 
 
+
+	int randomHeuristic(State state) {
+		return rand() % 100;
+	}
 };
 
 
-class MinMaxState {
-public:
-    MinMaxState(State state, bool isMinimizer) {
-        this->state = state;
-        this->isMinimizer = isMinimizer;
-    } 
-
-    void generateChildren() {
-        std::vector possibleMoves = MoveUtil::getAllMoves(state);
-        
-    }
-
-private:
-    State state;
-    bool isMinimizer;
-    std::vector<MinMaxState> children;
-
-
-};
-
-class IHeuristic {
-public:
-    virtual int eval(MinMaxState state) = 0;
-};
-
-class RandomHeuristic : IHeuristic{
-    int eval(MinMaxState state) override {
-        return rand() % 100;
-    }
-};
