@@ -4,55 +4,65 @@ namespace MoveUtil {
 	
 	void getAllPawnMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
 		std::vector<Position> positions;
-
-		if (piece.getColor() == PieceColor::BLACK) {
-			//Forward
-			Position candidatePos = oldPos.getNeighbourS();
+		
+		int y_initial = 6;
+		int y_direction = -1;
+		if (piece.getColor() == PieceColor::WHITE) {
+			y_direction = 1;
+			y_initial = 1;
+		}
+		
+		//Forward
+		Position candidatePos = { oldPos.x,oldPos.y + y_direction };
+		if (candidatePos.isFieldInBoard()) {
 			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
 			if (fieldEmpty) {
 				positions.push_back(candidatePos);
 			}
+		}
+		
 
-			//Left capture
-			candidatePos = oldPos.getNeighbourSE();
+		//West capture
+		candidatePos = { oldPos.x -1,oldPos.y + y_direction };
+		if (candidatePos.isFieldInBoard()) {
+			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
 			bool enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() == PieceColor::WHITE;
 			if (enemyOnField) {
 				positions.push_back(candidatePos);
 			}
+		}
+		
 
-			//Right capture
-			candidatePos = oldPos.getNeighbourSW();
-			enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() == PieceColor::WHITE;
+		//East capture
+		candidatePos = { oldPos.x +1,oldPos.y + y_direction };
+		if (candidatePos.isFieldInBoard()) {
+			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
+			bool enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() == PieceColor::WHITE;
 			if (enemyOnField) {
 				positions.push_back(candidatePos);
 			}
+		}
 
-			//Double forward move
-			candidatePos = oldPos.getNeighbourS().getNeighbourS();
-			bool isInInitialPosition = oldPos.y == 6;
-			bool wayIsClear = state.board[oldPos.getNeighbourS().x][oldPos.getNeighbourS().y].getType() != PieceType::NONE;
-			bool goalIsClear = state.board[candidatePos.x][candidatePos.y].getType() != PieceType::NONE;
+		//Double forward move
+		candidatePos = { oldPos.x,oldPos.y + 2*y_direction };
+		bool isInInitialPosition = oldPos.y == y_initial;
+		if (candidatePos.isFieldInBoard()) {
+			bool wayIsClear = state.board[oldPos.x][oldPos.y+y_direction].getType() == PieceType::NONE;
+			bool goalIsClear = state.board[oldPos.x][oldPos.y + 2*y_direction].getType() == PieceType::NONE;
 			if (isInInitialPosition && wayIsClear && goalIsClear) {
 				positions.push_back(candidatePos);
 			}
-
-
 		}
-		else {
-			//TODO Add logic for white
-
-		}
-
+		
 
 		for (Position newPos : positions)
 		{
+			//Check for check
+
 			//Add to list of moves
 			Move move = { oldPos,newPos };
 			moves.push_back(move);
 		}
-
-
-
 
 	}
 
