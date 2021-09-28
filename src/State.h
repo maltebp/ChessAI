@@ -53,6 +53,4 @@ public:
 		return turn % 2 ? PieceColor::BLACK: PieceColor::WHITE;
 	}
 
-
-	 
 };

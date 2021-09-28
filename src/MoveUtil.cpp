@@ -237,6 +237,20 @@ namespace MoveUtil {
 	}
 
 
+	State executeMove(State& oldState, Move move) {
+		State newState = oldState; //Copy constructor
+		//NOTE: No sanity checks here for performance
+		//TODO take care of special moves (castling, en pessant and so on)
+
+		//"Pick up" old piece
+		Piece piece = newState.board[move.fromField.x][move.fromField.y];
+		newState.board[move.fromField.x][move.fromField.y] = { PieceColor::NONE, PieceType::NONE };
+
+		//"Put on" new field
+		newState.board[move.toField.x][move.toField.y] = piece;
+		return newState;
+	}
+
 
 	
 
