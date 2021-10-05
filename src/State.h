@@ -51,6 +51,19 @@ public:
 		return state;
     }
 
+	static State createAlmostCheckState() {
+		State state;
+		state.board[0][0] = Piece(PieceColor::WHITE, PieceType::ROOK);
+		state.board[1][0] = Piece(PieceColor::WHITE, PieceType::ROOK);
+
+		state.board[0][5] = Piece(PieceColor::BLACK, PieceType::KNIGHT);
+		state.board[0][7] = Piece(PieceColor::BLACK, PieceType::KING);
+		state.turn = 1;
+
+		return state;
+	}
+
+
 	static State createCheckState() {
 		State state;
 		state.board[0][0] = Piece(PieceColor::WHITE, PieceType::ROOK);
@@ -87,7 +100,7 @@ public:
 		state.board[6][6] = Piece(PieceColor::BLACK, PieceType::PAWN);
 		state.board[7][6] = Piece(PieceColor::BLACK, PieceType::PAWN);
 
-		state.turn = 1;
+		//state.turn = 1;
 
 		return state;
     }
