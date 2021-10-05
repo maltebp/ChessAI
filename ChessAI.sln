@@ -8,19 +8,16 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
-		Release|x86 = Release|x86
+		Unit Tests|x64 = Unit Tests|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0C35CE73-0E9E-4D2C-8268-F1782F38850A}.Debug|x64.ActiveCfg = Debug|x64
 		{0C35CE73-0E9E-4D2C-8268-F1782F38850A}.Debug|x64.Build.0 = Debug|x64
-		{0C35CE73-0E9E-4D2C-8268-F1782F38850A}.Debug|x86.ActiveCfg = Debug|Win32
-		{0C35CE73-0E9E-4D2C-8268-F1782F38850A}.Debug|x86.Build.0 = Debug|Win32
 		{0C35CE73-0E9E-4D2C-8268-F1782F38850A}.Release|x64.ActiveCfg = Release|x64
 		{0C35CE73-0E9E-4D2C-8268-F1782F38850A}.Release|x64.Build.0 = Release|x64
-		{0C35CE73-0E9E-4D2C-8268-F1782F38850A}.Release|x86.ActiveCfg = Release|Win32
-		{0C35CE73-0E9E-4D2C-8268-F1782F38850A}.Release|x86.Build.0 = Release|Win32
+		{0C35CE73-0E9E-4D2C-8268-F1782F38850A}.Unit Tests|x64.ActiveCfg = UnitTests|x64
+		{0C35CE73-0E9E-4D2C-8268-F1782F38850A}.Unit Tests|x64.Build.0 = UnitTests|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

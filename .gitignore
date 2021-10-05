@@ -1,4 +1,6 @@
 .vs/
 .vscode/
 Debug/
+x64/
+x86/
 *.user
