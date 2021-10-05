@@ -66,6 +66,29 @@ namespace MoveUtil {
 
 	}
 
+
+	Piece getFirstPieceInSlidingPosition(const State& state, Position origin, int dx, int dy) {
+		Position currentPos = origin;
+
+		while (true) {
+			currentPos.x += dx;
+			currentPos.y += dy;
+
+			if (!currentPos.isFieldInBoard()) {
+				break;
+			}
+
+			Piece currentPiece = state.getPiece(currentPos);
+			
+			if( currentPiece != Piece() ) {
+				return currentPiece;
+			}
+		}
+
+		return Piece();
+	}
+
+
 	void addSlidingPositions(int dx, int dy, const State& state, Position oldPos, Piece piece, std::vector<Position>& positions) {
 		Position currentPos = oldPos;
 		while (true) {
@@ -255,12 +278,77 @@ namespace MoveUtil {
 	}
 
 
-	
+	bool isInCheck(const State& state) {
 
+		bool whitesTurn = state.turn % 2 == 0;
 
+		PieceColor currentColor = whitesTurn ? PieceColor::WHITE : PieceColor::BLACK;
+		PieceColor opponentColor = whitesTurn ? PieceColor::BLACK : PieceColor::WHITE;
 
+		// Find king's position
+		Position kingPosition = state.getPiecePosition({opponentColor, PieceType::KING});
 
+		int direction = whitesTurn ? 1 : -1;
 
+		Position eastPawnPos = { kingPosition.x+1, kingPosition.y+direction };
+		Position westPawnPos = { kingPosition.x-1, kingPosition.y+direction };
 
+		Piece currentPawn = Piece(currentColor, PieceType::PAWN);
+
+		// Check pawns
+		if( eastPawnPos.isFieldInBoard() && state.getPiece(eastPawnPos) == currentPawn ) {
+			return true;
+		}
+		if( westPawnPos.isFieldInBoard() && state.getPiece(westPawnPos) == currentPawn ) {
+			return true;
+		}
+
+		// Check Knights
+		Position knightPositions[] = {
+			kingPosition.getNeighbourN().getNeighbourNW(),
+			kingPosition.getNeighbourN().getNeighbourNE(),
+			kingPosition.getNeighbourW().getNeighbourNW(),
+			kingPosition.getNeighbourW().getNeighbourSW(),
+			kingPosition.getNeighbourS().getNeighbourSW(),
+			kingPosition.getNeighbourS().getNeighbourSE(),
+			kingPosition.getNeighbourE().getNeighbourNE(),
+			kingPosition.getNeighbourE().getNeighbourSE()
+		};
+
+		Piece currentKnight = Piece(currentColor, PieceType::KNIGHT);
+
+		for( auto knightPosition : knightPositions ) {
+			if( knightPosition.isFieldInBoard() && state.getPiece(knightPosition) == currentKnight) {
+				return true;
+			}
+		}
+
+		// Look at "sliding" positions
+		Piece nsew[4] = {
+			getFirstPieceInSlidingPosition(state, kingPosition, 1, 0),
+			getFirstPieceInSlidingPosition(state, kingPosition, 0, 1),
+			getFirstPieceInSlidingPosition(state, kingPosition, -1, 0),
+			getFirstPieceInSlidingPosition(state, kingPosition, 0, -1)
+		};
+
+		for( auto nsewPiece : nsew ) {
+			if( nsewPiece == Piece(currentColor, PieceType::ROOK)) return true;
+			if( nsewPiece == Piece(currentColor, PieceType::QUEEN)) return true;
+		}
+
+		Piece diagonals[4] = {
+			getFirstPieceInSlidingPosition(state, kingPosition, 1, 1),
+			getFirstPieceInSlidingPosition(state, kingPosition, 1, -1),
+			getFirstPieceInSlidingPosition(state, kingPosition, -1, -1),
+			getFirstPieceInSlidingPosition(state, kingPosition, -1, 1)
+		};
+		
+		for( auto diagonalsPiece : diagonals ) {
+			if( diagonalsPiece == Piece(currentColor, PieceType::BISHOP)) return true;
+			if( diagonalsPiece == Piece(currentColor, PieceType::QUEEN)) return true;
+		}
+
+		return false;
+	}
 
 }

@@ -69,6 +69,16 @@ public:
     }
 
 
+    bool operator==(const Piece& other) const {
+        return other.data == data;
+    }
+
+
+    bool operator!=(const Piece& other) const {
+        return !((*this)==other);
+    }
+
+
 private:
 
     uint8_t data = 0;

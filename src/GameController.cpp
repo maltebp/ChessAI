@@ -7,7 +7,8 @@
 
 void GameController::start() {
 
-    state = State::createDefault();
+    state = State::createCheckState();
+    // state = State::createDefault();
 
     bool running = true;
     while(running) {

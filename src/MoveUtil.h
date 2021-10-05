@@ -5,6 +5,13 @@
 
 
 namespace MoveUtil {
+	
 	std::vector<Move> getAllMoves(const State& state);
+	
 	State executeMove(State& oldState, Move move);
+
+	// We compute if the player who does not have the turn
+	// is in check in the given state
+	bool isInCheck(const State& state);
+
 }

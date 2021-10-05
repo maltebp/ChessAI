@@ -57,7 +57,9 @@ Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves) {
 
 		printBoard(state);
 
-		printMoves(state);
+		std::cout << "Check: " << MoveUtil::isInCheck(state) << std::endl;
+
+		// printMoves(state);
 
 		if( !previousOutput.empty() ) {
 			std::cout << "\n" << previousOutput << std::endl;;
