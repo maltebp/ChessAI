@@ -4,10 +4,13 @@ class MinMaxSearcher {
 public:
 
 	static std::tuple<Move, int> search(State state, int depth, int alpha, int beta) {
+		std::cout << "Search: depth=" << depth << " alpha =" << alpha << " beta= " << beta << std::endl;
+
 
 		//Base case: Leaf node
 		if (depth == 0) {
 			int score = randomHeuristic(state);
+			std::cout << score << std::endl;
 			return { Move(), score };
 		}
 
@@ -38,6 +41,7 @@ public:
 		}
 
 		int score = isMaximizer ? alpha : beta;
+		std::cout << bestMove << std::endl;
 
 		return { bestMove,score };
 	}

@@ -3,8 +3,8 @@
 
 struct Position {
 
-	unsigned int x;
-	unsigned int y;
+	unsigned int x = UINT32_MAX;
+	unsigned int y = UINT32_MAX;
 
 	static Position fromAlgebraicNotation(const std::string& str) {
 

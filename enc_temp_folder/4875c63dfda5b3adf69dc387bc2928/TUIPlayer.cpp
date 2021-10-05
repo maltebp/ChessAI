@@ -49,6 +49,10 @@ void printBoard(const State& state) {
 
 Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves) {
 
+
+	auto [resultMove, resultScore] = MinMaxSearcher::search(state, 2, -1000, 1000);
+	
+
 	std::string previousOutput = "";
 
 	while( true ) {
