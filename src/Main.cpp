@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
 // Test files --------
 
 #include "UnitTests/TestTest.h"
+#include "UnitTests/PawnMoves.h"
 
 // -------------------
 
