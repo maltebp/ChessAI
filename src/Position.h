@@ -6,14 +6,19 @@ struct Position {
 	unsigned int x = UINT32_MAX;
 	unsigned int y = UINT32_MAX;
 
-	static Position fromAlgebraicNotation(const std::string& str) {
+	static bool fromAlgebraicNotation(const std::string& str, Position& outputPosition) {
+		if( str.length() != 2 ) return false;
 
 		Position position = {
 			7 - (unsigned int)('h' - str.at(0)),
 			7 - (unsigned int)('8' - str.at(1))
 		};
 
-		return position;
+		if( !position.isFieldInBoard() ) return false;
+
+		outputPosition = position;	
+
+		return true;
 	}
 
 	std::string toAlgebraicNotation() const {
