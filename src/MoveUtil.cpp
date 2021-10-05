@@ -11,7 +11,7 @@ namespace MoveUtil {
 			y_direction = 1;
 			y_initial = 1;
 		}
-		
+
 		//Forward
 		Position candidatePos = { oldPos.x,oldPos.y + y_direction };
 		if (candidatePos.isFieldInBoard()) {
@@ -26,7 +26,7 @@ namespace MoveUtil {
 		candidatePos = { oldPos.x -1,oldPos.y + y_direction };
 		if (candidatePos.isFieldInBoard()) {
 			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
-			bool enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() == PieceColor::WHITE;
+			bool enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() != piece.getColor();
 			if (enemyOnField) {
 				positions.push_back(candidatePos);
 			}
@@ -37,7 +37,7 @@ namespace MoveUtil {
 		candidatePos = { oldPos.x +1,oldPos.y + y_direction };
 		if (candidatePos.isFieldInBoard()) {
 			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
-			bool enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() == PieceColor::WHITE;
+			bool enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() != piece.getColor();
 			if (enemyOnField) {
 				positions.push_back(candidatePos);
 			}
@@ -57,14 +57,19 @@ namespace MoveUtil {
 
 		for (Position newPos : positions)
 		{
+			Move move = { oldPos,newPos };
+			State newState = MoveUtil::executeMove(state, move);
+
 			//Check for check
+			if (isKingThreatened(newState)) {
+				continue;
+			}
 
 			//Add to list of moves
-			Move move = { oldPos,newPos };
 			moves.push_back(move);
 		}
-
 	}
+
 
 
 	Piece getFirstPieceInSlidingPosition(const State& state, Position origin, int dx, int dy) {
@@ -148,9 +153,13 @@ namespace MoveUtil {
 			}
 
 			//Check that move does not "check" king
+			Move move = { oldPos,newPos };
+			State newState = MoveUtil::executeMove(state, move);
+			if (isKingThreatened(newState)) {
+				continue;
+			}
 
 			//Add to list of moves
-			Move move = { oldPos,newPos };
 			moves.push_back(move);
 		}
 	}
@@ -181,9 +190,13 @@ namespace MoveUtil {
 			}
 
 			//Check that move does not "check" king
+			Move move = { oldPos,newPos };
+			State newState = MoveUtil::executeMove(state, move);
+			if (isKingThreatened(newState)) {
+				continue;
+			}
 
 			//Add to list of moves
-			Move move = { oldPos,newPos };
 			moves.push_back(move);
 		}
 	}
@@ -208,7 +221,14 @@ namespace MoveUtil {
 
 		for (Position newPos : positions)
 		{
+			//Check that move does not "check" king
 			Move move = { oldPos,newPos };
+			State newState = MoveUtil::executeMove(state, move);
+			if (isKingThreatened(newState)) {
+				continue;
+			}
+
+			//Add to list of moves
 			moves.push_back(move);
 		}
 	}
@@ -260,7 +280,7 @@ namespace MoveUtil {
 	}
 
 
-	State executeMove(State& oldState, Move move) {
+	State executeMove(const State& oldState, Move move) {
 		State newState = oldState; //Copy constructor
 		//NOTE: No sanity checks here for performance
 		//TODO take care of special moves (castling, en pessant and so on)
@@ -277,8 +297,11 @@ namespace MoveUtil {
 		return newState;
 	}
 
-
-	bool isInCheck(const State& state) {
+	/**
+	Return true if opponent player is in check
+	False otherwise
+	*/
+	bool isKingThreatened(const State& state) {
 
 		bool whitesTurn = state.turn % 2 == 0;
 
