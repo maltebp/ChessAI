@@ -62,5 +62,8 @@
     <ClInclude Include="src\MinMax.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\AIPlayerController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

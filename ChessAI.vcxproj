@@ -151,6 +151,7 @@
     <ClCompile Include="src\TUIPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AIPlayerController.h" />
     <ClInclude Include="src\GameController.h" />
     <ClInclude Include="src\MinMax.h" />
     <ClInclude Include="src\Move.h" />
