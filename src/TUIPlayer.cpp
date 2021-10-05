@@ -47,7 +47,7 @@ void printMoves(const State& state) {
 
 
 void printBoard(const State& state) {
-	std::cout << std::endl;
+	std::cout << "\n";
 
 	for( int y=0; y < 8; y++ ) {
 		std::cout << '\t' << (8-y) << ' ';		
@@ -63,7 +63,7 @@ void printBoard(const State& state) {
 				std::cout << piece.getAlgebraicChar() << ' ';
 			}
 		}
-		std::cout << std::endl;	
+		std::cout << "\n";	
 	}
 
 	std::cout << "\t  ";
@@ -146,6 +146,11 @@ Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves) {
 		std::vector<std::string> inputTokens = splitInput(input);
 
 		if( inputTokens.size() == 0 ) continue;
+
+		if( inputTokens[0] == "clear" ) {
+			output = "";
+			continue;
+		}
 
 		auto [move,parseOutput] = parseInput(state, moves, inputTokens);
 		if( parseOutput.empty() || parseOutput == "" ) {
