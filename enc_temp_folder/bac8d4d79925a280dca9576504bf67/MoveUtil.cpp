@@ -197,15 +197,15 @@ namespace MoveUtil {
 		switch (piece.getType())
 		{
 		case PieceType::KING:
-			getAllKingMoves(state, position, piece, moves);
+			//getAllKingMoves(state, position, piece, moves);
 			break;
 		case PieceType::ROOK:
 		case PieceType::BISHOP:
 		case PieceType::QUEEN:
-			getAllSliderMoves(state, position, piece, moves);
+			//getAllSliderMoves(state, position, piece, moves);
 			break;
 		case PieceType::PAWN:
-			getAllPawnMoves(state, position, piece, moves);
+			//getAllPawnMoves(state, position, piece, moves);
 			break;
 		case PieceType::KNIGHT:
 			getAllKnightMoves(state, position, piece, moves);
