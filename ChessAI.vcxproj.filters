@@ -68,9 +68,6 @@
     <ClInclude Include="src\external\catch.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\unittests\TestTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\unittests\PawnMoves.h">
       <Filter>Header Files</Filter>
     </ClInclude>
