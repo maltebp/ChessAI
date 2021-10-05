@@ -1,6 +1,168 @@
 #include "MoveUtil.h"
 
 namespace MoveUtil {
+
+	Piece getFirstPieceInSlidingPosition(const State& state, Position origin, int dx, int dy) {
+		Position currentPos = origin;
+
+		while (true) {
+			currentPos.x += dx;
+			currentPos.y += dy;
+
+			if (!currentPos.isFieldInBoard()) {
+				break;
+			}
+
+			Piece currentPiece = state.getPiece(currentPos);
+
+			if (currentPiece != Piece()) {
+				return currentPiece;
+			}
+		}
+
+		return Piece();
+	}
+
+
+	void addSlidingPositions(int dx, int dy, const State& state, Position oldPos, Piece piece, std::vector<Position>& positions) {
+		Position currentPos = oldPos;
+		while (true) {
+			currentPos.x += dx;
+			currentPos.y += dy;
+
+			if (!currentPos.isFieldInBoard()) {
+				break;
+			}
+
+			Piece currentPiece = state.board[currentPos.x][currentPos.y];
+
+
+			if (currentPiece.getType() == PieceType::NONE) {
+				positions.push_back(currentPos);
+				continue;
+			}
+
+			bool isFriendlyPiece = currentPiece.getColor() == piece.getColor();
+			if (isFriendlyPiece) {
+				break;
+			}
+
+			positions.push_back(currentPos);
+
+			bool isEnemyPiece = currentPiece.getColor() != piece.getColor();
+			if (isEnemyPiece) {
+				break;
+			}
+		}
+	}
+
+	/**
+	Does not look at who's turn it is. Simply looks at positions of piece.
+	*/
+	bool isFieldThreatened(const State& state, const Position position, bool threatenedByBlack) {
+		//From white's perspective, it is black that is the color to move. Vice versa.
+		PieceColor colorToMove = threatenedByBlack ? PieceColor::BLACK : PieceColor::WHITE;
+
+		//Check pawns
+		//From whites perspective, pawns can attack from north and "down". Vice versea.
+		int direction = threatenedByBlack ? -1 : 1;
+
+		Position eastPawnPos = { position.x + 1, position.y + direction };
+		Position westPawnPos = { position.x - 1, position.y + direction };
+
+		Piece attackingPawn = Piece(colorToMove, PieceType::PAWN);
+
+		if (eastPawnPos.isFieldInBoard() && state.getPiece(eastPawnPos) == attackingPawn) {
+			return true;
+		}
+		if (westPawnPos.isFieldInBoard() && state.getPiece(westPawnPos) == attackingPawn) {
+			return true;
+		}
+
+		// Check Knights
+		Position knightPositions[] = {
+			position.getNeighbourN().getNeighbourNW(),
+			position.getNeighbourN().getNeighbourNE(),
+			position.getNeighbourW().getNeighbourNW(),
+			position.getNeighbourW().getNeighbourSW(),
+			position.getNeighbourS().getNeighbourSW(),
+			position.getNeighbourS().getNeighbourSE(),
+			position.getNeighbourE().getNeighbourNE(),
+			position.getNeighbourE().getNeighbourSE()
+		};
+
+		Piece currentKnight = Piece(colorToMove, PieceType::KNIGHT);
+
+		for (auto knightPosition : knightPositions) {
+			if (knightPosition.isFieldInBoard() && state.getPiece(knightPosition) == currentKnight) {
+				return true;
+			}
+		}
+
+		// Look at "sliding" positions
+		Piece nsew[4] = {
+			getFirstPieceInSlidingPosition(state, position, 1, 0),
+			getFirstPieceInSlidingPosition(state, position, 0, 1),
+			getFirstPieceInSlidingPosition(state, position, -1, 0),
+			getFirstPieceInSlidingPosition(state, position, 0, -1)
+		};
+
+		for (auto nsewPiece : nsew) {
+			if (nsewPiece == Piece(colorToMove, PieceType::ROOK)) return true;
+			if (nsewPiece == Piece(colorToMove, PieceType::QUEEN)) return true;
+		}
+
+		Piece diagonals[4] = {
+			getFirstPieceInSlidingPosition(state, position, 1, 1),
+			getFirstPieceInSlidingPosition(state, position, 1, -1),
+			getFirstPieceInSlidingPosition(state, position, -1, -1),
+			getFirstPieceInSlidingPosition(state, position, -1, 1)
+		};
+
+		for (auto diagonalsPiece : diagonals) {
+			if (diagonalsPiece == Piece(colorToMove, PieceType::BISHOP)) return true;
+			if (diagonalsPiece == Piece(colorToMove, PieceType::QUEEN)) return true;
+		}
+
+		// Check kings
+		Position kingPositions[] = {
+			position.getNeighbourN(),
+			position.getNeighbourS(),
+			position.getNeighbourE(),
+			position.getNeighbourW(),
+			position.getNeighbourNE(),
+			position.getNeighbourNW(),
+			position.getNeighbourSW(),
+			position.getNeighbourSE()
+		};
+
+		Piece attackingKing = Piece(colorToMove, PieceType::KING);
+
+		for (auto kingPosition : kingPositions) {
+			if (kingPosition.isFieldInBoard() && state.getPiece(kingPosition) == attackingKing) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	Return true if opponent player is in check
+	False otherwise
+	*/
+	bool isKingThreatened(const State& state) {
+
+		bool whitesTurn = state.turn % 2 == 0;
+
+		PieceColor opponentColor = whitesTurn ? PieceColor::BLACK : PieceColor::WHITE;
+
+		// Find king's position
+		Position kingPosition = state.getPiecePosition({ opponentColor, PieceType::KING });
+
+		//Check if the field is threatened from opponents pov.
+		return isFieldThreatened(state, kingPosition, !whitesTurn);
+	}
 	
 	void getAllPawnMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
 		std::vector<Position> positions;
@@ -72,59 +234,7 @@ namespace MoveUtil {
 
 
 
-	Piece getFirstPieceInSlidingPosition(const State& state, Position origin, int dx, int dy) {
-		Position currentPos = origin;
-
-		while (true) {
-			currentPos.x += dx;
-			currentPos.y += dy;
-
-			if (!currentPos.isFieldInBoard()) {
-				break;
-			}
-
-			Piece currentPiece = state.getPiece(currentPos);
-			
-			if( currentPiece != Piece() ) {
-				return currentPiece;
-			}
-		}
-
-		return Piece();
-	}
-
-
-	void addSlidingPositions(int dx, int dy, const State& state, Position oldPos, Piece piece, std::vector<Position>& positions) {
-		Position currentPos = oldPos;
-		while (true) {
-			currentPos.x += dx;
-			currentPos.y += dy;
-
-			if (!currentPos.isFieldInBoard()) {
-				break;
-			}
-
-			Piece currentPiece = state.board[currentPos.x][currentPos.y];
-
-
-			if (currentPiece.getType() == PieceType::NONE) {
-				positions.push_back(currentPos);
-				continue;
-			}
-
-			bool isFriendlyPiece = currentPiece.getColor() == piece.getColor();
-			if (isFriendlyPiece) {
-				break;
-			}
-
-			positions.push_back(currentPos);
-
-			bool isEnemyPiece = currentPiece.getColor() != piece.getColor();
-			if (isEnemyPiece) {
-				break;
-			}
-		}
-	}
+	
 
 	void getAllKingMoves(const State& state,Position oldPos, Piece piece, std::vector<Move>& moves) {
 		Position positions[] = {
@@ -261,8 +371,76 @@ namespace MoveUtil {
 
 	}
 
+	void getCastlingMoves(State state, std::vector<Move>& moves) {
+		bool isWhite = state.getTurnColor() == PieceColor::WHITE;
+		if (isWhite) {
+			if (state.whiteCanCastleQueenSide) {
+				//Check that fields in the middle are empty
+				bool field1Empty = state.board[1][0].getType() == PieceType::NONE;
+				bool field2Empty = state.board[2][0].getType() == PieceType::NONE;
+				bool field3Empty = state.board[3][0].getType() == PieceType::NONE;
+				if (field1Empty && field2Empty && field3Empty) {
+					//Check that fields are not threatened
+					if (!isFieldThreatened(state, { 2,0 }, true) &&
+						!isFieldThreatened(state, { 3,0 }, true) &&
+						!isFieldThreatened(state, { 4,0 }, true)
+						) {
+						moves.push_back({ { 4,0 } , {2,0} });
+					}
+				}
+			}
+			if (state.whiteCanCastleKingSide) {
+				//Check that fields in the middle are empty
+				bool field1Empty = state.board[5][0].getType() == PieceType::NONE;
+				bool field2Empty = state.board[6][0].getType() == PieceType::NONE;
+				if (field1Empty && field2Empty) {
+					//Check that fields are not threatened
+					if (!isFieldThreatened(state, { 4,0 }, true) &&
+						!isFieldThreatened(state, { 5,0 }, true) &&
+						!isFieldThreatened(state, { 6,0 }, true)
+						) {
+						moves.push_back({ { 4,0 } , {6,0} });
+					}
+				}
+			}
+		}
+		else {//Is black
+			if (state.blackCanCastleQueenSide) {
+				//Check that fields in the middle are empty
+				bool field1Empty = state.board[1][7].getType() == PieceType::NONE;
+				bool field2Empty = state.board[2][7].getType() == PieceType::NONE;
+				bool field3Empty = state.board[3][7].getType() == PieceType::NONE;
+				if (field1Empty && field2Empty && field3Empty) {
+					//Check that fields are not threatened
+					if (!isFieldThreatened(state, { 2,7 }, true) &&
+						!isFieldThreatened(state, { 3,7 }, true) &&
+						!isFieldThreatened(state, { 4,7 }, true)
+						) {
+						moves.push_back({ { 4,7 } , {2,7} });
+					}
+				}
+			}
+			if (state.blackCanCastleKingSide) {
+				//Check that fields in the middle are empty
+				bool field1Empty = state.board[5][7].getType() == PieceType::NONE;
+				bool field2Empty = state.board[6][7].getType() == PieceType::NONE;
+				if (field1Empty && field2Empty) {
+					//Check that fields are not threatened
+					if (!isFieldThreatened(state, { 4,7 }, true) &&
+						!isFieldThreatened(state, { 5,7 }, true) &&
+						!isFieldThreatened(state, { 6,7 }, true)
+						) {
+						moves.push_back({ { 4,7 } , {6,7} });
+					}
+				}
+			}
+		}
+	}
+
 	std::vector<Move> getAllMoves(const State& state) {
 		auto colorToMove = state.getTurnColor();
+
+		//Generate ordinary moves
 		std::vector<Move> moves;
 		for (unsigned int y = 0; y < 8; y++) {
 			for (unsigned int x = 0; x < 8; x++) {
@@ -276,10 +454,56 @@ namespace MoveUtil {
 			}
 		}
 
+		//Castling - bools only indicate if piece have moved before, which rules out castling completely
+		bool whiteCanCastle = state.whiteCanCastleKingSide || state.whiteCanCastleQueenSide;
+		bool blackCanCastle = state.blackCanCastleKingSide || state.blackCanCastleQueenSide;
+		bool playerCanCastle = (colorToMove == PieceColor::WHITE && whiteCanCastle) 
+			|| (colorToMove == PieceColor::BLACK && blackCanCastle);
+		if (playerCanCastle) {
+			getCastlingMoves(state, moves);
+		}
+
+		//En passant
+
+		//Promotion?
+
+
 		return moves;
 	}
 
+	void updateCastlingBools(const State& oldState, Move move, State& newState) {
+		bool isWhitesMove = oldState.turn % 2 == 0;
 
+		//Update castling booleans
+		Piece piece = oldState.getPiece(move.fromField);
+		if (piece.getType() == PieceType::KING) {
+			//Definitely disables castling for current player
+			if (isWhitesMove) {
+				newState.whiteCanCastleKingSide = false;
+				newState.whiteCanCastleQueenSide = false;
+			}
+			else {
+				newState.blackCanCastleKingSide = false;
+				newState.blackCanCastleQueenSide = false;
+			}
+		}
+		else if (piece.getType() == PieceType::ROOK) {
+			//If we're moving from origianl rook position ==> disable that sides castling
+			if (move.fromField == Position{ 0, 0 }) {
+				newState.whiteCanCastleQueenSide = false;
+			}
+			else if (move.fromField == Position{ 7, 0 }) {
+				newState.whiteCanCastleKingSide = false;
+			}
+			else if (move.fromField == Position{ 0, 7 }) {
+				newState.blackCanCastleQueenSide = false;
+			}
+			else if (move.fromField == Position{ 7, 7 }) {
+				newState.blackCanCastleKingSide = false;
+			}
+		}
+	}
+	
 	State executeMove(const State& oldState, Move move) {
 		State newState = oldState; //Copy constructor
 		//NOTE: No sanity checks here for performance
@@ -292,86 +516,10 @@ namespace MoveUtil {
 		//"Put on" new field
 		newState.board[move.toField.x][move.toField.y] = piece;
 
+		updateCastlingBools(oldState, move, newState);
+
 		//Increment turn counter
 		newState.turn++;
 		return newState;
 	}
-
-	/**
-	Return true if opponent player is in check
-	False otherwise
-	*/
-	bool isKingThreatened(const State& state) {
-
-		bool whitesTurn = state.turn % 2 == 0;
-
-		PieceColor currentColor = whitesTurn ? PieceColor::WHITE : PieceColor::BLACK;
-		PieceColor opponentColor = whitesTurn ? PieceColor::BLACK : PieceColor::WHITE;
-
-		// Find king's position
-		Position kingPosition = state.getPiecePosition({opponentColor, PieceType::KING});
-
-		int direction = whitesTurn ? 1 : -1;
-
-		Position eastPawnPos = { kingPosition.x+1, kingPosition.y+direction };
-		Position westPawnPos = { kingPosition.x-1, kingPosition.y+direction };
-
-		Piece currentPawn = Piece(currentColor, PieceType::PAWN);
-
-		// Check pawns
-		if( eastPawnPos.isFieldInBoard() && state.getPiece(eastPawnPos) == currentPawn ) {
-			return true;
-		}
-		if( westPawnPos.isFieldInBoard() && state.getPiece(westPawnPos) == currentPawn ) {
-			return true;
-		}
-
-		// Check Knights
-		Position knightPositions[] = {
-			kingPosition.getNeighbourN().getNeighbourNW(),
-			kingPosition.getNeighbourN().getNeighbourNE(),
-			kingPosition.getNeighbourW().getNeighbourNW(),
-			kingPosition.getNeighbourW().getNeighbourSW(),
-			kingPosition.getNeighbourS().getNeighbourSW(),
-			kingPosition.getNeighbourS().getNeighbourSE(),
-			kingPosition.getNeighbourE().getNeighbourNE(),
-			kingPosition.getNeighbourE().getNeighbourSE()
-		};
-
-		Piece currentKnight = Piece(currentColor, PieceType::KNIGHT);
-
-		for( auto knightPosition : knightPositions ) {
-			if( knightPosition.isFieldInBoard() && state.getPiece(knightPosition) == currentKnight) {
-				return true;
-			}
-		}
-
-		// Look at "sliding" positions
-		Piece nsew[4] = {
-			getFirstPieceInSlidingPosition(state, kingPosition, 1, 0),
-			getFirstPieceInSlidingPosition(state, kingPosition, 0, 1),
-			getFirstPieceInSlidingPosition(state, kingPosition, -1, 0),
-			getFirstPieceInSlidingPosition(state, kingPosition, 0, -1)
-		};
-
-		for( auto nsewPiece : nsew ) {
-			if( nsewPiece == Piece(currentColor, PieceType::ROOK)) return true;
-			if( nsewPiece == Piece(currentColor, PieceType::QUEEN)) return true;
-		}
-
-		Piece diagonals[4] = {
-			getFirstPieceInSlidingPosition(state, kingPosition, 1, 1),
-			getFirstPieceInSlidingPosition(state, kingPosition, 1, -1),
-			getFirstPieceInSlidingPosition(state, kingPosition, -1, -1),
-			getFirstPieceInSlidingPosition(state, kingPosition, -1, 1)
-		};
-		
-		for( auto diagonalsPiece : diagonals ) {
-			if( diagonalsPiece == Piece(currentColor, PieceType::BISHOP)) return true;
-			if( diagonalsPiece == Piece(currentColor, PieceType::QUEEN)) return true;
-		}
-
-		return false;
-	}
-
 }
