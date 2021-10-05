@@ -23,9 +23,7 @@ void GameController::start() {
         assert(iterator != availableMoves.end());
 
         // Execute move
-
-        state.turn = (state.turn + 1) % 2;
-
+        state = MoveUtil::executeMove(state, move);
     }
 
 }
