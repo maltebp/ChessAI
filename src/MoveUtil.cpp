@@ -1,4 +1,5 @@
 #include "MoveUtil.h"
+#include <cstdlib>
 
 namespace MoveUtil {
 
@@ -515,6 +516,26 @@ namespace MoveUtil {
 
 		//"Put on" new field
 		newState.board[move.toField.x][move.toField.y] = piece;
+
+		//Check if castling move
+		int dx = abs((int)move.fromField.x - (int)move.toField.x);
+		if (piece.getType() == PieceType::KING && dx==2) {
+			int yval = move.fromField.y;
+			if (move.toField.x == 6) {
+				//"Pick up" rook
+				newState.board[7][yval] = { PieceColor::NONE, PieceType::NONE };
+
+				//Put rook on new field
+				newState.board[5][yval] = {piece.getColor(),PieceType::ROOK};
+			}
+			else {
+				//"Pick up" rook
+				newState.board[0][yval] = { PieceColor::NONE, PieceType::NONE };
+
+				//Put rook on new field
+				newState.board[2][yval] = { piece.getColor(),PieceType::ROOK };
+			}
+		}
 
 		updateCastlingBools(oldState, move, newState);
 
