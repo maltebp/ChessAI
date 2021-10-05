@@ -1,12 +1,12 @@
 #pragma once
 
-#include "PlayerController.h"
+#include "IPlayerController.h"
 
 
 class GameController {
 public:
 
-    GameController(PlayerController& whitePlayer, PlayerController& blackPlayer)
+    GameController(IPlayerController& whitePlayer, IPlayerController& blackPlayer)
         :   whitePlayer(whitePlayer),
             blackPlayer(blackPlayer)
     { }
@@ -15,9 +15,9 @@ public:
 
 private:
 
-    PlayerController& whitePlayer;
+    IPlayerController& whitePlayer;
 
-    PlayerController& blackPlayer;
+    IPlayerController& blackPlayer;
 
     State state;
 

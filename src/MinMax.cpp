@@ -1,5 +1,9 @@
 #include "MoveUtil.h"
+
 #include <algorithm>
+#include <tuple>
+
+
 class MinMaxSearcher {
 public:
 

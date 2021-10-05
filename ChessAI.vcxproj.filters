@@ -53,7 +53,7 @@
     <ClInclude Include="src\GameController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\PlayerController.h">
+    <ClInclude Include="src\IPlayerController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\TUIPlayer.h">

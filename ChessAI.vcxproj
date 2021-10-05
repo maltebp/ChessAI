@@ -157,7 +157,7 @@
     <ClInclude Include="src\Move.h" />
     <ClInclude Include="src\MoveUtil.h" />
     <ClInclude Include="src\Piece.h" />
-    <ClInclude Include="src\PlayerController.h" />
+    <ClInclude Include="src\IPlayerController.h" />
     <ClInclude Include="src\Position.h" />
     <ClInclude Include="src\State.h" />
     <ClInclude Include="src\TUIPlayer.h" />

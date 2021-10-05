@@ -1,9 +1,9 @@
 #pragma once
 
-#include "PlayerController.h"
+#include "IPlayerController.h"
 
 
-class TUIPlayer : public PlayerController {
+class TUIPlayer : public IPlayerController {
 public:
 
     Move getMove(const State& state, const std::vector<Move>& initialMoves) override;

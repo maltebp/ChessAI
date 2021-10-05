@@ -12,7 +12,7 @@ void GameController::start() {
     bool running = true;
     while(running) {
 
-        PlayerController& currentPlayer = state.turn == 0 ? whitePlayer : blackPlayer;
+        IPlayerController& currentPlayer = state.turn == 0 ? whitePlayer : blackPlayer;
         
         // TODO: Either pass vector to getAllMoves or remove this line
         std::vector<Move> availableMoves = MoveUtil::getAllMoves(state);
