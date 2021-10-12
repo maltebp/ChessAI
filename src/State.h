@@ -168,4 +168,18 @@ public:
 		return turn % 2 ? PieceColor::BLACK: PieceColor::WHITE;
 	}
 
+
+	const Piece& operator[](Position position) const {
+		assert(position.x < 8);
+		assert(position.y < 8);
+		return board[position.x][position.y];
+	}
+	
+
+	Piece& operator[](const Position& position) {
+		assert(position.x < 8);
+		assert(position.y < 8);
+		return board[position.x][position.y];
+	}
+
 };
