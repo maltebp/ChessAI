@@ -512,10 +512,10 @@ namespace MoveUtil {
 
 		//"Pick up" old piece
 		Piece piece = newState.board[move.fromField.x][move.fromField.y];
-		newState.board[move.fromField.x][move.fromField.y] = { PieceColor::NONE, PieceType::NONE };
+		newState[move.fromField] = { PieceColor::NONE, PieceType::NONE };
 
 		//"Put on" new field
-		newState.board[move.toField.x][move.toField.y] = piece;
+		newState[move.toField] = piece;
 
 		//Check if castling move
 		int dx = abs((int)move.fromField.x - (int)move.toField.x);
