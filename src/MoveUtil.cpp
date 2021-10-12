@@ -164,6 +164,26 @@ namespace MoveUtil {
 		//Check if the field is threatened from opponents pov.
 		return isFieldThreatened(state, kingPosition, !whitesTurn);
 	}
+
+	void getPawnPromotionMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
+		PieceType possiblePieces[] = { PieceType::BISHOP, PieceType::KNIGHT, PieceType::QUEEN, PieceType::ROOK };
+		unsigned int yval = piece.getColor() == PieceColor::WHITE ? 7 : 0;
+		Position newPos = Position{ oldPos.x, yval };
+
+		for (PieceType type : possiblePieces) {
+
+			Move move = { oldPos,newPos, type };
+			State newState = MoveUtil::executeMove(state, move);
+
+			//Check for check
+			if (isKingThreatened(newState)) {
+				continue;
+			}
+
+			//Add to list of moves
+			moves.push_back(move);
+		}
+	}
 	
 	void getAllPawnMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
 		std::vector<Position> positions;
@@ -180,7 +200,15 @@ namespace MoveUtil {
 		if (candidatePos.isFieldInBoard()) {
 			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
 			if (fieldEmpty) {
-				positions.push_back(candidatePos);
+				bool whitePromotion = oldPos.y == 6 && piece.getColor() == PieceColor::WHITE;
+				bool blackPromotion = oldPos.y == 1 && piece.getColor() == PieceColor::BLACK;
+
+				if (whitePromotion || blackPromotion) { //If it is a promotion move
+					getPawnPromotionMoves(state, oldPos, piece, moves);
+				}
+				else { //If it is an ordinary move
+					positions.push_back(candidatePos);
+				}
 			}
 		}
 		
@@ -248,8 +276,6 @@ namespace MoveUtil {
 			moves.push_back(move);
 		}
 	}
-
-
 
 	
 
@@ -429,9 +455,9 @@ namespace MoveUtil {
 				bool field3Empty = state.board[3][7].getType() == PieceType::NONE;
 				if (field1Empty && field2Empty && field3Empty) {
 					//Check that fields are not threatened
-					if (!isFieldThreatened(state, { 2,7 }, true) &&
-						!isFieldThreatened(state, { 3,7 }, true) &&
-						!isFieldThreatened(state, { 4,7 }, true)
+					if (!isFieldThreatened(state, { 2,7 }, false) &&
+						!isFieldThreatened(state, { 3,7 }, false) &&
+						!isFieldThreatened(state, { 4,7 }, false)
 						) {
 						moves.push_back({ { 4,7 } , {2,7} });
 					}
@@ -443,9 +469,9 @@ namespace MoveUtil {
 				bool field2Empty = state.board[6][7].getType() == PieceType::NONE;
 				if (field1Empty && field2Empty) {
 					//Check that fields are not threatened
-					if (!isFieldThreatened(state, { 4,7 }, true) &&
-						!isFieldThreatened(state, { 5,7 }, true) &&
-						!isFieldThreatened(state, { 6,7 }, true)
+					if (!isFieldThreatened(state, { 4,7 }, false) &&
+						!isFieldThreatened(state, { 5,7 }, false) &&
+						!isFieldThreatened(state, { 6,7 }, false)
 						) {
 						moves.push_back({ { 4,7 } , {6,7} });
 					}
@@ -567,8 +593,14 @@ namespace MoveUtil {
 				newState.board[0][yval] = { PieceColor::NONE, PieceType::NONE };
 
 				//Put rook on new field
-				newState.board[2][yval] = { piece.getColor(),PieceType::ROOK };
+				newState.board[3][yval] = { piece.getColor(),PieceType::ROOK };
 			}
+		}
+
+		//Check if promotion move
+		if (move.promotesTo != PieceType::NONE) {
+			Piece oldPiece = newState[move.toField];
+			newState[move.toField] = Piece{ oldPiece.getColor(), move.promotesTo };
 		}
 
 		updateCastlingBools(oldState, move, newState);
