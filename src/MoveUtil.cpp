@@ -180,7 +180,15 @@ namespace MoveUtil {
 		if (candidatePos.isFieldInBoard()) {
 			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
 			if (fieldEmpty) {
-				positions.push_back(candidatePos);
+				bool whitePromotion = oldPos.x == 6 && piece.getColor() == PieceColor::WHITE;
+				bool blackPromotion = oldPos.x == 1 && piece.getColor() == PieceColor::BLACK;
+
+				if (whitePromotion || blackPromotion) { //If it is a promotion move
+					getPawnPromotionMoves(state, oldPos, piece, moves);
+				}
+				else { //If it is an ordinary move
+					positions.push_back(candidatePos);
+				}
 			}
 		}
 		
@@ -221,6 +229,26 @@ namespace MoveUtil {
 		for (Position newPos : positions)
 		{
 			Move move = { oldPos,newPos };
+			State newState = MoveUtil::executeMove(state, move);
+
+			//Check for check
+			if (isKingThreatened(newState)) {
+				continue;
+			}
+
+			//Add to list of moves
+			moves.push_back(move);
+		}
+	}
+
+	void getPawnPromotionMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
+		PieceType possiblePieces[] = { PieceType::BISHOP, PieceType::KNIGHT, PieceType::QUEEN, PieceType::ROOK };
+		unsigned int yval = piece.getColor() == PieceColor::WHITE ? 0 : 7;
+		Position newPos = Position{ oldPos.x, yval }; 
+
+		for (PieceType type : possiblePieces) {
+			
+			Move move = { oldPos,newPos, type };
 			State newState = MoveUtil::executeMove(state, move);
 
 			//Check for check
@@ -535,6 +563,12 @@ namespace MoveUtil {
 				//Put rook on new field
 				newState.board[3][yval] = { piece.getColor(),PieceType::ROOK };
 			}
+		}
+
+		//Check if promotion move
+		if (move.promotesTo != PieceType::NONE) {
+			Piece oldPiece = newState[move.toField];
+			newState[move.toField] = Piece{ oldPiece.getColor(), move.promotesTo };
 		}
 
 		updateCastlingBools(oldState, move, newState);

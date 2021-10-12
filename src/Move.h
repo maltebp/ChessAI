@@ -6,6 +6,8 @@ struct Move {
 	
 	Position fromField, toField;
 
+	PieceType promotesTo = PieceType::NONE;
+
 	static bool fromAlgebraicNotation(const std::string& inputStr, Move &move) {
 		if( inputStr.length() != 4 ) return false;
 
