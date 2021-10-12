@@ -216,6 +216,9 @@ namespace MoveUtil {
 				positions.push_back(candidatePos);
 			}
 		}
+
+
+		
 		
 
 		for (Position newPos : positions)
@@ -464,8 +467,6 @@ namespace MoveUtil {
 			getCastlingMoves(state, moves);
 		}
 
-		//En passant
-
 		//Promotion?
 
 
@@ -517,8 +518,28 @@ namespace MoveUtil {
 		//"Put on" new field
 		newState[move.toField] = piece;
 
-		//Check if castling move
-		int dx = abs((int)move.fromField.x - (int)move.toField.x);
+		// Check if double pawn move
+ 		if(piece.getType() == PieceType::PAWN && move.getYDistance() == 2) {
+			int directionSign = oldState.turn % 2 == 0 ? 1 : -1;
+			 newState.enPassantTarget = move.toField;
+			 newState.enPassantTarget.y -= directionSign;
+		}
+		else {
+			newState.enPassantTarget = Position();
+		}
+
+		// Check if En Passant
+		if( oldState.enPassantTarget.isFieldInBoard() &&
+			move.toField == oldState.enPassantTarget
+		) {
+			int enemyDirectionSign = oldState.turn % 2 == 0 ? -1 : 1;
+			Position enemyPawnPosition = oldState.enPassantTarget;
+			enemyPawnPosition.y -= enemyDirectionSign;
+			newState[enemyPawnPosition] = Piece();
+		}	
+
+		// Check if castling move
+		unsigned int dx = move.getXDistance();
 		if (piece.getType() == PieceType::KING && dx==2) {
 			int yval = move.fromField.y;
 			if (move.toField.x == 6) {
@@ -538,6 +559,7 @@ namespace MoveUtil {
 		}
 
 		updateCastlingBools(oldState, move, newState);
+
 
 		//Increment turn counter
 		newState.turn++;

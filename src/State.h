@@ -10,6 +10,10 @@ public:
 	int turn = 0;
 
     Piece board[8][8];
+
+	// The position that a pawn can move, to capture an opponent pawn
+	// using en passant
+	Position enPassantTarget;
 	
 	bool whiteCanCastleKingSide = true;
 	bool whiteCanCastleQueenSide = true;
@@ -174,7 +178,7 @@ public:
 		assert(position.y < 8);
 		return board[position.x][position.y];
 	}
-	
+
 
 	Piece& operator[](const Position& position) {
 		assert(position.x < 8);

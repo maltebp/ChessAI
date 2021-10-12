@@ -23,6 +23,18 @@ struct Move {
 		return true;
 	}
 
+	unsigned int getYDistance() const {
+		int dist = fromField.y - fromField.y;
+		// Non-branching abs hack
+		return (unsigned int)(dist * ((dist>0) - (dist<0)));
+	}
+
+	unsigned int getXDistance() const {
+		int dist = fromField.x - fromField.x;
+		// Non-branching abs hack
+		return (unsigned int)(dist * ((dist>0) - (dist<0)));
+	}
+
 	bool operator==(const Move& other) const {
 		return this->fromField == other.fromField && this->toField == other.toField;
 	}
