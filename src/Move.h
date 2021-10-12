@@ -24,13 +24,13 @@ struct Move {
 	}
 
 	unsigned int getYDistance() const {
-		int dist = fromField.y - fromField.y;
+		int dist = fromField.y - toField.y;
 		// Non-branching abs hack
 		return (unsigned int)(dist * ((dist>0) - (dist<0)));
 	}
 
 	unsigned int getXDistance() const {
-		int dist = fromField.x - fromField.x;
+		int dist = fromField.x - toField.x;
 		// Non-branching abs hack
 		return (unsigned int)(dist * ((dist>0) - (dist<0)));
 	}

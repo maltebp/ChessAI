@@ -190,7 +190,8 @@ namespace MoveUtil {
 		if (candidatePos.isFieldInBoard()) {
 			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
 			bool enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() != piece.getColor();
-			if (enemyOnField) {
+			bool isEnPassant = state.enPassantTarget == candidatePos;
+			if (enemyOnField || isEnPassant) {
 				positions.push_back(candidatePos);
 			}
 		}
@@ -201,7 +202,8 @@ namespace MoveUtil {
 		if (candidatePos.isFieldInBoard()) {
 			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
 			bool enemyOnField = !fieldEmpty && state.board[candidatePos.x][candidatePos.y].getColor() != piece.getColor();
-			if (enemyOnField) {
+			bool isEnPassant = state.enPassantTarget == candidatePos;
+			if (enemyOnField || isEnPassant) {
 				positions.push_back(candidatePos);
 			}
 		}
@@ -217,9 +219,20 @@ namespace MoveUtil {
 			}
 		}
 
+		// // En Passant
+		// if( state.enPassantTarget.isFieldInBoard() ){
+		// 	int directionSign = 
 
-		
-		
+		// 	Position leftPosition = oldPos;
+		// 	leftPosition.x -= 1;
+			
+		// 	Position rightPosition = oldPos;
+		// 	rightPosition.x += 1;
+
+		// 	if( leftPosition == state.enPassantTarget || rightPosition == state.enPassantTarget) {
+		// 		positions.push_back(state.enPassantTarget);
+		// 	}
+		// }
 
 		for (Position newPos : positions)
 		{
@@ -534,7 +547,7 @@ namespace MoveUtil {
 		) {
 			int enemyDirectionSign = oldState.turn % 2 == 0 ? -1 : 1;
 			Position enemyPawnPosition = oldState.enPassantTarget;
-			enemyPawnPosition.y -= enemyDirectionSign;
+			enemyPawnPosition.y += enemyDirectionSign;
 			newState[enemyPawnPosition] = Piece();
 		}	
 
@@ -559,7 +572,6 @@ namespace MoveUtil {
 		}
 
 		updateCastlingBools(oldState, move, newState);
-
 
 		//Increment turn counter
 		newState.turn++;

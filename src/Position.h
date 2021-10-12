@@ -68,6 +68,10 @@ struct Position {
 		return this->x == other.x && this->y == other.y;
 	}
 
+	bool operator!=(const Position& other) const {
+		return !(*this == other);
+	}
+
 	friend std::ostream& operator<<(std::ostream& stream, const Position pos) {
 		stream << "(" << pos.x << "," << pos.y << ")";
 		return stream;
