@@ -164,6 +164,26 @@ namespace MoveUtil {
 		//Check if the field is threatened from opponents pov.
 		return isFieldThreatened(state, kingPosition, !whitesTurn);
 	}
+
+	void getPawnPromotionMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
+		PieceType possiblePieces[] = { PieceType::BISHOP, PieceType::KNIGHT, PieceType::QUEEN, PieceType::ROOK };
+		unsigned int yval = piece.getColor() == PieceColor::WHITE ? 0 : 7;
+		Position newPos = Position{ oldPos.x, yval };
+
+		for (PieceType type : possiblePieces) {
+
+			Move move = { oldPos,newPos, type };
+			State newState = MoveUtil::executeMove(state, move);
+
+			//Check for check
+			if (isKingThreatened(newState)) {
+				continue;
+			}
+
+			//Add to list of moves
+			moves.push_back(move);
+		}
+	}
 	
 	void getAllPawnMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
 		std::vector<Position> positions;
@@ -240,28 +260,6 @@ namespace MoveUtil {
 			moves.push_back(move);
 		}
 	}
-
-	void getPawnPromotionMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
-		PieceType possiblePieces[] = { PieceType::BISHOP, PieceType::KNIGHT, PieceType::QUEEN, PieceType::ROOK };
-		unsigned int yval = piece.getColor() == PieceColor::WHITE ? 0 : 7;
-		Position newPos = Position{ oldPos.x, yval }; 
-
-		for (PieceType type : possiblePieces) {
-			
-			Move move = { oldPos,newPos, type };
-			State newState = MoveUtil::executeMove(state, move);
-
-			//Check for check
-			if (isKingThreatened(newState)) {
-				continue;
-			}
-
-			//Add to list of moves
-			moves.push_back(move);
-		}
-	}
-
-
 
 	
 

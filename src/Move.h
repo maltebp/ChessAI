@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include "Position.h"
+#include "Piece.h"
 
 struct Move {
 	
