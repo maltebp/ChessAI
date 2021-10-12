@@ -413,9 +413,9 @@ namespace MoveUtil {
 				bool field3Empty = state.board[3][7].getType() == PieceType::NONE;
 				if (field1Empty && field2Empty && field3Empty) {
 					//Check that fields are not threatened
-					if (!isFieldThreatened(state, { 2,7 }, true) &&
-						!isFieldThreatened(state, { 3,7 }, true) &&
-						!isFieldThreatened(state, { 4,7 }, true)
+					if (!isFieldThreatened(state, { 2,7 }, false) &&
+						!isFieldThreatened(state, { 3,7 }, false) &&
+						!isFieldThreatened(state, { 4,7 }, false)
 						) {
 						moves.push_back({ { 4,7 } , {2,7} });
 					}
@@ -427,9 +427,9 @@ namespace MoveUtil {
 				bool field2Empty = state.board[6][7].getType() == PieceType::NONE;
 				if (field1Empty && field2Empty) {
 					//Check that fields are not threatened
-					if (!isFieldThreatened(state, { 4,7 }, true) &&
-						!isFieldThreatened(state, { 5,7 }, true) &&
-						!isFieldThreatened(state, { 6,7 }, true)
+					if (!isFieldThreatened(state, { 4,7 }, false) &&
+						!isFieldThreatened(state, { 5,7 }, false) &&
+						!isFieldThreatened(state, { 6,7 }, false)
 						) {
 						moves.push_back({ { 4,7 } , {6,7} });
 					}
@@ -533,7 +533,7 @@ namespace MoveUtil {
 				newState.board[0][yval] = { PieceColor::NONE, PieceType::NONE };
 
 				//Put rook on new field
-				newState.board[2][yval] = { piece.getColor(),PieceType::ROOK };
+				newState.board[3][yval] = { piece.getColor(),PieceType::ROOK };
 			}
 		}
 
