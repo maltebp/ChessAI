@@ -28,6 +28,8 @@ int main(int argc, char** argv) {
 
 #include "UnitTests/PawnMoves.h"
 #include "UnitTests/CastlingMoves.h"
+#include "UnitTests/PromotionMoves.h"
+
 
 // -------------------
 
@@ -40,7 +42,7 @@ int main(int argc, const char** argv) {
     }
 	
 	// Test arguments: (i.e. tag on test cases to run)
-	//args.push_back("-b"); // Break when assertion failed
+	args.push_back("-b"); // Break when assertion failed
 
     return Catch::Session().run((int)args.size(), args.data());
 }

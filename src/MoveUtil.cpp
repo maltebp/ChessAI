@@ -167,7 +167,7 @@ namespace MoveUtil {
 
 	void getPawnPromotionMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
 		PieceType possiblePieces[] = { PieceType::BISHOP, PieceType::KNIGHT, PieceType::QUEEN, PieceType::ROOK };
-		unsigned int yval = piece.getColor() == PieceColor::WHITE ? 0 : 7;
+		unsigned int yval = piece.getColor() == PieceColor::WHITE ? 7 : 0;
 		Position newPos = Position{ oldPos.x, yval };
 
 		for (PieceType type : possiblePieces) {
@@ -200,8 +200,8 @@ namespace MoveUtil {
 		if (candidatePos.isFieldInBoard()) {
 			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
 			if (fieldEmpty) {
-				bool whitePromotion = oldPos.x == 6 && piece.getColor() == PieceColor::WHITE;
-				bool blackPromotion = oldPos.x == 1 && piece.getColor() == PieceColor::BLACK;
+				bool whitePromotion = oldPos.y == 6 && piece.getColor() == PieceColor::WHITE;
+				bool blackPromotion = oldPos.y == 1 && piece.getColor() == PieceColor::BLACK;
 
 				if (whitePromotion || blackPromotion) { //If it is a promotion move
 					getPawnPromotionMoves(state, oldPos, piece, moves);

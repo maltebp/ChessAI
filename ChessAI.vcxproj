@@ -135,6 +135,7 @@
     <ClInclude Include="src\TUIPlayer.h" />
     <ClInclude Include="src\UnitTests\CastlingMoves.h" />
     <ClInclude Include="src\unittests\PawnMoves.h" />
+    <ClInclude Include="src\UnitTests\PromotionMoves.h" />
     <ClInclude Include="src\unittests\TestUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -5,7 +5,7 @@
 #include "TestUtil.h"
 #include "MoveUtil.h"
 
-State createCastlingState() {
+State createPromotionState() {
 	State state;
 	state.board[0][0] = Piece(PieceColor::WHITE, PieceType::ROOK);
 	state.board[4][0] = Piece(PieceColor::WHITE, PieceType::KING);
@@ -35,7 +35,7 @@ State createCastlingState() {
 
 
 TEST_CASE("Castling Moves: Generation", "[moves][castling][king][rook]") {
-	State state = createCastlingState();
+	State state = createPromotionState();
 	
     std::vector<Move> moves = MoveUtil::getAllMoves(state);
 
@@ -51,7 +51,7 @@ TEST_CASE("Castling Moves: Generation", "[moves][castling][king][rook]") {
 }
 
 TEST_CASE("Castling Moves: Execution White Queenside ", "[moves][castling][king][rook]") {
-	State state = createCastlingState();
+	State state = createPromotionState();
 	Move whiteCastlesQueenSide = Move{ {4,0}, {2,0} };
 	state = MoveUtil::executeMove(state, whiteCastlesQueenSide);
 	Piece whiteKing = state.board[2][0];
@@ -74,7 +74,7 @@ TEST_CASE("Castling Moves: Execution White Queenside ", "[moves][castling][king]
 }
 
 TEST_CASE("Castling Moves: Execution White Kingside ", "[moves][castling][king][rook]") {
-	State state = createCastlingState();
+	State state = createPromotionState();
 	Move whiteCastlesKingSide = Move{ {4,0}, {6,0} };
 	state = MoveUtil::executeMove(state, whiteCastlesKingSide);
 	Piece whiteKing = state.board[6][0];
@@ -98,7 +98,7 @@ TEST_CASE("Castling Moves: Execution White Kingside ", "[moves][castling][king][
 
 
 TEST_CASE("Castling Moves: Execution Black queenside", "[moves][castling][king][rook]") {
-	State state = createCastlingState();
+	State state = createPromotionState();
 	state.turn++;
 	Move blackCastlesQueenSide = Move{ {4,7}, {2,7} };
 	state = MoveUtil::executeMove(state, blackCastlesQueenSide);
@@ -122,7 +122,7 @@ TEST_CASE("Castling Moves: Execution Black queenside", "[moves][castling][king][
 }
 
 TEST_CASE("Castling Moves: Execution Black kingside", "[moves][castling][king][rook]") {
-	State state = createCastlingState();
+	State state = createPromotionState();
 	state.turn++;
 	Move blackCastlesKingSide = Move{ {4,7}, {6,7} };
 	state = MoveUtil::executeMove(state, blackCastlesKingSide);
