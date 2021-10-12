@@ -133,6 +133,7 @@
     <ClInclude Include="src\Position.h" />
     <ClInclude Include="src\State.h" />
     <ClInclude Include="src\TUIPlayer.h" />
+    <ClInclude Include="src\UnitTests\CastlingMoves.h" />
     <ClInclude Include="src\unittests\PawnMoves.h" />
     <ClInclude Include="src\unittests\TestUtil.h" />
   </ItemGroup>

@@ -71,5 +71,8 @@
     <ClInclude Include="src\unittests\TestUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\UnitTests\CastlingMoves.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
