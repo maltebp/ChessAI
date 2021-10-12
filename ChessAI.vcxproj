@@ -113,7 +113,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\MinMax.cpp" />
     <ClCompile Include="src\GameController.cpp" />
     <ClCompile Include="src\MoveUtil.cpp" />
     <ClCompile Include="src\State.cpp" />
