@@ -1,11 +1,13 @@
 #include "MoveUtil.h"
+
 #include <algorithm>
+#include <limits>
 
 
 class MinMaxSearcher {
 public:
 
-	static std::tuple<Move, int> search(State state, int depth, int alpha, int beta) {
+	static std::tuple<Move, int> search(State state, int depth, int alpha = std::numeric_limits<int>::min(), int beta = std::numeric_limits<int>::max()) {
 
 		//Base case: Leaf node
 		if (depth == 0) {
