@@ -10,7 +10,6 @@ namespace {
 
     constexpr size_t OUTPUT_BUFFER_SIZE = 200;
 
-
 }
 
 

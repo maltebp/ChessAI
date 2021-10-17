@@ -95,5 +95,8 @@
     <ClInclude Include="src\EngineArena\Process.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\EngineArena\Warning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

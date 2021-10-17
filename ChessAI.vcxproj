@@ -128,6 +128,7 @@
     <ClInclude Include="src\EngineArena\Main.h" />
     <ClInclude Include="src\EngineArena\Process.h" />
     <ClInclude Include="src\EngineArena\UCIEngine.h" />
+    <ClInclude Include="src\EngineArena\Warning.h" />
     <ClInclude Include="src\external\catch.hpp" />
     <ClInclude Include="src\external\subprocess.h" />
     <ClInclude Include="src\GameController.h" />
