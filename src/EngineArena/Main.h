@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[]) {
 
-    std::string enginePath = "";
+    std::string enginePath = "C:\\Users\\Malte\\Projects\\ChessAI\\resources\\stockfish\\stockfish_14_x64_popcnt.exe";
 
     State state = State::createDefault();
 

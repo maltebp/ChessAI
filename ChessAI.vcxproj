@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EngineArena\Process.cpp" />
     <ClCompile Include="src\EngineArena\UCIEngine.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\GameController.cpp" />
@@ -125,6 +126,7 @@
     <ClInclude Include="src\AIPlayerController.h" />
     <ClInclude Include="src\EngineArena\IEngine.h" />
     <ClInclude Include="src\EngineArena\Main.h" />
+    <ClInclude Include="src\EngineArena\Process.h" />
     <ClInclude Include="src\EngineArena\UCIEngine.h" />
     <ClInclude Include="src\external\catch.hpp" />
     <ClInclude Include="src\external\subprocess.h" />
