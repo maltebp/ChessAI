@@ -1,24 +1,9 @@
-#ifndef UNIT_TEST
 
-#include "GameController.h"
-#include "TUIPlayer.h"
-#include "AIPlayerController.h"
+#define ENGINE_ARENA
+//#define UNIT_TEST
 
+#ifdef UNIT_TEST
 
-int main(int argc, char** argv) {
-
-    TUIPlayer whitePlayer;
-    AIPlayerController blackPlayer;
-
-    GameController game = GameController(whitePlayer, blackPlayer);
-    game.start();
-
-    return 0;
-}
-
-
-
-#else
 
 #define CATCH_CONFIG_RUNNER
 #include "external/catch.hpp"
@@ -48,4 +33,26 @@ int main(int argc, const char** argv) {
 }
 
 
-#endif // UNIT_TEST
+#elif defined ENGINE_ARENA
+
+#include "EngineArena/Main.h"
+
+#else
+
+#include "GameController.h"
+#include "TUIPlayer.h"
+#include "AIPlayerController.h"
+
+
+int main(int argc, char** argv) {
+
+    TUIPlayer whitePlayer;
+    AIPlayerController blackPlayer;
+
+    GameController game = GameController(whitePlayer, blackPlayer);
+    game.start();
+
+    return 0;
+}
+
+#endif

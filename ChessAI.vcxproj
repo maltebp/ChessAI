@@ -115,15 +115,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EngineArena\UCIEngine.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\GameController.cpp" />
     <ClCompile Include="src\MoveUtil.cpp" />
-    <ClCompile Include="src\State.cpp" />
     <ClCompile Include="src\TUIPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AIPlayerController.h" />
+    <ClInclude Include="src\EngineArena\IEngine.h" />
+    <ClInclude Include="src\EngineArena\Main.h" />
+    <ClInclude Include="src\EngineArena\UCIEngine.h" />
     <ClInclude Include="src\external\catch.hpp" />
+    <ClInclude Include="src\external\subprocess.h" />
     <ClInclude Include="src\GameController.h" />
     <ClInclude Include="src\IPlayerController.h" />
     <ClInclude Include="src\MinMax.h" />
