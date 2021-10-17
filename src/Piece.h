@@ -68,6 +68,28 @@ public:
         throw std::exception("Unknown piece type");
     }
 
+    
+    // Returns true if valid
+    static bool fromAlgebraicChar(char c, Piece& piece) {
+        switch(c) {
+            case 'K': piece = { PieceColor::WHITE, PieceType::KING }; break;
+            case 'Q': piece = { PieceColor::WHITE, PieceType::QUEEN }; break;
+            case 'R': piece = { PieceColor::WHITE, PieceType::ROOK }; break;
+            case 'N': piece = { PieceColor::WHITE, PieceType::KNIGHT }; break;
+            case 'P': piece = { PieceColor::WHITE, PieceType::PAWN }; break;
+            case 'B': piece = { PieceColor::WHITE, PieceType::BISHOP }; break;
+            case 'k': piece = { PieceColor::BLACK, PieceType::KING }; break;
+            case 'q': piece = { PieceColor::BLACK, PieceType::QUEEN }; break;
+            case 'r': piece = { PieceColor::BLACK, PieceType::ROOK }; break;
+            case 'n': piece = { PieceColor::BLACK, PieceType::KNIGHT }; break;
+            case 'p': piece = { PieceColor::BLACK, PieceType::PAWN }; break;
+            case 'b': piece = { PieceColor::BLACK, PieceType::BISHOP }; break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
 
     bool operator==(const Piece& other) const {
         return other.data == data;
