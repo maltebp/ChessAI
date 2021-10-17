@@ -550,10 +550,18 @@ namespace MoveUtil {
 		//NOTE: No sanity checks here for performance
 		//TODO take care of special moves (castling, en pessant and so on)
 
+		newState.drawCounter++;
+
 		//"Pick up" old piece
 		Piece piece = newState.board[move.fromField.x][move.fromField.y];
 		newState[move.fromField] = { PieceColor::NONE, PieceType::NONE };
 
+		PieceColor targetColor = newState[move.toField].getColor();
+		bool isEnemyOnPosition = targetColor != PieceColor::NONE && targetColor != piece.getColor();
+		if( piece.getType() == PieceType::PAWN || isEnemyOnPosition ) {
+			newState.drawCounter = 0;
+		}
+		
 		//"Put on" new field
 		newState[move.toField] = piece;
 
@@ -567,7 +575,7 @@ namespace MoveUtil {
 			newState.enPassantTarget = Position();
 		}
 
-		// Check if En Passant
+		// Check if En Passant capture
 		if( oldState.enPassantTarget.isFieldInBoard() &&
 			move.toField == oldState.enPassantTarget
 		) {
@@ -575,6 +583,7 @@ namespace MoveUtil {
 			Position enemyPawnPosition = oldState.enPassantTarget;
 			enemyPawnPosition.y += enemyDirectionSign;
 			newState[enemyPawnPosition] = Piece();
+			newState.drawCounter = 0;
 		}	
 
 		// Check if castling move
@@ -597,7 +606,7 @@ namespace MoveUtil {
 			}
 		}
 
-		//Check if promotion move
+		// Check if promotion move
 		if (move.promotesTo != PieceType::NONE) {
 			Piece oldPiece = newState[move.toField];
 			newState[move.toField] = Piece{ oldPiece.getColor(), move.promotesTo };
@@ -605,7 +614,7 @@ namespace MoveUtil {
 
 		updateCastlingBools(oldState, move, newState);
 
-		//Increment turn counter
+		// Increment turn counter
 		newState.turn++;
 		return newState;
 	}

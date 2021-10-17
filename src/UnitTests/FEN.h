@@ -44,5 +44,5 @@ TEST_CASE("FEN conversion: Castling", "[fen]") {
     state = MoveUtil::executeMove(state, { {6,0}, {7,2} }); // White: Knight forward
     state = MoveUtil::executeMove(state, { {2,6}, {2,5} }); // Black: Pawn forward
     state = MoveUtil::executeMove(state, { {4,0}, {6,0} }); // White: castle king side
-    testFEN(state, "rnbqkbnr/3ppppp/ppp5/8/8/6PN/PPPPPPBP/RNBQ1RK1 b kq - 0 4");
+    testFEN(state, "rnbqkbnr/3ppppp/ppp5/8/8/6PN/PPPPPPBP/RNBQ1RK1 b kq - 1 4");
 }

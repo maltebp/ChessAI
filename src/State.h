@@ -25,6 +25,9 @@ public:
 	bool blackCanCastleKingSide = true;
 	bool blackCanCastleQueenSide = true;
 
+	// Number of turns since last capture or pawn move
+	unsigned int drawCounter = 0;
+
 
 	State() { }
 
@@ -67,6 +70,11 @@ public:
 						bool validPosition = Position::fromAlgebraicNotation(fullPart, enPassantTarget);
 						assert(validPosition);
 					}
+				}
+
+				if( partIndex == 4 ) {
+					drawCounter = std::stoi(fullPart);
+					assert(drawCounter >= 0);
 				}
 				
 				// Parse turn number
@@ -138,7 +146,7 @@ public:
 
 			// We don't store this in our state yet
 			if( partIndex == 4) {
-				continue;
+				// Handled by "fullPart string"
 			}
 
 			if( partIndex == 5) {
@@ -361,7 +369,7 @@ public:
 		fen << ' ' << (enPassantTarget == Position() ? "-" : enPassantTarget.toAlgebraicNotation());
 
 		// Moves since last pawn or captue (not recorded in our game yet)
-		fen << " 0";
+		fen << ' ' << drawCounter;
 
 		// Turn
 		fen << ' '  << (turn / 2 + 1);
@@ -377,6 +385,7 @@ public:
 		if( whiteCanCastleQueenSide != other.whiteCanCastleQueenSide ) return false;
 		if( blackCanCastleKingSide != other.blackCanCastleKingSide ) return false;
 		if( blackCanCastleQueenSide != other.blackCanCastleQueenSide ) return false;
+		if( drawCounter != other.drawCounter ) return false;
 
 		for(unsigned int x=0; x<8; x++) {
 			for(unsigned int y=0; y<8; y++) {
