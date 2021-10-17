@@ -3,11 +3,13 @@
 #include <cassert>
 #include <cassert>
 #include <exception>
+#include <sstream>
 
 
 namespace {
 
     constexpr size_t OUTPUT_BUFFER_SIZE = 200;
+
 
 }
 
@@ -40,8 +42,13 @@ Process::Process(const std::vector<std::string>& commandLine, OutputListener std
 
     processStdIn = subprocess_stdin(&process);
 
-    readOutputThread = new std::thread([this](){ this->readOutput(); });
-    readErrorThread = new std::thread([this](){ this->readError(); });
+    readOutputThread = new std::thread([=](){
+         readOutput(subprocess_read_stdout, stdOutListener);
+    });
+
+    readErrorThread = new std::thread([=](){
+         readOutput(subprocess_read_stderr, stdErrorListener);
+    });
 }
 
 
@@ -81,23 +88,30 @@ int Process::terminate() {
 }
 
 
-void Process::readOutput() {
+void Process::readOutput( OutputReader outputReader, OutputListener listener) {
     char buffer[OUTPUT_BUFFER_SIZE];    
-    unsigned bytesRead;
-    while( (bytesRead = subprocess_read_stdout(&process, buffer, OUTPUT_BUFFER_SIZE-1)) != 0) {
-        buffer[bytesRead] = '\0'; // Null terminator not appeneded automatically
-        stdOutListener(std::string(buffer));
+    unsigned int bytesRead;
+    std::stringstream builder;
+    while( (bytesRead = outputReader(&process, buffer, OUTPUT_BUFFER_SIZE)) != 0) {
+        for(unsigned int i=0; i<bytesRead; i++) {
+            char c = buffer[i];
+            if( c == '\n') {
+                std::string line = builder.str();
+                if( line.length() > 0 ) {
+                    listener(line);
+                }
+                builder.str("");
+            }
+            else {
+                builder << c;
+            }            
+        }
+    }
+
+    // Notify of any remaining output
+    std::string line = builder.str();
+    if( line.length() > 0 ) {
+        listener(line);
     }
 }
-
-
-void Process::readError() {
-    char buffer[OUTPUT_BUFFER_SIZE];    
-    unsigned bytesRead;
-    while( (bytesRead = subprocess_read_stderr(&process, buffer, OUTPUT_BUFFER_SIZE-1)) != 0) {
-        buffer[bytesRead] = '\0'; // Null terminator not appeneded automatically
-        stdErrorListener(std::string(buffer));
-    }
-}
-
 

@@ -10,23 +10,19 @@ UCIEngine::UCIEngine(const std::string& enginePath)
 {
     process = new Process(
         { 
-            "C:\\Users\\Malte\\Downloads\\Helloer\\Helloer\\Debug\\Helloer.exe"
+            "C:\\Users\\Malte\\Projects\\ChessAI\\resources\\stockfish\\stockfish_14_x64_popcnt.exe"
         },
-        [](auto &output) {
-            std::cout << "Output: " << output << std::endl;
-        },
-        [](auto &error) {
-            std::cout << "Error: " << error << std::endl;
-        }
+        [this](auto &output) { this->onEngineStdOutput(output); },
+        [this](auto &error) { this->onEngineStdError(error); }
     );
 
     while(true) {
         std::string input;
-        std::cout << "\n>"; 
         std::getline(std::cin, input);
         if( input == "stop1" ) break;
         process->writeLine(input);
     }
+
 }
 
 UCIEngine::~UCIEngine() {
@@ -43,5 +39,14 @@ Move UCIEngine::getMove(const State& state) {
 
 void UCIEngine::reset() {
 
+}
 
+
+void UCIEngine::onEngineStdOutput(const std::string& output) {
+    std::cout << "  " << output << std::endl;
+}
+
+
+void UCIEngine::onEngineStdError(const std::string& error) {
+    std::cout << "  ERROR: " << error << std::endl;
 }

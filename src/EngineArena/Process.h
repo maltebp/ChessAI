@@ -13,6 +13,8 @@ public:
 
     using OutputListener = std::function<void(const std::string&)>;
 
+public:
+
     Process(const std::vector<std::string>& commandLine, OutputListener stdOutListener, OutputListener stdErrorListener);
 
     Process(const Process&) = delete;
@@ -29,9 +31,12 @@ public:
 
 private:
 
-    void readOutput();
+    // Signature for subprocess_read_stderr and subprocess_read_stdout
+    using OutputReader = std::function<unsigned int(subprocess_s*, char*, unsigned int)>;
 
-    void readError();
+private:
+
+    void readOutput(OutputReader, OutputListener);
 
 private:
 

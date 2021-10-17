@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <thread>
 
 #include "IEngine.h"
 #include "Process.h"
@@ -20,7 +19,9 @@ public:
 
 private:
 
-    void readOutput();
+    void onEngineStdOutput(const std::string&);
+
+    void onEngineStdError(const std::string&);
 
 private:
 
