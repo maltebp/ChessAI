@@ -14,7 +14,7 @@ namespace MoveUtil {
 				break;
 			}
 
-			Piece currentPiece = state.getPiece(currentPos);
+			Piece currentPiece = state[currentPos];
 
 			if (currentPiece != Piece()) {
 				return currentPiece;
@@ -73,10 +73,10 @@ namespace MoveUtil {
 
 		Piece attackingPawn = Piece(colorToMove, PieceType::PAWN);
 
-		if (eastPawnPos.isFieldInBoard() && state.getPiece(eastPawnPos) == attackingPawn) {
+		if (eastPawnPos.isFieldInBoard() && state[eastPawnPos] == attackingPawn) {
 			return true;
 		}
-		if (westPawnPos.isFieldInBoard() && state.getPiece(westPawnPos) == attackingPawn) {
+		if (westPawnPos.isFieldInBoard() && state[westPawnPos] == attackingPawn) {
 			return true;
 		}
 
@@ -95,7 +95,7 @@ namespace MoveUtil {
 		Piece currentKnight = Piece(colorToMove, PieceType::KNIGHT);
 
 		for (auto knightPosition : knightPositions) {
-			if (knightPosition.isFieldInBoard() && state.getPiece(knightPosition) == currentKnight) {
+			if (knightPosition.isFieldInBoard() && state[knightPosition] == currentKnight) {
 				return true;
 			}
 		}
@@ -140,7 +140,7 @@ namespace MoveUtil {
 		Piece attackingKing = Piece(colorToMove, PieceType::KING);
 
 		for (auto kingPosition : kingPositions) {
-			if (kingPosition.isFieldInBoard() && state.getPiece(kingPosition) == attackingKing) {
+			if (kingPosition.isFieldInBoard() && state[kingPosition] == attackingKing) {
 				return true;
 			}
 		}
@@ -516,7 +516,7 @@ namespace MoveUtil {
 		bool isWhitesMove = oldState.turn % 2 == 0;
 
 		//Update castling booleans
-		Piece piece = oldState.getPiece(move.fromField);
+		Piece piece = oldState[move.fromField];
 		if (piece.getType() == PieceType::KING) {
 			//Definitely disables castling for current player
 			if (isWhitesMove) {
