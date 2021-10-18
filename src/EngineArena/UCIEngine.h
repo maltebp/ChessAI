@@ -2,20 +2,18 @@
 
 #include <string>
 
-#include "IEngine.h"
+#include "IPlayerController.h"
 #include "Process.h"
 
 
-class UCIEngine : public IEngine {
+class UCIEngine : public IPlayerController {
 public:
 
     UCIEngine(const std::string& enginePath);
 
     ~UCIEngine();
     
-    Move getMove(const State& state) override;
-
-    void reset() override;
+    Move getMove(const State& state, const std::vector<Move>& validMoves) override;
 
 private:
 

@@ -79,13 +79,8 @@ UCIEngine::~UCIEngine() {
 }
 
 
-Move UCIEngine::getMove(const State& state) {
+Move UCIEngine::getMove(const State& state, const std::vector<Move>& validMoves) {
     return Move();
-}
-
-
-void UCIEngine::reset() {
-
 }
 
 
