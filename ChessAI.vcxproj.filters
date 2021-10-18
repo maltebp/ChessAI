@@ -27,10 +27,13 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\EngineArena\UCIEngine.cpp">
+    <ClCompile Include="src\State.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\EngineArena\Process.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EngineArena\UCIEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,10 +83,10 @@
     <ClInclude Include="src\UnitTests\PromotionMoves.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\external\subprocess.h">
+    <ClInclude Include="src\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\EngineArena\UCIEngine.h">
+    <ClInclude Include="src\FENUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\EngineArena\IEngine.h">
@@ -95,7 +98,16 @@
     <ClInclude Include="src\EngineArena\Process.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\EngineArena\UCIEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\EngineArena\Warning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UnitTests\FEN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\external\subprocess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

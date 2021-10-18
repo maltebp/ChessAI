@@ -120,6 +120,7 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\GameController.cpp" />
     <ClCompile Include="src\MoveUtil.cpp" />
+    <ClCompile Include="src\State.cpp" />
     <ClCompile Include="src\TUIPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -131,6 +132,7 @@
     <ClInclude Include="src\EngineArena\Warning.h" />
     <ClInclude Include="src\external\catch.hpp" />
     <ClInclude Include="src\external\subprocess.h" />
+    <ClInclude Include="src\FENUtil.h" />
     <ClInclude Include="src\GameController.h" />
     <ClInclude Include="src\IPlayerController.h" />
     <ClInclude Include="src\MinMax.h" />
@@ -141,9 +143,11 @@
     <ClInclude Include="src\State.h" />
     <ClInclude Include="src\TUIPlayer.h" />
     <ClInclude Include="src\UnitTests\CastlingMoves.h" />
+    <ClInclude Include="src\UnitTests\FEN.h" />
     <ClInclude Include="src\unittests\PawnMoves.h" />
     <ClInclude Include="src\UnitTests\PromotionMoves.h" />
     <ClInclude Include="src\unittests\TestUtil.h" />
+    <ClInclude Include="src\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

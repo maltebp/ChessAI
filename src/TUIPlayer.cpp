@@ -1,41 +1,16 @@
 #include "TUIPlayer.h"
+
 #include <iostream>
 #include <exception>
 #include <sstream>
+#include <tuple>
+
+#include "Util.h"
 #include "Move.h"
 #include "State.h"
 #include "MoveUtil.h"
 #include "MinMax.h"
 
-
-std::vector<std::string> splitInput(const std::string& input) {
-	std::vector<std::string> tokens;
-	std::stringstream ss;
-
-	auto addToken = [&](){
-		std::string token = ss.str();
-		if( token.length() > 0 ) {
-			tokens.push_back(token);
-		}
-		ss.str("");
-	};
-		
-	for( auto c : input ) {
-		if(c == ' ' || c == '\t' || c == '\n' || c == '\0') {
-			addToken();
-		}
-		else {
-			ss << c;
-		}
-	}
-
-	addToken();
-
-	return tokens;
-}
-
-
-// x-grow, y-grow
 
 void printMoves(const State& state) {
 
@@ -143,7 +118,7 @@ Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves) {
 		std::string input;
 		getline(std::cin, input);
 
-		std::vector<std::string> inputTokens = splitInput(input);
+		std::vector<std::string> inputTokens = Util::splitString(input, " \0\n\t");
 
 		if( inputTokens.size() == 0 ) continue;
 
