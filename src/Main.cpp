@@ -1,5 +1,5 @@
 
-//#define ENGINE_ARENA
+#define ENGINE_ARENA
 //#define UNIT_TEST
 
 #ifdef UNIT_TEST
@@ -50,10 +50,14 @@ int main(int argc, char** argv) {
 
     TUIPlayer tuiPlayer1;
     TUIPlayer tuiPlayer2;
-    AIPlayerController ourEngine;
-    UCIEngine stockFish = UCIEngine("C:\\Users\\Malte\\Projects\\ChessAI\\resources\\stockfish\\stockfish_14_x64_popcnt.exe");
+    AIPlayerController ourEngine = AIPlayerController(5);
+    UCIEngine stockFish = UCIEngine(
+        "C:\\Users\\Malte\\Projects\\ChessAI\\resources\\stockfish\\stockfish_14_x64_popcnt.exe",
+        2000 // ms
+    );
 
     GameController game = GameController(ourEngine, stockFish);
+    game.printValidMoves = true;
     game.start();
 
     return 0;

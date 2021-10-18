@@ -11,8 +11,48 @@
 #include "Warning.h"
 
 
-UCIEngine::UCIEngine(const std::string& enginePath)
+UCIEngine::UCIEngine(const std::string& name, const std::string& enginePath, long long searchTime)
+    :   name(name),
+        enginePath(enginePath),
+        searchTime(searchTime)
 {
+    assert(!name.empty());
+    assert(!enginePath.empty());
+}
+
+
+UCIEngine::~UCIEngine() {
+    if( process != nullptr ) {
+        delete process;
+    }
+}
+
+
+std::string UCIEngine::getName() {
+    return name;
+}
+
+
+void UCIEngine::start(std::ostream* outputStream, std::ostream* errorStream) {
+
+    this->outputStream = outputStream;
+    this->errorStream = errorStream;
+
+    if( process == nullptr ) {
+        startProcess();
+    }
+
+    *outputStream << "Starting new game.." << std::endl;
+    writeToEngine("ucinewgame");
+    writeToEngine("position startpos");
+    engineReadySignal.reset();
+    writeToEngine("isready");
+    engineReadySignal.wait();
+    *outputStream << "Engine is ready for new game" << std::endl;    
+}
+
+
+void UCIEngine::startProcess() {
     process = new Process(
         { 
             enginePath
@@ -25,59 +65,45 @@ UCIEngine::UCIEngine(const std::string& enginePath)
     engineAuthorSignal.reset();
     uciOkSignal.reset();
 
-    process->writeLine("uci");
+    writeToEngine("uci");
 
     std::string engineName = engineNameSignal.wait();
     std::string engineAuthor = engineAuthorSignal.wait();
     uciOkSignal.wait();
 
-    std::cout << "Engine supports UCI" << std::endl;
-    std::cout << "Engine name: " << engineName << std::endl;
-    std::cout << "Engine author: " << engineAuthor << std::endl;
+    *outputStream << "Engine supports UCI" << std::endl;
+    *outputStream << "Engine name: " << engineName << std::endl;
+    *outputStream << "Engine author: " << engineAuthor << std::endl;
 
     engineReadySignal.reset();
-    process->writeLine("isready");
+    writeToEngine("isready");
     engineReadySignal.wait();
-    std::cout << "Engine is ready" << std::endl;
-
-    process->writeLine("ucinewgame");
-    process->writeLine("position startpos");
-    engineReadySignal.reset();
-    process->writeLine("isready");
-    engineReadySignal.wait();
-
-    std::cout << "New game ready" << std::endl;
-}
-
-UCIEngine::~UCIEngine() {
-    if( process != nullptr ) {
-        delete process;
-    }
+    *outputStream << "Engine is ready" << std::endl;
 }
 
 
 Move UCIEngine::getMove(const State& state, const std::vector<Move>& validMoves) {
 
-    std::cout << "Starting engine search" << std::endl;
+    *outputStream << "\nStarting engine search" << std::endl;
     std::stringstream ss;
     ss << "position fen " << state.toFEN();
-    process->writeLine(ss.str());
+    writeToEngine(ss.str());
 
     engineReadySignal.reset();
-    process->writeLine("isready");
+    writeToEngine("isready");
     engineReadySignal.wait();
 
-    process->writeLine("go infinite");
+    writeToEngine("go infinite");
 
-    std::cout << "Waiting for search..." << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    *outputStream << "Waiting for search..." << std::endl;
+    std::this_thread::sleep_for(searchTime);
 
-    std::cout << "Stopping for search..." << std::endl;
+    *outputStream << "Stopping search..." << std::endl;
     bestMoveSignal.reset();
-    process->writeLine("stop");
+    writeToEngine("stop");
     Move bestMove = bestMoveSignal.wait();
 
-    std::cout << "Stopped search" << std::endl;
+    *outputStream << "Stopped search" << std::endl;
        
     return bestMove;
 }
@@ -90,11 +116,11 @@ void UCIEngine::onEngineStdOutput(const std::string& output) {
         return;
     }
 
-    std::cout << "  " << output << std::endl;
+    *outputStream << "  " << output << std::endl;
      
     std::vector<std::string> tokens = Util::splitString(output, " \t\r\n\0");
     if( tokens.size() == 0 ) {
-        WARN("StdOut output from engine parsed into no tokens (output: '%s')", output.c_str());
+        *outputStream << "StdOut output from engine parsed into no tokens";
         return;
     }    
 
@@ -124,5 +150,15 @@ void UCIEngine::onEngineStdOutput(const std::string& output) {
 
 
 void UCIEngine::onEngineStdError(const std::string& error) {
-    std::cout << "  ERROR:" << error << std::endl;
+    if( errorStream != nullptr ) {
+        *errorStream << "  ERROR:" << error << std::endl;    
+    }
+}
+
+
+void UCIEngine::writeToEngine(const std::string& message) {
+    if( outputStream != nullptr ) {
+        *outputStream << message << std::endl;
+    }
+    process->writeLine(message);
 }

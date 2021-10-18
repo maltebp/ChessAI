@@ -4,6 +4,10 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+
 
 
 namespace Util {
@@ -66,6 +70,20 @@ namespace Util {
             ss << combiner << tokens[i];
         }
 
+        return ss.str();
+    }
+
+
+    // See formatting @ https://en.cppreference.com/w/cpp/io/manip/put_time
+    static std::string getDateString(const std::string& formatting) {
+        auto now = std::chrono::system_clock::now();
+        auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+        tm newTime;
+        localtime_s(&newTime, &in_time_t);
+
+        std::stringstream ss;
+        ss << std::put_time(&newTime, formatting.c_str());
         return ss.str();
     }
 

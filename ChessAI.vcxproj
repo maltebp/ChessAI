@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EngineArena\EngineArenaController.cpp" />
     <ClCompile Include="src\EngineArena\Process.cpp" />
     <ClCompile Include="src\EngineArena\UCIEngine.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -125,11 +126,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AIPlayerController.h" />
+    <ClInclude Include="src\EngineArena\EngineArenaController.h" />
     <ClInclude Include="src\EngineArena\IEngine.h" />
     <ClInclude Include="src\EngineArena\Main.h" />
     <ClInclude Include="src\EngineArena\Process.h" />
     <ClInclude Include="src\EngineArena\Signal.h" />
     <ClInclude Include="src\EngineArena\UCIEngine.h" />
+    <ClInclude Include="src\EngineArena\VariableSignal.h" />
     <ClInclude Include="src\EngineArena\WaitableVar.h" />
     <ClInclude Include="src\EngineArena\Warning.h" />
     <ClInclude Include="src\external\catch.hpp" />
