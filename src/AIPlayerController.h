@@ -7,7 +7,7 @@
 
 class AIPlayerController : public IPlayerController {
     
-    int searchDepth = 6;
+    int searchDepth = 4;
 
 public:
 

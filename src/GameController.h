@@ -13,6 +13,12 @@ public:
 
     void start();
 
+public:
+
+    bool clearScreen = true;   
+
+    bool printValidMoves = true;
+
 private:
 
     IPlayerController& whitePlayer;
