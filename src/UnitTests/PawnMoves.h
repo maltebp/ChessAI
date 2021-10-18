@@ -2,7 +2,7 @@
 
 #include "external/catch.hpp"
 
-#include "TestUtil.h"
+#include "Util.h"
 #include "MoveUtil.h"
 
 
@@ -12,8 +12,8 @@ TEST_CASE("Pawn Moves: Start state", "[moves][pawn]") {
     std::vector<Move> moves = MoveUtil::getAllMoves(state);
 
     for( unsigned int i = 0; i < 8; i++ ) {
-        REQUIRE(contains(moves, Move{ {i,1}, {i,2} }));
-        REQUIRE(contains(moves, Move{ {i,1}, {i,3} }));
+        REQUIRE(Util::contains(moves, Move{ {i,1}, {i,2} }));
+        REQUIRE(Util::contains(moves, Move{ {i,1}, {i,3} }));
     }
 
     state.turn++;
@@ -21,8 +21,8 @@ TEST_CASE("Pawn Moves: Start state", "[moves][pawn]") {
     moves = MoveUtil::getAllMoves(state);
 
     for( unsigned int i = 0; i < 8; i++ ) {
-        REQUIRE(contains(moves, Move{ {i,6}, {i,5} }));
-        REQUIRE(contains(moves, Move{ {i,6}, {i,4} }));
+        REQUIRE(Util::contains(moves, Move{ {i,6}, {i,5} }));
+        REQUIRE(Util::contains(moves, Move{ {i,6}, {i,4} }));
     }
 }
 
@@ -45,7 +45,7 @@ TEST_CASE("En Passant", "[moves][pawn]") {
     REQUIRE(state.enPassantTarget == Position{2,2});
     std::vector<Move> blackMoves = MoveUtil::getAllMoves(state);
     Move moveBlackPawn = Move{{3,3},{2,2}};
-    REQUIRE(contains(blackMoves, moveBlackPawn));
+    REQUIRE(Util::contains(blackMoves, moveBlackPawn));
 
     // Perform en passant
     state = MoveUtil::executeMove(state, moveBlackPawn);

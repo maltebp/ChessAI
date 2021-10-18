@@ -2,7 +2,7 @@
 
 #include "external/catch.hpp"
 
-#include "TestUtil.h"
+#include "Util.h"
 #include "MoveUtil.h"
 
 State createPromotionState() {
@@ -39,15 +39,15 @@ TEST_CASE("Castling Moves: Generation", "[moves][castling][king][rook]") {
 	
     std::vector<Move> moves = MoveUtil::getAllMoves(state);
 
-	REQUIRE(contains(moves, Move{ {4,0}, {6,0} }));
-	REQUIRE(contains(moves, Move{ {4,0}, {2,0} }));
+	REQUIRE(Util::contains(moves, Move{ {4,0}, {6,0} }));
+	REQUIRE(Util::contains(moves, Move{ {4,0}, {2,0} }));
 
     state.turn++;
 
     moves = MoveUtil::getAllMoves(state);
 
-	REQUIRE(contains(moves, Move{ {4,7}, {6,7} }));
-	REQUIRE(contains(moves, Move{ {4,7}, {2,7} }));
+	REQUIRE(Util::contains(moves, Move{ {4,7}, {6,7} }));
+	REQUIRE(Util::contains(moves, Move{ {4,7}, {2,7} }));
 }
 
 TEST_CASE("Castling Moves: Execution White Queenside ", "[moves][castling][king][rook]") {
