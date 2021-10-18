@@ -14,6 +14,6 @@ int main(int argc, char* argv[]) {
 
     UCIEngine engine = UCIEngine(enginePath);
 
-    Move move = engine.getMove(state);
+    Move move = engine.getMove(state, {});
 
 }

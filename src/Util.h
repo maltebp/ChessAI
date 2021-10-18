@@ -45,5 +45,29 @@ namespace Util {
         return tokens;
     }
 
+
+    /**
+     * @brief	Combines the list of strings into a single string, and insert the give 'combiner'
+     *          between each (not before first and after last)
+     * 
+     * @param tokens    Vector of strings to combine
+     * @param combiner  String to insert between two tokens (can be empty to simply combine them)
+     * @param fromIndex Index of the first element from 'tokens' to combine
+     * @return Combined string
+     */
+    static std::string combineStrings(const std::vector<std::string>& tokens, const std::string& combiner, size_t fromIndex = 0) {
+        if( fromIndex >= tokens.size()) {
+            return "";
+        }
+
+        std::stringstream ss;
+        ss << tokens[fromIndex];
+        for(size_t i = fromIndex+1; i < tokens.size(); i++ ) {
+            ss << combiner << tokens[i];
+        }
+
+        return ss.str();
+    }
+
 }
 
