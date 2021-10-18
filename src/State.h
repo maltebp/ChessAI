@@ -13,6 +13,8 @@ public:
 	State() = default;
 
 	// Create state from FEN-string
+	// Note: const char* variant is needed for string literals:
+	//   State state = "my fen string";
 	State(const char* fen);
 
 	// Create state from FEN-string

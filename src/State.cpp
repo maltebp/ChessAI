@@ -4,132 +4,17 @@
 #include <sstream>
 #include <exception>
 
+#include "FENUtil.h"
+
 
 State::State(const char* fenString) {
-    const char* next = fenString;
-
-    int row = 7; 
-    int column = 0;
-
-    // 0 -> Board
-    // 1 -> Turn
-    // 2 -> Castling
-    // 3 -> En Passant
-    // 4 -> Half move since last capture or pawn advance(ignored)?
-    // 5 -> Number of full moves
-    int partIndex = 0;
-
-    bool whitesTurn = false;
-    whiteCanCastleKingSide = false;
-    whiteCanCastleQueenSide = false;
-    blackCanCastleKingSide = false;
-    blackCanCastleQueenSide = false;
-
-    std::string fullPart = "";
-
-    char c;
-    while(true) {
-        c = *next;
-        next++;
-
-        if( c == ' ' || c == '\0' ) {
-
-            // Parse En Passant position
-            if( partIndex == 3 ) {
-                if( fullPart != "-" ) {
-                    bool validPosition = Position::fromAlgebraicNotation(fullPart, enPassantTarget);
-                    assert(validPosition);
-                }
-            }
-
-            if( partIndex == 4 ) {
-                drawCounter = std::stoi(fullPart);
-                assert(drawCounter >= 0);
-            }
-            
-            // Parse turn number
-            if( partIndex == 5 ) {
-                int turnNumber = std::stoi(fullPart);
-                assert(turnNumber > 0);
-                // FEN turn starts from 1, we start from 0
-                turn = turnNumber*2 - (whitesTurn ? 2 : 1);
-            }
-
-            if( c == '\0' ) {
-                break;
-            }
-            
-            fullPart = "";
-            partIndex++;
-            continue;
-        }
-
-        fullPart += c;
-
-        assert(partIndex <= 5);
-
-        // Board
-        if( partIndex == 0 ) {
-            if( c == '/' ) {
-                column = 0;
-                row--;
-            }
-            else if ( c >= '1' && c <= '9' ) {
-                column += (int)c - (int)'1' + 1;
-            }
-            else {
-                bool validPiece = Piece::fromAlgebraicChar(c, board[column][row]);
-                assert(validPiece);
-                column++;
-            }
-        }
-
-        // Whose turn
-        if( partIndex == 1 ) {
-            assert(c == 'w' || c == 'b');
-            whitesTurn = c == 'w';
-        }
-
-        // Castling
-        if( partIndex == 2 ) {
-            if( c == 'K' ) {
-                whiteCanCastleKingSide = true;
-            }
-            else if( c == 'Q' ) {
-                whiteCanCastleQueenSide = true;
-            }
-            else if( c == 'k' ) {
-                blackCanCastleKingSide = true;
-            }
-            else if( c == 'q' ) {
-                blackCanCastleQueenSide = true;
-            }
-            else {
-                assert(c == '-');
-            }
-        }
-
-        // En passant
-        if( partIndex == 3) {
-            // Handled by "fullPart string"
-        }
-
-        // We don't store this in our state yet
-        if( partIndex == 4) {
-            // Handled by "fullPart string"
-        }
-
-        if( partIndex == 5) {
-            assert(c >= '0' && c <= '9');
-        }
-    }
+    FENUtil::parseFEN(fenString, *this);    
 }
 
 
-// Create state from FEN-string
-State::State(const std::string& fenString)
-    :   State(fenString.data())
-{ }
+State::State(const std::string& fenString) {
+    FENUtil::parseFEN(fenString, *this);    
+}
 
 
 Position State::getPiecePosition(const Piece& piece) const {

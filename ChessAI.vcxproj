@@ -124,6 +124,7 @@
   <ItemGroup>
     <ClInclude Include="src\AIPlayerController.h" />
     <ClInclude Include="src\external\catch.hpp" />
+    <ClInclude Include="src\FENUtil.h" />
     <ClInclude Include="src\GameController.h" />
     <ClInclude Include="src\IPlayerController.h" />
     <ClInclude Include="src\MinMax.h" />
