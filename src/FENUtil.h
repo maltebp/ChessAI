@@ -9,7 +9,7 @@
 namespace FENUtil {
 
     
-    void parseFENBoard(const std::string& boardToken, State& state) {
+    static void parseFENBoard(const std::string& boardToken, State& state) {
         assert(!boardToken.empty());
 
         int x = 0;
@@ -39,7 +39,7 @@ namespace FENUtil {
     }
 
         
-    void parseFENTurn(const std::string& colorToken, const std::string& turnToken, State& state) {
+    static void parseFENTurn(const std::string& colorToken, const std::string& turnToken, State& state) {
 
         assert(colorToken == "w" || colorToken == "b");
         bool whitesTurn = colorToken == "w";
@@ -60,7 +60,7 @@ namespace FENUtil {
     }
 
 
-    void parseFENCastling(const std::string& castlingToken, State& state) {
+    static void parseFENCastling(const std::string& castlingToken, State& state) {
         assert(!castlingToken.empty());
         assert(castlingToken.size() <= 4);
 
@@ -85,7 +85,7 @@ namespace FENUtil {
     }
 
 
-    void parseFENEnPassant(const std::string& enPassantToken, State& state) {
+    static void parseFENEnPassant(const std::string& enPassantToken, State& state) {
 
         if( enPassantToken.size() == 1 ) {
             assert(enPassantToken[0] == '-');
@@ -103,7 +103,7 @@ namespace FENUtil {
     }
 
 
-    void parseFENDrawCounter(const std::string& drawCounterToken, State& state) {
+    static void parseFENDrawCounter(const std::string& drawCounterToken, State& state) {
         assert(!drawCounterToken.empty());
 
         int drawCounter;;
@@ -119,7 +119,7 @@ namespace FENUtil {
     }
 
 
-    void parseFEN(const std::string& fenString, State& state) {
+    static void parseFEN(const std::string& fenString, State& state) {
         std::vector<std::string> tokens = Util::splitString(fenString, " \t\n\0");
 
         assert(tokens.size() == 6);
@@ -132,7 +132,7 @@ namespace FENUtil {
     }
 
 
-    std::string generateFEN(const State& state) {
+    static std::string generateFEN(const State& state) {
         std::stringstream fen;
 
         // The board
