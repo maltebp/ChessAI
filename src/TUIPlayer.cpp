@@ -107,6 +107,7 @@ Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves) {
 		printBoard(state);
 
 		std::cout << '\n';
+		std::cout << "FEN: " << state.toFEN() << '\n';
 		std::cout << "Turn: " << (state.turn+1) << "\n";
 		std::cout << "Player: " << (state.turn % 2 == 0 ? "White" : "Black") << "\n";
 
