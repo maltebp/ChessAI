@@ -66,7 +66,7 @@ namespace MoveUtil {
 
 		//Check pawns
 		//From whites perspective, pawns can attack from north and "down". Vice versea.
-		int direction = threatenedByBlack ? -1 : 1;
+		int direction = threatenedByBlack ? 1 : -1;
 
 		Position eastPawnPos = { position.x + 1, position.y + direction };
 		Position westPawnPos = { position.x - 1, position.y + direction };

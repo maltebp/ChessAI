@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 #include "UnitTests/PawnMoves.h"
 #include "UnitTests/CastlingMoves.h"
 #include "UnitTests/PromotionMoves.h"
-
+#include "UnitTests/CheckMate.h"
 
 // -------------------
 
