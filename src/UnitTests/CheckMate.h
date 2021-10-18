@@ -43,13 +43,20 @@ TEST_CASE("Check", "[checkmate]") {
     state.board[7][2] = { PieceColor::WHITE, PieceType::PAWN };
     state.board[7][3] = { PieceColor::WHITE, PieceType::KING };
 
-    state.board[0][7] = { PieceColor::BLACK, PieceType::KING };
+    state.board[0][0] = { PieceColor::BLACK, PieceType::KNIGHT };
+    state.board[0][1] = { PieceColor::BLACK, PieceType::QUEEN };
     state.board[6][1] = { PieceColor::BLACK, PieceType::ROOK };
+
     state.board[6][4] = { PieceColor::BLACK, PieceType::PAWN }; // Threatens white king
+
+    state.board[2][7] = { PieceColor::BLACK, PieceType::KING };
 
     std::vector<Move> moves = MoveUtil::getAllMoves(state);
 
+    REQUIRE( Util::contains(moves, Move{{6,1}, {6,4}}) );
+    REQUIRE( Util::contains(moves, Move{{7,3}, {6,4}}) );
+    REQUIRE( Util::contains(moves, Move{{7,3}, {6,3}}) );
     REQUIRE( Util::contains(moves, Move{{7,3}, {7,4}}) );
 
-    REQUIRE( moves.size() == 1 );
+    REQUIRE( moves.size() == 4 );
 }

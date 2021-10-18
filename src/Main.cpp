@@ -1,5 +1,5 @@
 
-#define ENGINE_ARENA
+//#define ENGINE_ARENA
 //#define UNIT_TEST
 
 #ifdef UNIT_TEST
@@ -43,14 +43,17 @@ int main(int argc, const char** argv) {
 #include "GameController.h"
 #include "TUIPlayer.h"
 #include "AIPlayerController.h"
+#include "EngineArena/UCIEngine.h"
 
 
 int main(int argc, char** argv) {
 
-    TUIPlayer whitePlayer;
-    AIPlayerController blackPlayer;
+    TUIPlayer tuiPlayer1;
+    TUIPlayer tuiPlayer2;
+    AIPlayerController ourEngine;
+    UCIEngine stockFish = UCIEngine("C:\\Users\\Malte\\Projects\\ChessAI\\resources\\stockfish\\stockfish_14_x64_popcnt.exe");
 
-    GameController game = GameController(whitePlayer, blackPlayer);
+    GameController game = GameController(ourEngine, stockFish);
     game.start();
 
     return 0;

@@ -25,14 +25,16 @@ private:
 
 private:
 
-    Signal engineIsReady;
+    Process* process;
+
+    Signal engineReadySignal;
+
+    Signal uciOkSignal;
 
     VariableSignal<std::string> engineNameSignal;
 
     VariableSignal<std::string> engineAuthorSignal;
 
-    Signal uciOkSignal;
-
-    Process* process;
+    VariableSignal<Move> bestMoveSignal;
 
 };

@@ -35,12 +35,18 @@ UCIEngine::UCIEngine(const std::string& enginePath)
     std::cout << "Engine name: " << engineName << std::endl;
     std::cout << "Engine author: " << engineAuthor << std::endl;
 
-    while(true) {
-        std::string input;
-        std::getline(std::cin, input);
-        if( input == "stop1" ) break;
-        process->writeLine(input);
-    }
+    engineReadySignal.reset();
+    process->writeLine("isready");
+    engineReadySignal.wait();
+    std::cout << "Engine is ready" << std::endl;
+
+    process->writeLine("ucinewgame");
+    process->writeLine("position startpos");
+    engineReadySignal.reset();
+    process->writeLine("isready");
+    engineReadySignal.wait();
+
+    std::cout << "New game ready" << std::endl;
 }
 
 UCIEngine::~UCIEngine() {
@@ -51,7 +57,29 @@ UCIEngine::~UCIEngine() {
 
 
 Move UCIEngine::getMove(const State& state, const std::vector<Move>& validMoves) {
-    return Move();
+
+    std::cout << "Starting engine search" << std::endl;
+    std::stringstream ss;
+    ss << "position fen " << state.toFEN();
+    process->writeLine(ss.str());
+
+    engineReadySignal.reset();
+    process->writeLine("isready");
+    engineReadySignal.wait();
+
+    process->writeLine("go infinite");
+
+    std::cout << "Waiting for search..." << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+    std::cout << "Stopping for search..." << std::endl;
+    bestMoveSignal.reset();
+    process->writeLine("stop");
+    Move bestMove = bestMoveSignal.wait();
+
+    std::cout << "Stopped search" << std::endl;
+       
+    return bestMove;
 }
 
 
@@ -80,11 +108,17 @@ void UCIEngine::onEngineStdOutput(const std::string& output) {
     }
 
     if( tokens[0] == "uciok" ) {
-        std::cout << "Game on!" << std::endl;
+        uciOkSignal.set();
     }
 
     if( tokens[0] == "readyok" ) {
-        std::cout << "Engine is ready" << std::endl;
+        engineReadySignal.set();
+    }
+
+    if( tokens[0] == "bestmove" ) {
+        Move bestMove;
+        bool validMove = Move::fromAlgebraicNotation(tokens[1], bestMove);
+        bestMoveSignal = bestMove;
     }
 }
 
