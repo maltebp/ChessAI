@@ -15,6 +15,7 @@
 #include "UnitTests/CastlingMoves.h"
 #include "UnitTests/PromotionMoves.h"
 #include "UnitTests/FEN.h"
+#include "UnitTests/CheckMate.h"
 
 // -------------------
 
