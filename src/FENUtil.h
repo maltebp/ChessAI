@@ -118,6 +118,7 @@ namespace FENUtil {
         state.drawCounter = drawCounter;
     }
 
+
     void parseFEN(const std::string& fenString, State& state) {
         std::vector<std::string> tokens = Util::splitString(fenString, " \t\n\0");
 
@@ -131,8 +132,66 @@ namespace FENUtil {
     }
 
 
-    std::string toFEN(const State& state) {
-        return std::string();
+    std::string generateFEN(const State& state) {
+        std::stringstream fen;
+
+        // The board
+        int emptyCount = 0;
+        for( int y = 7; y >= 0; y-- ) {
+            for( int x = 0; x < 8; x++ ) {
+                Piece piece = state.board[x][y];
+
+                if( piece == Piece() ) {
+                    emptyCount++;
+                }
+                else {
+                    if( emptyCount != 0 ) {
+                        fen << emptyCount;
+                        emptyCount = 0;
+                    }
+                    fen << piece.getAlgebraicChar();
+                }
+            }
+
+            if( emptyCount != 0 ) {
+                fen << emptyCount;
+                emptyCount = 0;
+            }
+            if( y != 0 ) {
+                fen << '/';
+            }
+        }
+
+        // Which player to make move
+        fen << " " << (state.turn % 2 == 0 ? 'w' : 'b');
+        
+        // Castling
+        fen << " ";
+        std::string castlingFlags;
+        if( state.whiteCanCastleKingSide ) {
+            castlingFlags += "K";
+        }
+        if( state.whiteCanCastleQueenSide ) {
+            castlingFlags += "Q";
+        }
+        if( state.blackCanCastleKingSide ) {
+            castlingFlags += "k";
+        }
+        if( state.blackCanCastleQueenSide ) {
+            castlingFlags += "q";
+        }
+        fen << (castlingFlags.size() == 0 ? "-" : castlingFlags);
+
+        // En Passant
+        fen << ' ' << (state.enPassantTarget == Position() ? "-" : state.enPassantTarget.toAlgebraicNotation());
+
+        // Moves since last pawn or captue (not recorded in our game yet)
+        fen << ' ' << state.drawCounter;
+
+        // Turn
+        fen << ' '  << (state.turn / 2 + 1);
+
+        return fen.str();
     }
 
 }

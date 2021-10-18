@@ -78,65 +78,7 @@ Piece& State::operator[](const Position& position) {
 
 
 std::string State::toFEN() const {
-    std::stringstream fen;
-
-    // The board
-    int emptyCount = 0;
-    for( int y = 7; y >= 0; y-- ) {
-        for( int x = 0; x < 8; x++ ) {
-            Piece piece = board[x][y];
-
-            if( piece == Piece() ) {
-                emptyCount++;
-            }
-            else {
-                if( emptyCount != 0 ) {
-                    fen << emptyCount;
-                    emptyCount = 0;
-                }
-                fen << piece.getAlgebraicChar();
-            }
-        }
-
-        if( emptyCount != 0 ) {
-            fen << emptyCount;
-            emptyCount = 0;
-        }
-        if( y != 0 ) {
-            fen << '/';
-        }
-    }
-
-    // Which player to make move
-    fen << " " << (turn % 2 == 0 ? 'w' : 'b');
-    
-    // Castling
-    fen << " ";
-    std::string castlingFlags;
-    if( whiteCanCastleKingSide ) {
-        castlingFlags += "K";
-    }
-    if( whiteCanCastleQueenSide ) {
-        castlingFlags += "Q";
-    }
-    if( blackCanCastleKingSide ) {
-        castlingFlags += "k";
-    }
-    if( blackCanCastleQueenSide ) {
-        castlingFlags += "q";
-    }
-    fen << (castlingFlags.size() == 0 ? "-" : castlingFlags);
-
-    // En Passant
-    fen << ' ' << (enPassantTarget == Position() ? "-" : enPassantTarget.toAlgebraicNotation());
-
-    // Moves since last pawn or captue (not recorded in our game yet)
-    fen << ' ' << drawCounter;
-
-    // Turn
-    fen << ' '  << (turn / 2 + 1);
-
-    return fen.str();
+    return FENUtil::generateFEN(*this);
 }
 
 
