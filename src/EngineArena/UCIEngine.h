@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "VariableSignal.h"
+#include "Signal.h"
 #include "IPlayerController.h"
 #include "Process.h"
 
@@ -22,6 +24,14 @@ private:
     void onEngineStdError(const std::string&);
 
 private:
+
+    Signal engineIsReady;
+
+    VariableSignal<std::string> engineNameSignal;
+
+    VariableSignal<std::string> engineAuthorSignal;
+
+    Signal uciOkSignal;
 
     Process* process;
 

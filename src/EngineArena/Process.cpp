@@ -94,7 +94,7 @@ void Process::readOutput( OutputReader outputReader, OutputListener listener) {
     while( (bytesRead = outputReader(&process, buffer, OUTPUT_BUFFER_SIZE)) != 0) {
         for(unsigned int i=0; i<bytesRead; i++) {
             char c = buffer[i];
-            if( c == '\n') {
+            if( c == '\n' || c == '\r') {
                 std::string line = builder.str();
                 if( line.length() > 0 ) {
                     listener(line);

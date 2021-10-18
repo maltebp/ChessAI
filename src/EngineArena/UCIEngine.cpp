@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <cassert>
+#include <atomic>
 
 #include "external/subprocess.h"
 
@@ -14,11 +15,25 @@ UCIEngine::UCIEngine(const std::string& enginePath)
 {
     process = new Process(
         { 
-            "C:\\Users\\Malte\\Projects\\ChessAI\\resources\\stockfish\\stockfish_14_x64_popcnt.exe"
+            enginePath
         },
         [this](auto &output) { this->onEngineStdOutput(output); },
         [this](auto &error) { this->onEngineStdError(error); }
     );
+
+    engineNameSignal.reset();
+    engineAuthorSignal.reset();
+    uciOkSignal.reset();
+
+    process->writeLine("uci");
+
+    std::string engineName = engineNameSignal.wait();
+    std::string engineAuthor = engineAuthorSignal.wait();
+    uciOkSignal.wait();
+
+    std::cout << "Engine supports UCI" << std::endl;
+    std::cout << "Engine name: " << engineName << std::endl;
+    std::cout << "Engine author: " << engineAuthor << std::endl;
 
     while(true) {
         std::string input;
@@ -26,7 +41,6 @@ UCIEngine::UCIEngine(const std::string& enginePath)
         if( input == "stop1" ) break;
         process->writeLine(input);
     }
-
 }
 
 UCIEngine::~UCIEngine() {
@@ -49,8 +63,8 @@ void UCIEngine::onEngineStdOutput(const std::string& output) {
     }
 
     std::cout << "  " << output << std::endl;
-    
-    std::vector<std::string> tokens = Util::splitString(output, " \t\n\0");
+     
+    std::vector<std::string> tokens = Util::splitString(output, " \t\r\n\0");
     if( tokens.size() == 0 ) {
         WARN("StdOut output from engine parsed into no tokens (output: '%s')", output.c_str());
         return;
@@ -58,17 +72,15 @@ void UCIEngine::onEngineStdOutput(const std::string& output) {
 
     if( tokens[0] == "id" ) {
         if( tokens[1] == "name" ) {
-            std::string name = Util::combineStrings(tokens, " ", 2);
-            std::cout << "Engine name: " << name << std::endl;
+            engineNameSignal = Util::combineStrings(tokens, " ", 2);
         }
         if( tokens[1] == "author" ) {
-            std::string author = Util::combineStrings(tokens, " ", 2);
-            std::cout << "Engine author: " << author << std::endl;
+            engineAuthorSignal = Util::combineStrings(tokens, " ", 2);
         }
     }
 
     if( tokens[0] == "uciok" ) {
-        // Game on!
+        std::cout << "Game on!" << std::endl;
     }
 
     if( tokens[0] == "readyok" ) {
