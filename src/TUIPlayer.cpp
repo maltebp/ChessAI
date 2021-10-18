@@ -21,32 +21,7 @@ void printMoves(const State& state) {
 }
 
 
-void printBoard(const State& state) {
-	std::cout << "\n";
 
-	for( int y=0; y < 8; y++ ) {
-		std::cout << '\t' << (8-y) << ' ';		
-		for( int x=0; x < 8; x++ ) {
-			Piece piece = state.board[x][7-y];
-			bool isWhiteField = (x + 7-y) % 2;
-			if( isWhiteField ) {
-				std::cout << "\033[47;30m"; // 47 = white background, 30 = black text
-				std::cout << piece.getAlgebraicChar() << ' ';
-				std::cout << "\033[0m"; // Reset terminal colors
-			}
-			else {
-				std::cout << piece.getAlgebraicChar() << ' ';
-			}
-		}
-		std::cout << "\n";	
-	}
-
-	std::cout << "\t  ";
-	for( int x=0; x < 8; x++ ) {
-		std::cout << (char)('a' + x) << ' ';
-	}
-	std::cout << std::endl;
-}
 
 
 std::tuple<Move, std::string> parseInput(const State& state, const std::vector<Move>& moves, const std::vector<std::string> inputTokens) {
@@ -98,22 +73,7 @@ std::tuple<Move, std::string> parseInput(const State& state, const std::vector<M
 
 Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves) {
 
-	std::string output = "";
-
 	while( true ) {
-
-		std::system("cls");
-
-		printBoard(state);
-
-		std::cout << '\n';
-		std::cout << "FEN: " << state.toFEN() << '\n';
-		std::cout << "Turn: " << (state.turn+1) << "\n";
-		std::cout << "Player: " << (state.turn % 2 == 0 ? "White" : "Black") << "\n";
-
-		if( !output.empty() && output != "" ) {
-			std::cout << "\n" << output << std::endl;;
-		}
 
 		std::cout << "\n>";
 		std::string input;
@@ -123,17 +83,12 @@ Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves) {
 
 		if( inputTokens.size() == 0 ) continue;
 
-		if( inputTokens[0] == "clear" ) {
-			output = "";
-			continue;
-		}
-
 		auto [move,parseOutput] = parseInput(state, moves, inputTokens);
 		if( parseOutput.empty() || parseOutput == "" ) {
 			return move;
 		}
 
-		output = parseOutput;		
+		std::cout << parseOutput;		
 	}
 
 	return Move();

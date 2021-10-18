@@ -7,10 +7,12 @@
 
 int main(int argc, char** argv) {
 
-    TUIPlayer whitePlayer;
-    AIPlayerController blackPlayer;
+    TUIPlayer localPlayer1;
+    TUIPlayer localPlayer2;
+    AIPlayerController ourEngine1;
+    AIPlayerController ourEngine2;
 
-    GameController game = GameController(whitePlayer, blackPlayer);
+    GameController game = GameController(ourEngine1, ourEngine2);
     game.start();
 
     return 0;
