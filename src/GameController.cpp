@@ -7,9 +7,8 @@
 #include "MoveUtil.h"
 
 
-void GameController::start() {
+void GameController::start(State state) {
 
-    state = State::createDefault();
     Piece lastMovedWhitePiece;
     Move lastWhiteMove;
     Piece lastMovedBlackPiece;
