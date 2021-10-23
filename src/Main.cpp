@@ -52,6 +52,7 @@ int main(int argc, char** argv) {
     TUIPlayer tuiPlayer2;
     AIPlayerController ourEngine = AIPlayerController(5);
     UCIEngine stockFish = UCIEngine(
+        "Stockfish 14",
         "C:\\Users\\Malte\\Projects\\ChessAI\\resources\\stockfish\\stockfish_14_x64_popcnt.exe",
         2000 // ms
     );

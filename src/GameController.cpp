@@ -27,7 +27,8 @@ void GameController::start() {
             std::system("cls");
         }
 
-        TUIUtil::printBoard(state, lastWhiteMove, lastBlackMove);
+        std::cout << '\n';
+        std::cout << TUIUtil::getPrettyBoard(state, lastWhiteMove, lastBlackMove) << std::endl;
 
         std::cout << '\n';
 		std::cout << "FEN: " << state.toFEN() << '\n';

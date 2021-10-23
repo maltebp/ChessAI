@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "AIPlayerController.h"
 #include "EngineArenaController.h"
 #include "State.h"
 #include "UCIEngine.h"
@@ -18,14 +19,15 @@ int main(int argc, char* argv[]) {
 
     State state = State::createDefault();
 
-    UCIEngine engine1 = UCIEngine("Stockfish 14", enginePath, 1000);
-    UCIEngine engine2 = UCIEngine("Stockfish 14", enginePath, 1000);
+    UCIEngine stockfish1 = UCIEngine("Stockfish 14", enginePath, 1000);     
+    // UCIEngine stockfish2 = UCIEngine("Stockfish 14", enginePath, 1000);
+    AIPlayerController ourEngine = AIPlayerController(4);
     
     EngineArenaController controller = {
         outputPath,
         2,
-        engine1,
-        engine2
+        ourEngine,
+        stockfish1
     };
 
     controller.start();

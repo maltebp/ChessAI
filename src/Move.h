@@ -42,6 +42,10 @@ struct Move {
 		return this->fromField == other.fromField && this->toField == other.toField;
 	}
 
+	bool operator!=(const Move& other) const {
+		return !(*this == other);
+	}
+
 	friend std::ostream& operator << (std::ostream& stream, const Move& move) {
 		stream << move.fromField.toAlgebraicNotation() << " -> " << move.toField.toAlgebraicNotation();
 		return stream;

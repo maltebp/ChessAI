@@ -28,11 +28,13 @@ private:
 
     fs::path outputPath;
 
-
-
     IPlayerController& engine1;
 
     IPlayerController& engine2;
+
+    std::string engine1Name;
+
+    std::string engine2Name;
 
     unsigned int numGames;
 

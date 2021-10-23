@@ -1,54 +1,78 @@
 #pragma once
 
-#include <iostream>
+#include <sstream>
 
 #include "State.h"
 
 
 namespace TUIUtil {
 
-    static void printBoard(const State& state, Move lastWhiteMove, Move lastBlackMove) {
-        std::cout << "\n";
+    static std::string getPrettyBoard(const State& state, Move lastWhiteMove = Move(), Move lastBlackMove = Move()) {
+        
+        std::stringstream ss;
 
         auto getPositionColor = [&](Position position) {
 
-            bool isColoredField = (position.x + 7-position.y) % 2;
-            
             bool whitesTurn = state.turn % 2 == 0;
             bool whitePrecedence = !whitesTurn;
 
             bool isWhiteField = position == lastWhiteMove.fromField || position == lastWhiteMove.toField;
             bool isBlackField = position == lastBlackMove.fromField || position == lastBlackMove.toField;
-
             
-            if( isWhiteField && (whitePrecedence || !isBlackField) ) {
+            if( lastWhiteMove != Move() && isWhiteField && (whitePrecedence || !isBlackField) ) {
                 return "42";
             }
 
-            if( isBlackField && (!whitePrecedence || !isWhiteField) ) {
+            if( lastBlackMove != Move() && isBlackField && (!whitePrecedence || !isWhiteField) ) {
                 return "44";
             }
 
-            return isColoredField ? "47;30" : "0";
+            return "0";
         };
 
-        for( int y=7; y >= 0 ; y-- ) {
-            std::cout << '\t' << (y+1) << ' ';		
-            for( int x=0; x < 8; x++ ) {
-                Position position = { (unsigned int)x,(unsigned int)y };
-                Piece piece = state.board[x][y];
-                std::cout << "\033[0m" << "\033[" << getPositionColor(position) << "m"; // 47 = white background, 30 = black text
-                std::cout << piece.getAlgebraicChar() << ' ';
-                std::cout << "\033[0m"; // Reset terminal colors
+        for( int y=16; y >= 0 ; y-- ) {
+
+            if( y % 2 == 1 ) {
+                ss << '\t' << (y / 2 + 1) << ' ';
             }
-            std::cout << "\n";	
+            else {
+                ss << "\t  ";
+            }
+
+            for( int x=0; x < 8*4+1; x++ ) {
+
+                // Row line 
+                if( y % 2 == 0 ) {
+                    ss << (x % 4 == 0 ? '+' : '-');
+                }
+
+                // Piece line
+                else {
+                    if( x % 4 == 0 ) {
+                        ss << '|';
+                    }
+                    else if(x % 2 == 0) {      
+                        Position position = { (unsigned int) (x/4),(unsigned int)(y/2) };
+                        Piece piece = state[position];
+                        ss << "\033[0m" << "\033[" << getPositionColor(position) << "m"; // 47 = white background, 30 = black text
+                        ss << piece.getAlgebraicChar();
+                        ss << "\033[0m"; // Reset terminal colors
+                    }
+                    else {
+                        ss << ' ';
+                    }
+                }
+            }
+            ss << "\n";	
         }
 
-        std::cout << "\t  ";
-        for( int x=0; x < 8; x++ ) {
-            std::cout << (char)('a' + x) << ' ';
+        ss << "\t  ";
+        for( int x=0; x < 8*4; x++ ) {
+            bool columnLabel = (x % 2 == 0 && x % 4 != 0);
+            ss << (columnLabel ? (char)('a' + x / 4) : ' ');
         }
-        std::cout << std::endl;
+
+        return ss.str();        
     }
 
 }

@@ -12,6 +12,16 @@
 #include "MinMax.h"
 
 
+std::string TUIPlayer::getName() {
+	return "TUI Player";
+}
+
+
+void TUIPlayer::start(std::ostream* outputStream, std::ostream* errorStream) {
+	// TODO: TUIPlayer should use these streams instead of the other ones	
+}
+
+
 void printMoves(const State& state) {
 
 	std::vector<Move> moves = MoveUtil::getAllMoves(state);
@@ -19,9 +29,6 @@ void printMoves(const State& state) {
 		std::cout << move << std::endl;
 	}
 }
-
-
-
 
 
 std::tuple<Move, std::string> parseInput(const State& state, const std::vector<Move>& moves, const std::vector<std::string> inputTokens) {

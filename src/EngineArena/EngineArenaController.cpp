@@ -5,6 +5,7 @@
 #include <iomanip>
 
 #include "Util.h"
+#include "TUIUtil.h"
 #include "MoveUtil.h"
 
 
@@ -18,7 +19,21 @@ EngineArenaController::EngineArenaController(
         engine1(engine1),
         engine2(engine2),
         numGames(numGames)
-{ }
+{
+    
+    // Remove white space from names, and check if they are the same
+    engine1Name = Util::combineStrings(Util::splitString(engine1.getName(), " \t\n"), "");
+    assert(!engine1Name.empty());
+    engine2Name = Util::combineStrings(Util::splitString(engine2.getName(), " \t\n"), "");
+    assert(!engine2Name.empty());
+
+    if( engine1Name == engine2Name ) {
+        engine1Name += "_1";
+        engine2Name += "_2";
+    }
+
+
+}
 
 
 void EngineArenaController::start() {
@@ -52,64 +67,79 @@ void EngineArenaController::runGame(unsigned int gameNum, const fs::path& dir) {
 
     std::cout << "Starting game " << gameNum << " .." << std::endl;
 
-    std::stringstream ss;
-    ss << std::setw(3) << std::setfill('0') << gameNum << Util::getDateString("_%H_%M");
-
-    fs::path gameDir = dir / ss.str();
-    fs::create_directories(gameDir);
-
+    // Open logs
     std::fstream gameLog;
-    gameLog.open(
-        gameDir / "game.log",
-        std::fstream::out | std::fstream::app
-    );
-
-    
-    std::string engine1Name = Util::combineStrings(Util::splitString(engine1.getName(), " \t\n"), "");
-    std::string engine2Name = Util::combineStrings(Util::splitString(engine2.getName(), " \t\n"), "");
-
-    if( engine1Name == engine2Name ) {
-        engine1Name = "engine1_" + engine1Name;
-        engine2Name = "engine2_" + engine2Name;
-    }
-
     std::fstream engine1Log;
-    engine1Log.open(
-        gameDir / (engine1Name + ".log"),
-        std::fstream::out | std::fstream::app
-    );
-
-    fs::path engine2LogPath = gameDir / (engine2Name + ".log");
     std::fstream engine2Log;
-    engine2Log.open(
-        gameDir / (engine2Name + ".log"),
-        std::fstream::out | std::fstream::app
-    );
+    {
+        std::stringstream ss;
+        ss << std::setw(3) << std::setfill('0') << gameNum << Util::getDateString("_%H_%M");
 
+        fs::path gameDir = dir / ss.str();
+        fs::create_directories(gameDir);
+
+        gameLog.open(
+            gameDir / "game.log",
+            std::fstream::out | std::fstream::app
+        );
+
+        engine1Log.open(
+            gameDir / (engine1Name + ".log"),
+            std::fstream::out | std::fstream::app
+        );
+
+        engine2Log.open(
+            gameDir / (engine2Name + ".log"),
+            std::fstream::out | std::fstream::app
+        );
+    }
+   
     engine1.start(&engine1Log, &engine1Log);
     engine2.start(&engine2Log, &engine2Log);
 
     State state = State::createDefault();
-    
+
+    std::stringstream ss;   
     while(true) {
 
         IPlayerController& currentEngine = state.turn % 2 == 0 ? engine1 : engine2;
 
         // TODO: Replicate to std::cout somehow
+        std::string boardString = TUIUtil::getPrettyBoard(state);
+        
+        std::cout << '\n' << boardString << std::endl;
+        gameLog << '\n' << boardString << std::endl;
+
         std::cout << "  " <<  state.toFEN() << std::endl;
-        gameLog << state.toFEN() << std::endl;
+        gameLog << '\n' << state.toFEN() << std::endl;
+
+        if( state.drawCounter >= 49 ) {
+            gameLog << "Result: Draw" << std::endl;
+            break;
+        }
+
+        if( MoveUtil::isKingThreatened(state) ) {
+            // This is only necessary because of the bug in our engine
+            std::cout << "  " << (state.turn % 2 == 0 ? engine1Name : engine2Name) << " wins" << std::endl;
+            gameLog << "  " << (state.turn % 2 == 0 ? engine1Name : engine2Name) << " wins" << std::endl;
+            break;
+        }
 
         std::vector<Move> availableMoves = MoveUtil::getAllMoves(state);
         if( availableMoves.size() == 0 ) {
-            gameLog << "  " << engine1Name << " wins" << std::endl;
+            const std::string& winner = (state.turn % 2 == 0 ? engine2Name : engine1Name);
+            std::cout << "Result: " << winner << " wins" << std::endl;
+            gameLog << "Result: " << winner << " wins" << std::endl;
+            break;
         }
 
         Move move = currentEngine.getMove(state, availableMoves);
-        if( move == Move() ) {
-            // TODO: This is just a bypass of an existing bug - MUST BE FIXED!
+        if( move == Move() ) {  
+            // TODO: This is just a bypass of an existing bug (https://github.com/maltebp/ChessAI/issues/23) - MUST BE FIXED!
             std::cout << "  " << "Invalid move!" << std::endl;
             gameLog << "Invalid move!" << std::endl;
             state.turn++;
+            continue;
         }
 
         std::cout << "  " << move << std::endl;
@@ -122,5 +152,3 @@ void EngineArenaController::runGame(unsigned int gameNum, const fs::path& dir) {
     engine1Log.close();
     engine2Log.close();
 }
-
-

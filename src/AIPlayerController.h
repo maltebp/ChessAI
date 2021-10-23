@@ -15,6 +15,16 @@ public:
     { }
 
 
+    std::string getName() override {
+        return "Our Engine";
+    }
+
+
+    void start(std::ostream* outputStream, std::ostream* errorStream) override {
+
+    }
+
+
     Move getMove(const State& state, const std::vector<Move>& initialMoves) {
         auto [move, score] = MinMaxSearcher::search(state, searchDepth, INT32_MIN, INT32_MAX );
         return move;
