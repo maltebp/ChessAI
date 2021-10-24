@@ -25,7 +25,7 @@ void GameController::start(State state) {
             std::system("cls");
         }
 
-        std::cout << state.toPrettyString("\t", lastWhiteMove, lastBlackMove);
+        std::cout << '\n' << state.toPrettyString("\t", lastWhiteMove, lastBlackMove) << '\n';
 
         std::cout << '\n';
 		std::cout << "FEN: " << state.toFEN() << '\n';
