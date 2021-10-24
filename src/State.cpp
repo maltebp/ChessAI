@@ -5,6 +5,7 @@
 #include <exception>
 
 #include "FENUtil.h"
+#include "TUIUtil.h"
 
 
 State::State(const char* fenString) {
@@ -47,7 +48,7 @@ bool State::operator==(const State& other) const {
         for(unsigned int y=0; y<8; y++) {
             if( board[x][y] != other.board[x][y] ) {
                 return false;
-            }
+                }
         }
     }
 
@@ -74,11 +75,13 @@ Piece& State::operator[](const Position& position) {
 }
 
 
-
-
-
 std::string State::toFEN() const {
     return FENUtil::generateFEN(*this);
+}
+
+
+std::string State::toPrettyString(const std::string& prefix, Move lastWhiteMove, Move lastBlackMove) const {
+    return TUIUtil::getPrettyBoard(*this, prefix, lastWhiteMove, lastBlackMove);
 }
 
 

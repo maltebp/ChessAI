@@ -3,7 +3,6 @@
 #include <cassert>
 #include <sstream>
 
-#include "TUIUtil.h"
 #include "MoveUtil.h"
 
 
@@ -26,7 +25,7 @@ void GameController::start(State state) {
             std::system("cls");
         }
 
-        TUIUtil::printBoard(state, lastWhiteMove, lastBlackMove);
+        std::cout << state.toPrettyString("\t", lastWhiteMove, lastBlackMove);
 
         std::cout << '\n';
 		std::cout << "FEN: " << state.toFEN() << '\n';
