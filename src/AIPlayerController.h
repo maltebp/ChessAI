@@ -12,7 +12,7 @@ class AIPlayerController : public IPlayerController {
 public:
 
     Move getMove(const State& state, const std::vector<Move>& initialMoves) {
-        auto [move, score] = MinMaxSearcher::search(state, searchDepth, -1000, 1000);
+        auto [move, score] = MinMaxSearcher::search(state, searchDepth);
         return move;
     }
 

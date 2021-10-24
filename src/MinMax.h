@@ -5,8 +5,11 @@
 
 
 class MinMaxSearcher {
+	
 public:
-
+	const static int drawScore = 0;
+	const static int minScore = std::numeric_limits<int>::min();
+	const static int maxScore = std::numeric_limits<int>::max();
 	static std::tuple<Move, int> search(State state, int depth, int alpha = std::numeric_limits<int>::min(), int beta = std::numeric_limits<int>::max()) {
 
 		//Base case: Leaf node
@@ -15,9 +18,24 @@ public:
 			return { Move(), score };
 		}
 
+		bool isMaximizer = state.turn % 2 == 0;
+
 		//Get all possible moves
 		std::vector<Move> moves = MoveUtil::getAllMoves(state);
-		bool isMaximizer = state.turn % 2 == 0;
+		if (moves.size() == 0) {
+			//In this case it is either a draw of a loss or current player
+			if (MoveUtil::isKingThreatened(state)) {
+				//If king is threathened - it is a loss
+				int score = isMaximizer ? maxScore : minScore;
+				return { Move(), score };
+			}
+			else {
+				//Else it is a draw
+				return { Move(), drawScore };
+			}
+		}
+
+
 
 		Move bestMove;
 		for (Move move : moves)
@@ -37,6 +55,9 @@ public:
 			{
 				beta = resultScore;
 				bestMove = move;
+			}
+			if (beta == std::numeric_limits<int>::min()) {
+				int x = 1;
 			}
 
 		}
