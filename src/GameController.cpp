@@ -3,13 +3,11 @@
 #include <cassert>
 #include <sstream>
 
-#include "TUIUtil.h"
 #include "MoveUtil.h"
 
 
-void GameController::start() {
+void GameController::start(State state) {
 
-    state = State::createDefault();
     Piece lastMovedWhitePiece;
     Move lastWhiteMove;
     Piece lastMovedBlackPiece;
@@ -27,8 +25,7 @@ void GameController::start() {
             std::system("cls");
         }
 
-        std::cout << '\n';
-        std::cout << TUIUtil::getPrettyBoard(state, lastWhiteMove, lastBlackMove) << std::endl;
+        std::cout << '\n' << state.toPrettyString("\t", lastWhiteMove, lastBlackMove) << '\n';
 
         std::cout << '\n';
 		std::cout << "FEN: " << state.toFEN() << '\n';

@@ -4,7 +4,6 @@
 
 #ifdef UNIT_TEST
 
-
 #define CATCH_CONFIG_RUNNER
 #include "external/catch.hpp"
 

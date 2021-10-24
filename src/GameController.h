@@ -11,7 +11,7 @@ public:
             blackPlayer(blackPlayer)
     { }
 
-    void start();
+    void start(State state = State::createDefault());
 
 public:
 

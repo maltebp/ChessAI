@@ -7,70 +7,98 @@
 
 namespace TUIUtil {
 
-    static std::string getPrettyBoard(const State& state, Move lastWhiteMove = Move(), Move lastBlackMove = Move()) {
-        
-        std::stringstream ss;
+    static std::string getPrettyBoard(const State& state, const std::string& prefix, Move lastWhiteMove = Move(), Move lastBlackMove = Move()) {
+    
+        const int BOARD_WIDTH = 8*4+1; // In characters (without column labels)
 
-        auto getPositionColor = [&](Position position) {
+        std::stringstream ss;        
 
+        // Figures out whos color should be displayed on the position
+        auto getPositionHighlightColor = [&](Position position) {
             bool whitesTurn = state.turn % 2 == 0;
             bool whitePrecedence = !whitesTurn;
 
             bool isWhiteField = position == lastWhiteMove.fromField || position == lastWhiteMove.toField;
             bool isBlackField = position == lastBlackMove.fromField || position == lastBlackMove.toField;
-            
+
             if( lastWhiteMove != Move() && isWhiteField && (whitePrecedence || !isBlackField) ) {
-                return "42";
+                return PieceColor::WHITE;
             }
 
             if( lastBlackMove != Move() && isBlackField && (!whitePrecedence || !isWhiteField) ) {
-                return "44";
+                return PieceColor::BLACK;
             }
 
-            return "0";
+            return PieceColor::NONE;
         };
 
+        // Print column labels
+        auto printColumnLabels = [&]() {
+            ss << prefix << "  ";
+            for( int x=0; x < BOARD_WIDTH; x++ ) {
+                char columnLabel = ('a' + x / 4);
+                bool placeColumnLabel = (x % 2 == 0 && x % 4 != 0);
+                ss << (placeColumnLabel ? columnLabel : ' ');
+            }
+        };
+
+        // Print top labels
+        printColumnLabels();
+
+        ss << "\n";
+        
         for( int y=16; y >= 0 ; y-- ) {
 
-            if( y % 2 == 1 ) {
-                ss << '\t' << (y / 2 + 1) << ' ';
-            }
-            else {
-                ss << "\t  ";
-            }
+            ss << prefix;
 
-            for( int x=0; x < 8*4+1; x++ ) {
-
-                // Row line 
-                if( y % 2 == 0 ) {
+            // Horizontal divider 
+            if( y % 2 == 0 ) {
+                ss << "  ";
+                for( int x = 0; x < BOARD_WIDTH; x++ ) {
                     ss << (x % 4 == 0 ? '+' : '-');
                 }
+            }
+            // Line with Piece characters
+            else {
+                int rowNumber = (y / 2 + 1);
 
-                // Piece line
-                else {
+
+                // Print right row label
+                ss << rowNumber << ' ';
+
+                for( int x=0; x < BOARD_WIDTH; x++ ) {
                     if( x % 4 == 0 ) {
                         ss << '|';
                     }
-                    else if(x % 2 == 0) {      
+                    else if(x % 2 == 0) {   
                         Position position = { (unsigned int) (x/4),(unsigned int)(y/2) };
-                        Piece piece = state[position];
-                        ss << "\033[0m" << "\033[" << getPositionColor(position) << "m"; // 47 = white background, 30 = black text
-                        ss << piece.getAlgebraicChar();
-                        ss << "\033[0m"; // Reset terminal colors
+                        PieceColor positionHighlight = getPositionHighlightColor(position);
+
+                        char pieceChar = state[position].getAlgebraicChar();
+
+                        if( positionHighlight != PieceColor::NONE ) {
+                            std::string terminalHightColor = positionHighlight == PieceColor::WHITE ? "42": "44";
+                            ss << "\033[" << terminalHightColor << "m"; // Set background
+                            ss << pieceChar;
+                            ss << "\033[0m"; // Reset terminal colors
+                        }
+                        else {
+                            ss << pieceChar;
+                        }
                     }
                     else {
                         ss << ' ';
                     }
                 }
+
+                // Print left row label
+                ss << ' ' << rowNumber;
             }
             ss << "\n";	
         }
 
-        ss << "\t  ";
-        for( int x=0; x < 8*4; x++ ) {
-            bool columnLabel = (x % 2 == 0 && x % 4 != 0);
-            ss << (columnLabel ? (char)('a' + x / 4) : ' ');
-        }
+        // Print bottom column labels
+        printColumnLabels();
 
         return ss.str();        
     }
