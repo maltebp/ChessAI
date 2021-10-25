@@ -4,6 +4,7 @@
 
 #include "Piece.h"
 #include "Position.h"
+#include "Move.h"
 
 
 class State {
@@ -29,6 +30,18 @@ public:
 
 	// Get the color of the Player whos turn it is
 	PieceColor getTurnColor() const;
+
+	/**
+	 * @brief	Creates a multi-string visualizing the board using ASCII characters,
+	 *  		and terminal colors.
+	 * 			The "last moves" will be highlighted using terminal colors, if they
+	 * 			are not the default Move()
+	 * 
+	 * @param prefix	Prefix string to add before each line
+	 * @param lastWhiteMove 	Last white move performed
+	 * @param lastBlackMove 	Last black move performed
+	 */
+	std::string toPrettyString(const std::string& prefix = "", Move lastWhiteMove = Move(), Move lastBlackMove = Move()) const;
 
 	bool operator==(const State& other) const;
 

@@ -354,7 +354,11 @@ namespace MoveUtil {
 		}
 	}
 
-	void getAllSliderMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
+	/*
+	Gets the reachable sliding positions for a sliding piece
+	This does not check if the king is checked, if the piece moves there (which is more computationally expensive)
+	*/
+	std::vector<Position> getAllSliderPositionsForPiece(const State& state, Position oldPos, Piece piece) {
 		std::vector<Position> positions;
 		//NSEW
 		if (piece.getType() != PieceType::BISHOP) {
@@ -371,6 +375,15 @@ namespace MoveUtil {
 			addSlidingPositions(-1, 1, state, oldPos, piece, positions);
 			addSlidingPositions(1, -1, state, oldPos, piece, positions);
 		}
+		return positions;
+	}
+
+	/*
+	Gets the possible moves for a sliding piece
+	DOES check if the king is checked, if the piece moves there
+	*/
+	void getAllSliderMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
+		std::vector<Position> positions =  getAllSliderPositionsForPiece(state, oldPos, piece);
 
 		for (Position newPos : positions)
 		{
@@ -480,6 +493,7 @@ namespace MoveUtil {
 		}
 	}
 
+	
 	std::vector<Move> getAllMoves(const State& state) {
 		auto colorToMove = state.getTurnColor();
 
@@ -500,7 +514,7 @@ namespace MoveUtil {
 		//Castling - bools only indicate if piece have moved before, which rules out castling completely
 		bool whiteCanCastle = state.whiteCanCastleKingSide || state.whiteCanCastleQueenSide;
 		bool blackCanCastle = state.blackCanCastleKingSide || state.blackCanCastleQueenSide;
-		bool playerCanCastle = (colorToMove == PieceColor::WHITE && whiteCanCastle) 
+		bool playerCanCastle = (colorToMove == PieceColor::WHITE && whiteCanCastle)
 			|| (colorToMove == PieceColor::BLACK && blackCanCastle);
 		if (playerCanCastle) {
 			getCastlingMoves(state, moves);
