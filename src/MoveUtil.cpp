@@ -602,7 +602,8 @@ namespace MoveUtil {
 
 		// Check if castling move
 		unsigned int dx = move.getXDistance();
-		if (piece.getType() == PieceType::KING && dx==2) {
+		bool isCastlingMove = piece.getType() == PieceType::KING && dx == 2;
+		if (isCastlingMove) {
 			int yval = move.fromField.y;
 			if (move.toField.x == 6) {
 				//"Pick up" rook
@@ -618,6 +619,14 @@ namespace MoveUtil {
 				//Put rook on new field
 				newState.board[3][yval] = { piece.getColor(),PieceType::ROOK };
 			}
+
+			//Update bool indicating that castling has happened
+			if (piece.getColor() == PieceColor::WHITE) {
+				newState.whiteHasCastled = true;
+			}
+			else {
+				newState.blackHasCastled = true;
+			}
 		}
 
 		// Check if promotion move
@@ -632,4 +641,98 @@ namespace MoveUtil {
 		newState.turn++;
 		return newState;
 	}
+
+	/**
+	How many rooks are threathening this position?
+	*/
+	int numOfRooksThreathening(const State& state, Position pos, bool whitesPerspective) {
+		Piece nsew[4] = {
+			getFirstPieceInSlidingPosition(state, pos, 1, 0),
+			getFirstPieceInSlidingPosition(state, pos, 0, 1),
+			getFirstPieceInSlidingPosition(state, pos, -1, 0),
+			getFirstPieceInSlidingPosition(state, pos, 0, -1)
+		};
+
+		int rooks = 0;
+		PieceColor enemyColor = whitesPerspective ? PieceColor::BLACK : PieceColor::WHITE;
+		for (auto nsewPiece : nsew) {
+			if (nsewPiece == Piece(enemyColor, PieceType::ROOK)) rooks++;
+		}
+		return rooks;
+	}
+
+	/**
+	How many enemy bishops are threathening this position?
+	*/
+	int numOfBishopsThreathening(const State& state, Position pos, bool whitesPerspective) {
+		Piece diagonals[4] = {
+			getFirstPieceInSlidingPosition(state, pos, 1, 1),
+			getFirstPieceInSlidingPosition(state, pos, 1, -1),
+			getFirstPieceInSlidingPosition(state, pos, -1, -1),
+			getFirstPieceInSlidingPosition(state, pos, -1, 1)
+		};
+		
+		int bishops = 0;
+		PieceColor enemyColor = whitesPerspective ? PieceColor::BLACK : PieceColor::WHITE;
+		for (auto piece : diagonals) {
+			if (piece == Piece(enemyColor, PieceType::BISHOP)) bishops++;
+		}
+		return bishops;
+	}
+
+	/**
+	How many enemy knights are threathening this position?
+	*/
+	int numOfKnightshreathening(const State& state, Position position, bool whitesPerspective) {
+		Position knightPositions[] = {
+			position.getNeighbourN().getNeighbourNW(),
+			position.getNeighbourN().getNeighbourNE(),
+			position.getNeighbourW().getNeighbourNW(),
+			position.getNeighbourW().getNeighbourSW(),
+			position.getNeighbourS().getNeighbourSW(),
+			position.getNeighbourS().getNeighbourSE(),
+			position.getNeighbourE().getNeighbourNE(),
+			position.getNeighbourE().getNeighbourSE()
+		};
+
+		PieceColor enemyColor = whitesPerspective ? PieceColor::BLACK : PieceColor::WHITE;
+		Piece enemyKnight = Piece(enemyColor, PieceType::KNIGHT);
+
+		int enemyKnightCount = 0;
+		for (auto knightPosition : knightPositions) {
+			if (knightPosition.isFieldInBoard() && state[knightPosition] == enemyKnight) {
+				enemyKnightCount++;
+			}
+		}
+		return enemyKnightCount;
+	}
+
+	/**
+	How many enemy pawns are threathening this position
+	*/
+	int numOfPawnsThreathening(const State& state, Position pos, bool whitesPerspective) {
+		
+		int enemyYDirection = whitesPerspective ? -1 : 1;
+		Position westEnemyPos = { pos.x + 1, pos.y + enemyYDirection };
+		Position eastEnemyPos = { pos.x - 1, pos.y + enemyYDirection };
+
+		PieceColor enemyPieceColor = whitesPerspective ? PieceColor::BLACK : PieceColor::WHITE;
+		int pawnInWest = westEnemyPos.isFieldInBoard()
+			&& state[westEnemyPos].getColor() != enemyPieceColor
+			&& state[westEnemyPos].getType() == PieceType::PAWN;
+
+		int pawnInEast = eastEnemyPos.isFieldInBoard()
+			&& state[eastEnemyPos].getColor() != enemyPieceColor
+			&& state[eastEnemyPos].getType() == PieceType::PAWN;
+
+		//Threathened by en passant (rare but possible case)
+		bool isInEnPassantSquare = state.enPassantTarget.x == pos.x 
+			&& state.enPassantTarget.y == pos.y + enemyYDirection;
+		bool isPawn = state[pos].getType() == PieceType::PAWN;
+		int threathenedByEnPassant = isInEnPassantSquare && isPawn;
+
+		return pawnInEast + pawnInWest + threathenedByEnPassant;
+	}
+
+
 }

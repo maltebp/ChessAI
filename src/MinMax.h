@@ -13,6 +13,7 @@ const static double pawnFieldValuesForWhite[8][8] = {
 		{0,-2,-4,-4,-3,8,23,0},
 		{0,-2,-4,-4,-3,8,23,0},
 };
+
 class MinMaxSearcher {
 public:
 	const static int drawScore = 0;
@@ -120,10 +121,11 @@ public:
 
 		//Pieces and their positional values
 		int current = 0;
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
+		for (unsigned int i = 0; i < 8; i++) {
+			for (unsigned int j = 0; j < 8; j++) {
 				Piece piece = state.board[i][j];
 				int sign = piece.getColor() == PieceColor::WHITE ? 1 : -1;
+				bool whitePiece = sign == 1;
 				Position pos = { i,j };
 				switch (piece.getType())
 				{
@@ -133,17 +135,31 @@ public:
 				}
 				case PieceType::QUEEN:
 				{
-					current = 900 + 1 * MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					current = 900 + 1 * controlledSquares;
+					int minorPieces = MoveUtil::numOfRooksThreathening(state, pos, whitePiece)
+						+ MoveUtil::numOfBishopsThreathening(state, pos, whitePiece)
+						+ MoveUtil::numOfKnightshreathening(state, pos, whitePiece)
+						+ MoveUtil::numOfPawnsThreathening(state, pos, whitePiece);
+					current += minorPiecesThreatheningPoints(minorPieces);
 					break;
 				}
 				case PieceType::ROOK:
 				{
-					current = (int)(500 + 1.5 * MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size());
+					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					current = (int)(500 + 1.5 * controlledSquares);
+					int minorPieces = MoveUtil::numOfBishopsThreathening(state, pos, whitePiece)
+						+ MoveUtil::numOfKnightshreathening(state, pos, whitePiece)
+						+ MoveUtil::numOfPawnsThreathening(state, pos, whitePiece);
+					current += minorPiecesThreatheningPoints(minorPieces);
 					break;
 				}
 				case PieceType::BISHOP:
 				{
-					current = 300 + 2*MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					current = 300 + 2 * controlledSquares;
+					int minorPieces = MoveUtil::numOfPawnsThreathening(state, pos, whitePiece);
+					current += minorPiecesThreatheningPoints(minorPieces);
 					break;
 				}
 				case PieceType::KNIGHT:
@@ -152,6 +168,9 @@ public:
 					int yDist = pos.y < 4 ? 3 - pos.y : 4 - pos.y;
 					int distFromCenter = xDist + yDist;
 					current = 300 + 3 * (4 - distFromCenter);
+
+					int minorPieces = MoveUtil::numOfPawnsThreathening(state, pos, whitePiece);
+					current += minorPiecesThreatheningPoints(minorPieces);
 					break;
 				}
 				case PieceType::PAWN:
@@ -179,11 +198,14 @@ public:
 		}
 
 		//Castling
-		//TODO add castiling logic
-		//Pieces threatened by minor piece
-		//TODO add this logic
+		sum -= state.blackHasCastled * 16;
+		sum += state.whiteHasCastled * 16;
 
 		return sum;
+	}
+
+	static int minorPiecesThreatheningPoints(int num) {
+		return num == 0 ? 2 : num == 1 ? -10 : -50;
 	}
 
 
