@@ -12,9 +12,10 @@ int main(int argc, char** argv) {
     AIPlayerController ourEngine1;
     AIPlayerController ourEngine2;
 
-    State startState = "2k4r/1pp2ppp/p1n5/4p2b/1bP5/NP2P2P/PB2P3/2RKqBNR w - - 1 19";
+    //State startState = "2k4r/1pp2ppp/p1n5/4p2b/1bP5/NP2P2P/PB2P3/2RKqBNR w - - 1 19";
+    State startState = State::createDefault();
 
-    GameController game = GameController(ourEngine1, ourEngine2);
+    GameController game = GameController(ourEngine1, localPlayer2);
     game.start(startState);
 
     return 0;

@@ -17,16 +17,26 @@ const static double pawnFieldValuesForWhite[8][8] = {
 class MinMaxSearcher {
 public:
 
-	static Move search(const State& state, int depth) {
-		auto [move, score] = searchInternal(state, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
-		return move;
+	static std::vector<Move> search(const State& state, int depth) {
+		moveList.clear();
+		searchInternal(state, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+		previousBestMoves = moveList;
+		return previousBestMoves;
 	}
 
 private:
+
+	static void deleteElementsBetween(std::vector<Move>& v, size_t startIndex, size_t endIndex) {
+		if( startIndex >= endIndex ) return;
+		v.erase(v.begin() + startIndex, v.begin() + endIndex ); 
+	}
+
 	
 	static std::tuple<Move, int> searchInternal(const State& state, int depth, int alpha, int beta) {
 
-		//Base case: Leaf node
+		size_t startIndex = moveList.size();
+
+		//Base case:	Leaf node
 		if (depth == 0) {
 			int score = danielsenHeuristic(state);
 			return { Move(), score };
@@ -49,13 +59,15 @@ private:
 			}
 		}
 
-
 		Move bestMove;
 		for (Move move : moves)
 		{
 			if (alpha >= beta) {
 				break;
 			}
+
+			size_t currentIndex = moveList.size();
+			moveList.push_back(move);
 
 			State resultState = MoveUtil::executeMove(state, move);
 
@@ -64,15 +76,21 @@ private:
 			{
 				alpha = resultScore;
 				bestMove = move;
+
+				deleteElementsBetween(moveList, startIndex, currentIndex);
 			} else if (!isMaximizer && resultScore < beta) 
 			{
 				beta = resultScore;
 				bestMove = move;
+
+				deleteElementsBetween(moveList, startIndex, currentIndex);
+			} else {
+				deleteElementsBetween(moveList, currentIndex, moveList.size());
 			}
+
 			if (beta == std::numeric_limits<int>::min()) {
 				int x = 1;
 			}
-
 		}
 
 		int score = isMaximizer ? alpha : beta;
@@ -227,6 +245,10 @@ private:
 	}
 
 private:
+
+	static inline std::vector<Move> moveList;
+
+	static inline std::vector<Move> previousBestMoves;
 
 	constexpr static int DRAW_SCORE  = 0;
 
