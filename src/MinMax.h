@@ -127,9 +127,10 @@ private:
 		int blacksMinorPieceThreaths = 0;
 
 		//Pieces and their positional values
-		int current = 0;
+		int current;
 		for (unsigned int i = 0; i < 8; i++) {
 			for (unsigned int j = 0; j < 8; j++) {
+				current = 0;
 				Piece piece = state.board[i][j];
 				int sign = piece.getColor() == PieceColor::WHITE ? 1 : -1;
 				bool whitePiece = sign == 1;
@@ -170,7 +171,10 @@ private:
 				case PieceType::KNIGHT:
 				{
 					int xDist = pos.x < 4 ? 3 - pos.x : 4 - pos.x;
+					xDist = xDist < 0 ? -xDist : xDist;
 					int yDist = pos.y < 4 ? 3 - pos.y : 4 - pos.y;
+					yDist = yDist < 0 ? -yDist : yDist;
+
 					int distFromCenter = xDist + yDist;
 					current = 300 + 3 * (4 - distFromCenter);
 
