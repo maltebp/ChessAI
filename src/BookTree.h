@@ -1,80 +1,32 @@
 #pragma once
-#include <iostream>
+#include <vector>
+#include "Move.h"
 
-struct Position {
-
-	unsigned int x = UINT32_MAX;
-	unsigned int y = UINT32_MAX;
-
-	static bool fromAlgebraicNotation(const std::string& str, Position& outputPosition) {
-		if( str.length() != 2 ) return false;
-
-		Position position = {
-			7 - (unsigned int)('h' - str.at(0)),
-			7 - (unsigned int)('8' - str.at(1))
-		};
-
-		if( !position.isFieldInBoard() ) return false;
-
-		outputPosition = position;	
-
-		return true;
+namespace BookMoves {
+	std::vector<Node*> roots;
+	struct Node {
+		Move move;
+		std::vector<Node*> children;
+	};
+	static Node* createRoot(Move move) {
+		Node* root = new Node;
+		root->move = move;
+		roots.push_back(root);
+		return root;
 	}
-
-	std::string toAlgebraicNotation() const {
-		std::string str = "";
-		str += (char)x + 'a';
-		str += (char)y+1 + '0';
-		return str;
+	static Node* addChild(Node* node, Move move) {
+		Node* temp = new Node;
+		temp->move = move;
+		(node->children).push_back(temp);
+		return temp;
 	}
-
-	Position getNeighbourN() const {
-		return{ x,y + 1 };
+	std::vector<Node*> getRoots() {
+		return roots;
 	}
-
-	Position getNeighbourS() const {
-		return{ x,y - 1 };
+	static Node* findChild(Node* node, Move move) {
+		for (int i = 0; i < node->children.size; i++) {
+			if ((node->child[i]->move)
+		}
+		return NULL;
 	}
-
-	Position getNeighbourW() const {
-		return{ x - 1,y };
-	}
-
-	Position getNeighbourE() const {
-		return{ x + 1,y };
-	}
-
-	Position getNeighbourNE() const {
-		return{ x + 1 ,y + 1 };
-	}
-
-	Position getNeighbourNW() const {
-		return{ x - 1,y + 1 };
-	}
-
-	Position getNeighbourSE() const {
-		return{ x + 1,y - 1 };
-	}
-
-	Position getNeighbourSW() const {
-		return{ x - 1,y - 1 };
-	}
-
-	bool isFieldInBoard() const {
-		return x <= 7 && y <= 7;
-	}
-	
-	bool operator==(const Position& other) const {
-		return this->x == other.x && this->y == other.y;
-	}
-
-	bool operator!=(const Position& other) const {
-		return !(*this == other);
-	}
-
-	friend std::ostream& operator<<(std::ostream& stream, const Position pos) {
-		stream << "(" << pos.x << "," << pos.y << ")";
-		return stream;
-	}
-
-};
+}
