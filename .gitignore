@@ -3,4 +3,5 @@
 Debug/
 x64/
 x86/
+engine_arena_test/
 *.user
