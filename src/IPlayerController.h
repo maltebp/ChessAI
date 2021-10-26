@@ -8,6 +8,6 @@
 class IPlayerController {
 public:
 
-    virtual Move getMove(const State& state, const std::vector<Move>& initialMoves,const Move& lastMove) = 0;
+    virtual Move getMove(const State& state, const std::vector<Move>& initialMoves, const Move& lastMove) = 0;
 
 };

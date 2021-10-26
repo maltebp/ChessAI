@@ -6,6 +6,6 @@
 class TUIPlayer : public IPlayerController {
 public:
 
-    Move getMove(const State& state, const std::vector<Move>& initialMoves) override;
+    Move getMove(const State& state, const std::vector<Move>& initialMoves, const Move& lastMove) override;
 
 };
