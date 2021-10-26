@@ -65,41 +65,17 @@ namespace MoveUtil {
 		PieceColor colorToMove = threatenedByBlack ? PieceColor::BLACK : PieceColor::WHITE;
 
 		//Check pawns
-		//From whites perspective, pawns can attack from north and "down". Vice versea.
-		int direction = threatenedByBlack ? 1 : -1;
-
-		Position eastPawnPos = { position.x + 1, position.y + direction };
-		Position westPawnPos = { position.x - 1, position.y + direction };
-
-		Piece attackingPawn = Piece(colorToMove, PieceType::PAWN);
-
-		if (eastPawnPos.isFieldInBoard() && state[eastPawnPos] == attackingPawn) {
-			return true;
-		}
-		if (westPawnPos.isFieldInBoard() && state[westPawnPos] == attackingPawn) {
+		bool threathenedByPawn = isPawnThreathening(state, position, threatenedByBlack);
+		if (threathenedByPawn) {
 			return true;
 		}
 
 		// Check Knights
-		Position knightPositions[] = {
-			position.getNeighbourN().getNeighbourNW(),
-			position.getNeighbourN().getNeighbourNE(),
-			position.getNeighbourW().getNeighbourNW(),
-			position.getNeighbourW().getNeighbourSW(),
-			position.getNeighbourS().getNeighbourSW(),
-			position.getNeighbourS().getNeighbourSE(),
-			position.getNeighbourE().getNeighbourNE(),
-			position.getNeighbourE().getNeighbourSE()
-		};
-
-		Piece currentKnight = Piece(colorToMove, PieceType::KNIGHT);
-
-		for (auto knightPosition : knightPositions) {
-			if (knightPosition.isFieldInBoard() && state[knightPosition] == currentKnight) {
-				return true;
-			}
+		bool threathenedByKnight = isKnightThreathening(state, position, threatenedByBlack);
+		if (threathenedByKnight) {
+			return true;
 		}
-
+		
 		// Look at "sliding" positions
 		Piece nsew[4] = {
 			getFirstPieceInSlidingPosition(state, position, 1, 0),
@@ -247,20 +223,17 @@ namespace MoveUtil {
 			}
 		}
 
-		// // En Passant
-		// if( state.enPassantTarget.isFieldInBoard() ){
-		// 	int directionSign = 
-
-		// 	Position leftPosition = oldPos;
-		// 	leftPosition.x -= 1;
+		 // En Passant
+		if( state.enPassantTarget.isFieldInBoard() ){
+			int yDir = piece.getColor() == PieceColor::WHITE ? 1 : -1;
 			
-		// 	Position rightPosition = oldPos;
-		// 	rightPosition.x += 1;
+			Position leftPosition = { oldPos.x-1, oldPos.y+yDir };
+		 	Position rightPosition = { oldPos.x+1, oldPos.y + yDir };
 
-		// 	if( leftPosition == state.enPassantTarget || rightPosition == state.enPassantTarget) {
-		// 		positions.push_back(state.enPassantTarget);
-		// 	}
-		// }
+		 	if( leftPosition == state.enPassantTarget || rightPosition == state.enPassantTarget) {
+		 		positions.push_back(state.enPassantTarget);
+		 	}
+		}
 
 		for (Position newPos : positions)
 		{
@@ -643,9 +616,9 @@ namespace MoveUtil {
 	}
 
 	/**
-	How many rooks are threathening this position?
+	Is a rook threathening this position?
 	*/
-	int numOfRooksThreathening(const State& state, Position pos, bool whitesPerspective) {
+	bool isRooksThreathening(const State& state, Position pos, bool whitesPerspective) {
 		Piece nsew[4] = {
 			getFirstPieceInSlidingPosition(state, pos, 1, 0),
 			getFirstPieceInSlidingPosition(state, pos, 0, 1),
@@ -653,18 +626,17 @@ namespace MoveUtil {
 			getFirstPieceInSlidingPosition(state, pos, 0, -1)
 		};
 
-		int rooks = 0;
 		PieceColor enemyColor = whitesPerspective ? PieceColor::BLACK : PieceColor::WHITE;
 		for (auto nsewPiece : nsew) {
-			if (nsewPiece == Piece(enemyColor, PieceType::ROOK)) rooks++;
+			if (nsewPiece == Piece(enemyColor, PieceType::ROOK)) return true;
 		}
-		return rooks;
+		return false;
 	}
 
 	/**
-	How many enemy bishops are threathening this position?
+	Is a bishop threathening this position?
 	*/
-	int numOfBishopsThreathening(const State& state, Position pos, bool whitesPerspective) {
+	bool isBishopThreathening(const State& state, Position pos, bool whitesPerspective) {
 		Piece diagonals[4] = {
 			getFirstPieceInSlidingPosition(state, pos, 1, 1),
 			getFirstPieceInSlidingPosition(state, pos, 1, -1),
@@ -672,18 +644,17 @@ namespace MoveUtil {
 			getFirstPieceInSlidingPosition(state, pos, -1, 1)
 		};
 		
-		int bishops = 0;
 		PieceColor enemyColor = whitesPerspective ? PieceColor::BLACK : PieceColor::WHITE;
 		for (auto piece : diagonals) {
-			if (piece == Piece(enemyColor, PieceType::BISHOP)) bishops++;
+			if (piece == Piece(enemyColor, PieceType::BISHOP)) return true;
 		}
-		return bishops;
+		return false;
 	}
 
 	/**
-	How many enemy knights are threathening this position?
+	Is a knight threathening this position?
 	*/
-	int numOfKnightshreathening(const State& state, Position position, bool whitesPerspective) {
+	bool isKnightThreathening(const State& state, Position position, bool whitesPerspective) {
 		Position knightPositions[] = {
 			position.getNeighbourN().getNeighbourNW(),
 			position.getNeighbourN().getNeighbourNE(),
@@ -698,30 +669,29 @@ namespace MoveUtil {
 		PieceColor enemyColor = whitesPerspective ? PieceColor::BLACK : PieceColor::WHITE;
 		Piece enemyKnight = Piece(enemyColor, PieceType::KNIGHT);
 
-		int enemyKnightCount = 0;
 		for (auto knightPosition : knightPositions) {
 			if (knightPosition.isFieldInBoard() && state[knightPosition] == enemyKnight) {
-				enemyKnightCount++;
+				return true;
 			}
 		}
-		return enemyKnightCount;
+		return false;
 	}
 
 	/**
-	How many enemy pawns are threathening this position
+	Is a pawn threathening this position
 	*/
-	int numOfPawnsThreathening(const State& state, Position pos, bool whitesPerspective) {
+	bool isPawnThreathening(const State& state, Position pos, bool whitesPerspective) {
 		
 		int enemyYDirection = whitesPerspective ? -1 : 1;
 		Position westEnemyPos = { pos.x + 1, pos.y + enemyYDirection };
 		Position eastEnemyPos = { pos.x - 1, pos.y + enemyYDirection };
 
 		PieceColor enemyPieceColor = whitesPerspective ? PieceColor::BLACK : PieceColor::WHITE;
-		int pawnInWest = westEnemyPos.isFieldInBoard()
+		bool pawnInWest = westEnemyPos.isFieldInBoard()
 			&& state[westEnemyPos].getColor() != enemyPieceColor
 			&& state[westEnemyPos].getType() == PieceType::PAWN;
 
-		int pawnInEast = eastEnemyPos.isFieldInBoard()
+		bool pawnInEast = eastEnemyPos.isFieldInBoard()
 			&& state[eastEnemyPos].getColor() != enemyPieceColor
 			&& state[eastEnemyPos].getType() == PieceType::PAWN;
 
@@ -729,9 +699,9 @@ namespace MoveUtil {
 		bool isInEnPassantSquare = state.enPassantTarget.x == pos.x 
 			&& state.enPassantTarget.y == pos.y + enemyYDirection;
 		bool isPawn = state[pos].getType() == PieceType::PAWN;
-		int threathenedByEnPassant = isInEnPassantSquare && isPawn;
+		bool threathenedByEnPassant = isInEnPassantSquare && isPawn;
 
-		return pawnInEast + pawnInWest + threathenedByEnPassant;
+		return pawnInEast && pawnInWest && threathenedByEnPassant;
 	}
 
 

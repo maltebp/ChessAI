@@ -130,7 +130,7 @@ public:
 				int sign = piece.getColor() == PieceColor::WHITE ? 1 : -1;
 				bool whitePiece = sign == 1;
 				Position pos = { i,j };
-				int minorPieceThreathening = 0;
+				bool minorPieceThreathening = false;
 				switch (piece.getType())
 				{
 				case PieceType::KING:
@@ -141,26 +141,26 @@ public:
 				{
 					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
 					current = 900 + 1 * controlledSquares;
-					minorPieceThreathening = MoveUtil::numOfRooksThreathening(state, pos, whitePiece)
-						+ MoveUtil::numOfBishopsThreathening(state, pos, whitePiece)
-						+ MoveUtil::numOfKnightshreathening(state, pos, whitePiece)
-						+ MoveUtil::numOfPawnsThreathening(state, pos, whitePiece);
+					minorPieceThreathening = MoveUtil::isRooksThreathening(state, pos, whitePiece)
+						|| MoveUtil::isBishopThreathening(state, pos, whitePiece)
+						|| MoveUtil::isKnightThreathening(state, pos, whitePiece)
+						|| MoveUtil::isPawnThreathening(state, pos, whitePiece);
 					break;
 				}
 				case PieceType::ROOK:
 				{
 					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
 					current = (int)(500 + 1.5 * controlledSquares);
-					minorPieceThreathening = MoveUtil::numOfBishopsThreathening(state, pos, whitePiece)
-						+ MoveUtil::numOfKnightshreathening(state, pos, whitePiece)
-						+ MoveUtil::numOfPawnsThreathening(state, pos, whitePiece);
+					minorPieceThreathening = MoveUtil::isBishopThreathening(state, pos, whitePiece)
+						|| MoveUtil::isKnightThreathening(state, pos, whitePiece)
+						|| MoveUtil::isPawnThreathening(state, pos, whitePiece);
 					break;
 				}
 				case PieceType::BISHOP:
 				{
 					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
 					current = 300 + 2 * controlledSquares;
-					minorPieceThreathening = MoveUtil::numOfPawnsThreathening(state, pos, whitePiece);
+					minorPieceThreathening = MoveUtil::isPawnThreathening(state, pos, whitePiece);
 					break;
 				}
 				case PieceType::KNIGHT:
@@ -170,7 +170,7 @@ public:
 					int distFromCenter = xDist + yDist;
 					current = 300 + 3 * (4 - distFromCenter);
 
-					minorPieceThreathening = MoveUtil::numOfPawnsThreathening(state, pos, whitePiece);
+					minorPieceThreathening = MoveUtil::isPawnThreathening(state, pos, whitePiece);
 					break;
 				}
 				case PieceType::PAWN:
@@ -194,7 +194,7 @@ public:
 				}
 
 				//Update minor-piece-threath counters
-				if (whitePiece && minorPieceThreathening > 0) {
+				if (whitePiece && minorPieceThreathening) {
 					//If it is a white piece and it is threathened by a minor piece
 					whitesMinorPieceThreaths++;
 				}

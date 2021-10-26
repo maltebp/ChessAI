@@ -20,21 +20,21 @@ namespace MoveUtil {
 	/**
 	How many rooks are threathening this position?
 	*/
-	int numOfRooksThreathening(const State& state, Position pos, bool whitesPerspective);
+	bool isRooksThreathening(const State& state, Position pos, bool whitesPerspective);
 
 	/**
 	How many enemy bishops are threathening this position?
 	*/
-	int numOfBishopsThreathening(const State& state, Position pos, bool whitesPerspective);
+	bool isBishopThreathening(const State& state, Position pos, bool whitesPerspective);
 
 	/**
 	How many enemy knights are threathening this position?
 	*/
-	int numOfKnightshreathening(const State& state, Position position, bool whitesPerspective);
+	bool isKnightThreathening(const State& state, Position position, bool whitesPerspective);
 
 	/**
 	How many enemy pawns are threathening this position
 	*/
-	int numOfPawnsThreathening(const State& state, Position pos, bool whitesPerspective);
+	bool isPawnThreathening(const State& state, Position pos, bool whitesPerspective);
 
 }
