@@ -75,6 +75,10 @@ public:
 	
 	bool blackCanCastleQueenSide = true;
 
+	bool blackHasCastled = false;
+
+	bool whiteHasCastled = false;
+
 	// Number of turns since last capture or pawn move
 	unsigned int drawCounter = 0;
 

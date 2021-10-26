@@ -78,7 +78,7 @@ std::tuple<Move, std::string> parseInput(const State& state, const std::vector<M
 }
 
 
-Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves) {
+Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves, const Move& lastMove) {
 
 	while( true ) {
 
