@@ -20,7 +20,7 @@ public:
 
     void start(std::ostream* outputStream, std::ostream* errorStream) override;
     
-    Move getMove(const State& state, const std::vector<Move>& validMoves) override;
+    Move getMove(const State& state, const std::vector<Move>& validMoves, const Move& lastMove) override;
 
 private:
 

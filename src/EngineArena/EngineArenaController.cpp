@@ -110,6 +110,8 @@ EngineArenaController::GameResult EngineArenaController::runGame(unsigned int ga
 
     State state = State::createDefault();
 
+    Move lastMove;
+
     std::stringstream ss;   
     while(true) {
 
@@ -153,7 +155,7 @@ EngineArenaController::GameResult EngineArenaController::runGame(unsigned int ga
             break;
         }
 
-        Move move = currentEngine.getMove(state, availableMoves);
+        Move move = currentEngine.getMove(state, availableMoves, lastMove);
         if( move == Move() ) {  
             // TODO: This is just a bypass of an existing bug (https://github.com/maltebp/ChessAI/issues/23) - MUST BE FIXED!
             std::cout << "  " << "Invalid move!" << std::endl;
@@ -166,6 +168,7 @@ EngineArenaController::GameResult EngineArenaController::runGame(unsigned int ga
         gameLog << move << std::endl;
 
         state = MoveUtil::executeMove(state, move);
+        lastMove = move;
     }    
 
     gameLog.close();
