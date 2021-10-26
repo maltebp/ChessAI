@@ -107,6 +107,9 @@
     <ClInclude Include="src\EngineArena\Warning.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\UnitTests\CheckMate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\UnitTests\FEN.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -123,6 +126,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\EngineArena\VariableSignal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BookTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

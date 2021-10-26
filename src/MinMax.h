@@ -16,10 +16,15 @@ const static double pawnFieldValuesForWhite[8][8] = {
 
 class MinMaxSearcher {
 public:
-	const static int drawScore = 0;
-	const static int minScore = std::numeric_limits<int>::min();
-	const static int maxScore = std::numeric_limits<int>::max();
-	static std::tuple<Move, int> search(const State& state, int depth, int alpha = std::numeric_limits<int>::min(), int beta = std::numeric_limits<int>::max()) {
+
+	static Move search(const State& state, int depth) {
+		auto [move, score] = searchInternal(state, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+		return move;
+	}
+
+private:
+	
+	static std::tuple<Move, int> searchInternal(const State& state, int depth, int alpha, int beta) {
 
 		//Base case: Leaf node
 		if (depth == 0) {
@@ -35,15 +40,14 @@ public:
 			//In this case it is either a draw of a loss or current player
 			if (MoveUtil::isKingThreatened(state)) {
 				//If king is threathened - it is a loss
-				int score = isMaximizer ? maxScore : minScore;
+				int score = isMaximizer ? MAX_SCORE : MIN_SCORE;
 				return { Move(), score };
 			}
 			else {
 				//Else it is a draw
-				return { Move(), drawScore };
+				return { Move(), DRAW_SCORE };
 			}
 		}
-
 
 
 		Move bestMove;
@@ -55,7 +59,7 @@ public:
 
 			State resultState = MoveUtil::executeMove(state, move);
 
-			auto [resultMove, resultScore] = search(resultState, depth - 1, alpha, beta);
+			auto [resultMove, resultScore] = searchInternal(resultState, depth - 1, alpha, beta);
 			if (isMaximizer && resultScore > alpha) 
 			{
 				alpha = resultScore;
@@ -221,6 +225,16 @@ public:
 	static int minorPiecesThreatheningPoints(int num) {
 		return num == 0 ? 2 : num == 1 ? -10 : -50;
 	}
+
+private:
+
+	constexpr static int DRAW_SCORE  = 0;
+
+	constexpr static int MAX_SCORE = std::numeric_limits<int>::max() - 1;
+
+	constexpr static int MIN_SCORE = std::numeric_limits<int>::min() + 1;
+
+
 };
 
 

@@ -135,6 +135,7 @@
     <ClInclude Include="src\EngineArena\VariableSignal.h" />
     <ClInclude Include="src\EngineArena\WaitableVar.h" />
     <ClInclude Include="src\EngineArena\Warning.h" />
+    <ClInclude Include="src\BookTree.h" />
     <ClInclude Include="src\external\catch.hpp" />
     <ClInclude Include="src\external\subprocess.h" />
     <ClInclude Include="src\FENUtil.h" />
@@ -148,6 +149,7 @@
     <ClInclude Include="src\State.h" />
     <ClInclude Include="src\TUIPlayer.h" />
     <ClInclude Include="src\UnitTests\CastlingMoves.h" />
+    <ClInclude Include="src\UnitTests\CheckMate.h" />
     <ClInclude Include="src\UnitTests\FEN.h" />
     <ClInclude Include="src\unittests\PawnMoves.h" />
     <ClInclude Include="src\UnitTests\PromotionMoves.h" />

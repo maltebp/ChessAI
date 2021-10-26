@@ -683,16 +683,16 @@ namespace MoveUtil {
 	bool isPawnThreathening(const State& state, Position pos, bool whitesPerspective) {
 		
 		int enemyYDirection = whitesPerspective ? -1 : 1;
-		Position westEnemyPos = { pos.x + 1, pos.y + enemyYDirection };
-		Position eastEnemyPos = { pos.x - 1, pos.y + enemyYDirection };
+		Position westEnemyPos = { pos.x - 1, pos.y - enemyYDirection };
+		Position eastEnemyPos = { pos.x + 1, pos.y - enemyYDirection };
 
 		PieceColor enemyPieceColor = whitesPerspective ? PieceColor::BLACK : PieceColor::WHITE;
 		bool pawnInWest = westEnemyPos.isFieldInBoard()
-			&& state[westEnemyPos].getColor() != enemyPieceColor
+			&& state[westEnemyPos].getColor() == enemyPieceColor
 			&& state[westEnemyPos].getType() == PieceType::PAWN;
 
 		bool pawnInEast = eastEnemyPos.isFieldInBoard()
-			&& state[eastEnemyPos].getColor() != enemyPieceColor
+			&& state[eastEnemyPos].getColor() == enemyPieceColor
 			&& state[eastEnemyPos].getType() == PieceType::PAWN;
 
 		//Threathened by en passant (rare but possible case)
@@ -701,7 +701,7 @@ namespace MoveUtil {
 		bool isPawn = state[pos].getType() == PieceType::PAWN;
 		bool threathenedByEnPassant = isInEnPassantSquare && isPawn;
 
-		return pawnInEast && pawnInWest && threathenedByEnPassant;
+		return pawnInEast || pawnInWest || threathenedByEnPassant;
 	}
 
 
