@@ -31,8 +31,6 @@ EngineArenaController::EngineArenaController(
         engine1Name += "_1";
         engine2Name += "_2";
     }
-
-
 }
 
 
@@ -46,7 +44,7 @@ void EngineArenaController::start() {
 
     fs::create_directories(sessionPath);
 
-    fs::path resultsFilePath = sessionPath / "results";
+    fs::path resultsFilePath = sessionPath / "results.csv";
 
     std::fstream resultsFile;
     resultsFile.open(
@@ -56,14 +54,27 @@ void EngineArenaController::start() {
 
     
     for( unsigned int i=0; i<5; i++) {
-        runGame(i+1, sessionPath);
+        GameResult result = runGame(i+1, sessionPath);
+
+        std::string winnerName = 
+            result.winner == 1 ?
+            engine1Name :
+            result.winner == 2 ?
+            engine2Name :
+            result.winner == 0 ?
+            "Draw" :
+            "Invalid";
+
+        resultsFile << "Winner: " << winnerName << std::endl;
     }
 
     resultsFile.close();
 }
 
 
-void EngineArenaController::runGame(unsigned int gameNum, const fs::path& dir) {
+EngineArenaController::GameResult EngineArenaController::runGame(unsigned int gameNum, const fs::path& dir) {
+
+    GameResult result;
 
     std::cout << "Starting game " << gameNum << " .." << std::endl;
 
@@ -104,8 +115,7 @@ void EngineArenaController::runGame(unsigned int gameNum, const fs::path& dir) {
 
         IPlayerController& currentEngine = state.turn % 2 == 0 ? engine1 : engine2;
 
-        // TODO: Replicate to std::cout somehow
-        std::string boardString = TUIUtil::getPrettyBoard(state);
+        std::string boardString = state.toPrettyString("  ");
         
         std::cout << '\n' << boardString << std::endl;
         gameLog << '\n' << boardString << std::endl;
@@ -115,21 +125,31 @@ void EngineArenaController::runGame(unsigned int gameNum, const fs::path& dir) {
 
         if( state.drawCounter >= 49 ) {
             gameLog << "Result: Draw" << std::endl;
+            result.winner = 0;
             break;
         }
 
+        // This is only necessary because of the bug in our engine
         if( MoveUtil::isKingThreatened(state) ) {
-            // This is only necessary because of the bug in our engine
-            std::cout << "  " << (state.turn % 2 == 0 ? engine1Name : engine2Name) << " wins" << std::endl;
-            gameLog << "  " << (state.turn % 2 == 0 ? engine1Name : engine2Name) << " wins" << std::endl;
+            bool whiteWins = state.turn % 2 == 0;
+            // Note: at some point, eninge1 should NOT be synonymous with "white"
+            // They should switch turns every game
+            std::string winnerName = whiteWins ? engine1Name : engine2Name;
+            std::cout << "  " << winnerName << " wins" << std::endl;
+            gameLog << "  " << winnerName << " wins" << std::endl;
+            result.winner = whiteWins ? 1 : 2; 
             break;
         }
 
         std::vector<Move> availableMoves = MoveUtil::getAllMoves(state);
         if( availableMoves.size() == 0 ) {
-            const std::string& winner = (state.turn % 2 == 0 ? engine2Name : engine1Name);
-            std::cout << "Result: " << winner << " wins" << std::endl;
-            gameLog << "Result: " << winner << " wins" << std::endl;
+            bool whiteWins = state.turn % 2 == 0;
+            // Note: at some point, eninge1 should NOT be synonymous with "white"
+            // They should switch turns every game
+            std::string winnerName = whiteWins ? engine1Name : engine2Name;
+            std::cout << "Result: " << winnerName << " wins" << std::endl;
+            gameLog << "Result: " << winnerName << " wins" << std::endl;
+            result.winner = whiteWins ? 1 : 2;
             break;
         }
 
@@ -151,4 +171,6 @@ void EngineArenaController::runGame(unsigned int gameNum, const fs::path& dir) {
     gameLog.close();
     engine1Log.close();
     engine2Log.close();
+
+    return result;
 }

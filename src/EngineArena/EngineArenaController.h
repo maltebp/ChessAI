@@ -22,7 +22,13 @@ public:
 
 private:
 
-    void runGame(unsigned int gameNum, const fs::path& dir);
+    struct GameResult {
+        int winner = -1; // 0 = draw, 1 = engine1, 2 = engine2;
+    };
+
+private:
+
+    GameResult runGame(unsigned int gameNum, const fs::path& dir);
 
 private:
 
