@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
 
     State startState = "2k4r/1pp2ppp/p1n5/4p2b/1bP5/NP2P2P/PB2P3/2RKqBNR w - - 1 19";
 
-    GameController game = GameController(localPlayer1, ourEngine2);
+    GameController game = GameController(ourEngine1, ourEngine2);
     game.start(startState);
 
     return 0;
