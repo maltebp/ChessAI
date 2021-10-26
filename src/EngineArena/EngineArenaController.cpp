@@ -2,7 +2,9 @@
 
 #include <cassert>
 #include <fstream>
+#include <iostream>
 #include <iomanip>
+#include <thread>
 
 #include "Util.h"
 #include "TUIUtil.h"
@@ -36,15 +38,48 @@ EngineArenaController::EngineArenaController(
 
 void EngineArenaController::start() {
 
+    std::cout << "  Output path: " << outputPath << std::endl;
 
-    std::cout << "Output path: " << outputPath << std::endl;
+    fs::path sessionPath = outputPath / Util::getDateString("%d_%m_%H_%M_%S");
+    std::cout << "  Session path: " << sessionPath << std::endl;
 
-    fs::path sessionPath = outputPath / Util::getDateString("%d_%m_%H_%M");
-    std::cout << "Session path: " << sessionPath << std::endl;
+    // Start test thread
+    std::thread s([&]() { this->runSession(sessionPath); });
 
-    fs::create_directories(sessionPath);
+    // Start input parsing
+    
+    while(true) {
 
-    fs::path resultsFilePath = sessionPath / "results.csv";
+        if( stoppedSignal.isSet() ) {
+            std::cout << "Session stopped" << std::endl;
+            break;
+        }
+
+        std::cout << "\n>" << std::flush;
+
+        std::string rawInput;
+        std::getline(std::cin, rawInput);
+        std::vector<std::string> input = Util::splitString(rawInput, " \t\r\n");
+
+        std::string command = input.size() == 0 ? "" : input[0];
+
+        if( command == "stop" ) {
+            std::cout << "Stopping session..." << std::endl;
+            stop = true;
+            stoppedSignal.wait();
+            std::cout << "Session stopped" << std::endl;
+            break;
+        }
+
+    }
+
+}
+
+
+void EngineArenaController::runSession(const fs::path& outputPath) {
+
+    fs::create_directories(outputPath);
+    fs::path resultsFilePath = outputPath / "results.csv";
 
     std::fstream resultsFile;
     resultsFile.open(
@@ -52,31 +87,25 @@ void EngineArenaController::start() {
          std::fstream::out | std::fstream::app
     );
 
+    // CSV header
+    resultsFile << "Game Id,Winner" << std::endl; 
     
     for( unsigned int i=0; i<5; i++) {
-        GameResult result = runGame(i+1, sessionPath);
+        unsigned int gameId = i+1;
+        GameResult result = runGame(gameId, outputPath);
 
-        std::string winnerName = 
-            result.winner == 1 ?
-            engine1Name :
-            result.winner == 2 ?
-            engine2Name :
-            result.winner == 0 ?
-            "Draw" :
-            "Invalid";
-
-        resultsFile << "Winner: " << winnerName << std::endl;
+        resultsFile << gameId << ',' << result.winner << std::endl; 
     }
 
     resultsFile.close();
+
+    std::cout << "Session thread stopped" << std::endl;
 }
 
 
 EngineArenaController::GameResult EngineArenaController::runGame(unsigned int gameNum, const fs::path& dir) {
 
     GameResult result;
-
-    std::cout << "Starting game " << gameNum << " .." << std::endl;
 
     // Open logs
     std::fstream gameLog;
@@ -105,25 +134,24 @@ EngineArenaController::GameResult EngineArenaController::runGame(unsigned int ga
         );
     }
    
+    gameLog << "Starting " << engine1Name << " (Engine 1, White)" << std::endl;
     engine1.start(&engine1Log, &engine1Log);
+    gameLog << "Starting " << engine2Name << " (Engine 2, White)" << std::endl;
     engine2.start(&engine2Log, &engine2Log);
 
+    gameLog << "Starting game" << std::endl;
     State state = State::createDefault();
-
     Move lastMove;
-
     std::stringstream ss;   
+
     while(true) {
 
         IPlayerController& currentEngine = state.turn % 2 == 0 ? engine1 : engine2;
 
         std::string boardString = state.toPrettyString("  ");
-        
-        std::cout << '\n' << boardString << std::endl;
         gameLog << '\n' << boardString << std::endl;
-
-        std::cout << "  " <<  state.toFEN() << std::endl;
         gameLog << '\n' << state.toFEN() << std::endl;
+        gameLog << "Turn: " << currentEngine.getName() << std::endl;
 
         if( state.drawCounter >= 49 ) {
             gameLog << "Result: Draw" << std::endl;
@@ -137,8 +165,7 @@ EngineArenaController::GameResult EngineArenaController::runGame(unsigned int ga
             // Note: at some point, eninge1 should NOT be synonymous with "white"
             // They should switch turns every game
             std::string winnerName = whiteWins ? engine1Name : engine2Name;
-            std::cout << "  " << winnerName << " wins" << std::endl;
-            gameLog << "  " << winnerName << " wins" << std::endl;
+            gameLog << "\nWinner: " << winnerName << std::endl;
             result.winner = whiteWins ? 1 : 2; 
             break;
         }
@@ -149,8 +176,7 @@ EngineArenaController::GameResult EngineArenaController::runGame(unsigned int ga
             // Note: at some point, eninge1 should NOT be synonymous with "white"
             // They should switch turns every game
             std::string winnerName = whiteWins ? engine1Name : engine2Name;
-            std::cout << "Result: " << winnerName << " wins" << std::endl;
-            gameLog << "Result: " << winnerName << " wins" << std::endl;
+            gameLog << "\nWinner: " << winnerName << std::endl;
             result.winner = whiteWins ? 1 : 2;
             break;
         }
@@ -158,14 +184,12 @@ EngineArenaController::GameResult EngineArenaController::runGame(unsigned int ga
         Move move = currentEngine.getMove(state, availableMoves, lastMove);
         if( move == Move() ) {  
             // TODO: This is just a bypass of an existing bug (https://github.com/maltebp/ChessAI/issues/23) - MUST BE FIXED!
-            std::cout << "  " << "Invalid move!" << std::endl;
-            gameLog << "Invalid move!" << std::endl;
+            gameLog << "INVALID MOVE!" << std::endl;
             state.turn++;
             continue;
         }
 
-        std::cout << "  " << move << std::endl;
-        gameLog << move << std::endl;
+        gameLog << "Move: " << move << std::endl;
 
         state = MoveUtil::executeMove(state, move);
         lastMove = move;
@@ -174,6 +198,8 @@ EngineArenaController::GameResult EngineArenaController::runGame(unsigned int ga
     gameLog.close();
     engine1Log.close();
     engine2Log.close();
+
+    std::cout << "\nGame ended" << std::endl;
 
     return result;
 }

@@ -88,7 +88,7 @@ Move UCIEngine::getMove(const State& state, const std::vector<Move>& validMoves,
     std::stringstream ss;
     ss << "position fen " << state.toFEN();
     writeToEngine(ss.str());
-
+    
     engineReadySignal.reset();
     writeToEngine("isready");
     engineReadySignal.wait();

@@ -38,6 +38,14 @@ public:
     }
 
 
+    bool isSet() {
+        {
+            std::lock_guard lock(mutex);
+            return signal;
+        }
+    }
+
+
 private:
 
     bool signal = false;

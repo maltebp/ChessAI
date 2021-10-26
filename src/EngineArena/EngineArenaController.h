@@ -3,6 +3,7 @@
 #include <filesystem>
 
 #include "IPlayerController.h"
+#include "Signal.h"
 
 
 namespace fs = std::filesystem;
@@ -28,6 +29,8 @@ private:
 
 private:
 
+    void runSession(const fs::path& outputPath);
+
     GameResult runGame(unsigned int gameNum, const fs::path& dir);
 
 private:
@@ -41,6 +44,10 @@ private:
     std::string engine1Name;
 
     std::string engine2Name;
+
+    bool stop = false;
+
+    Signal stoppedSignal;  
 
     unsigned int numGames;
 
