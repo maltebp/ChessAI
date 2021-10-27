@@ -43,8 +43,10 @@ private:
 			bool kingIsThreathened = MoveUtil::isFieldThreatened(state, kingPosition, isMaximizer);
 
 			if (kingIsThreathened) {
-				//If king is threathened - it is a loss
-				int scoreValue = MAX_SCORE - 10000 + (depth *10);//Adjust score with depth, so quick mate is preferred 
+				//If king is threathened - it is check mate
+
+				//Adjust score with depth, so quick mate is preferred no matter the other factors
+				int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (depth *VERY_LARGE_POINT_BONUS);
 				int score = isMaximizer ? -scoreValue : scoreValue;
 				
 				return { Move(), score };
@@ -239,6 +241,10 @@ private:
 private:
 
 	constexpr static int DRAW_SCORE  = 0;
+
+	constexpr static int VERY_LARGE_POINT_BONUS  = 10000;
+
+	constexpr static int EVEN_LARGER_POINT_BONUS  = 1000000;
 
 	constexpr static int MAX_SCORE = std::numeric_limits<int>::max() - 1;
 
