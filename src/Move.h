@@ -48,7 +48,9 @@ struct Move {
 
 
 	bool operator==(const Move& other) const {
-		return this->fromField == other.fromField && this->toField == other.toField;
+		return 	this->fromField == other.fromField &&
+				this->toField == other.toField &&
+				this->promotesTo == other.promotesTo;
 	}
 
 	
