@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
     UCIEngine stockfish1 = UCIEngine("Stockfish 14", enginePath, 1000);     
     // UCIEngine stockfish2 = UCIEngine("Stockfish 14", enginePath, 1000);
-    AIPlayerController ourEngine = AIPlayerController(4);
+    AIPlayerController ourEngine = AIPlayerController(5);
     
     EngineArenaController controller = {
         outputPath,

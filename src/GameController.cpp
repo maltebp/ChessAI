@@ -8,8 +8,12 @@
 
 void GameController::start(State state) {
 
+    whitePlayer.start(&std::cout, &std::cerr);
+    blackPlayer.start(&std::cout, &std::cerr);
+
     Piece lastMovedWhitePiece;
     Move lastWhiteMove;
+
     Piece lastMovedBlackPiece;
     Move lastBlackMove;
 

@@ -75,6 +75,12 @@ void UCIEngine::startProcess() {
     *outputStream << "Engine name: " << engineName << std::endl;
     *outputStream << "Engine author: " << engineAuthor << std::endl;
 
+    // Write options
+    // WARNING: This is setup specifcally for the Stockfish engine, and it will break
+    // if we switch it out with another. This should really be setup using a more
+    // general system
+    writeToEngine("setoption name UCI_LimitStrength value true"); // Enables lower elo (default is 1359)
+
     engineReadySignal.reset();
     writeToEngine("isready");
     engineReadySignal.wait();
@@ -144,6 +150,9 @@ void UCIEngine::onEngineStdOutput(const std::string& output) {
     if( tokens[0] == "bestmove" ) {
         Move bestMove;
         bool validMove = Move::fromAlgebraicNotation(tokens[1], bestMove);
+        if( !validMove ) {
+            *errorStream << "Invalid best move " << tokens[1] << std::endl;
+        }
         bestMoveSignal = bestMove;
     }
 }

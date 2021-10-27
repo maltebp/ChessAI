@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <chrono>
 
 #include "IPlayerController.h"
 #include "Signal.h"
@@ -24,7 +25,21 @@ public:
 private:
 
     struct GameResult {
+        
         int winner = -1; // 0 = draw, 1 = engine1, 2 = engine2;
+
+        unsigned int halfTurns = 0; 
+
+        unsigned int engine1PiecesLeft = 0;
+
+        unsigned int engine2PiecesLeft = 0; 
+
+        double engine1SearchTime = 0; // Seconds
+
+        double engine2SearchTime = 0;
+
+        std::string endState = ""; // FEN
+
     };
 
 private:
@@ -45,9 +60,9 @@ private:
 
     std::string engine2Name;
 
-    bool stop = false;
+    bool stopTestThread = false;
 
-    Signal stoppedSignal;  
+    bool testThreadHasStopped = false;
 
     unsigned int numGames;
 

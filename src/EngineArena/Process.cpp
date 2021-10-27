@@ -8,7 +8,7 @@
 
 namespace {
 
-    constexpr size_t OUTPUT_BUFFER_SIZE = 200;
+    constexpr size_t OUTPUT_BUFFER_SIZE = 1;
 
 }
 
