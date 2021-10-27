@@ -11,7 +11,7 @@ struct Move {
 
 	
 	static bool fromAlgebraicNotation(const std::string& inputStr, Move &move) {
-		if( inputStr.length() != 4 ) return false;
+		if( inputStr.length() > 5 || inputStr.length() < 4 ) return false;
 
 		Position fromPosition;
 		if( !Position::fromAlgebraicNotation(inputStr.substr(0, 2), fromPosition) ) {
@@ -23,7 +23,12 @@ struct Move {
 			return false;
 		} 
 
-		move = { fromPosition, toPosition };
+		Piece promotesTo;
+		if( inputStr.length() == 5 ) {
+			bool valid = Piece::fromAlgebraicChar(inputStr[4], promotesTo);
+		}
+
+		move = { fromPosition, toPosition, promotesTo.getType() };
 		return true;
 	}
 
@@ -43,7 +48,9 @@ struct Move {
 
 
 	bool operator==(const Move& other) const {
-		return this->fromField == other.fromField && this->toField == other.toField;
+		return 	this->fromField == other.fromField &&
+				this->toField == other.toField &&
+				this->promotesTo == other.promotesTo;
 	}
 
 	
@@ -54,6 +61,10 @@ struct Move {
 
 	friend std::ostream& operator << (std::ostream& stream, const Move& move) {
 		stream << move.fromField.toAlgebraicNotation() << " -> " << move.toField.toAlgebraicNotation();
+		if( move.promotesTo != PieceType::NONE ) {
+			// Promotions are always indicated with small letter
+			stream << " (Promotion: " << Piece{PieceColor::BLACK, move.promotesTo}.getAlgebraicChar() << ")";
+		}
 		return stream;
 	}
 

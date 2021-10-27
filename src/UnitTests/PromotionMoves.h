@@ -12,7 +12,7 @@ TEST_CASE("Promotion Moves: Generation", "[moves][castling][king][rook]") {
 	state.board[7][6] = Piece(PieceColor::WHITE, PieceType::PAWN);
 
 	state.board[4][7] = Piece(PieceColor::BLACK, PieceType::KING);
-	state.board[6][1] = Piece(PieceColor::BLACK, PieceType::PAWN);;
+	state.board[6][1] = Piece(PieceColor::BLACK, PieceType::PAWN);
 	
 	//White
 	std::vector<Move> moves = MoveUtil::getAllMoves(state);

@@ -38,9 +38,17 @@ private:
 		std::vector<Move> moves = MoveUtil::getAllMoves(state);
 		if (moves.size() == 0) {
 			//In this case it is either a draw of a loss or current player
-			if (MoveUtil::isKingThreatened(state)) {
-				//If king is threathened - it is a loss
-				int score = isMaximizer ? MAX_SCORE : MIN_SCORE;
+			PieceColor colorToMove = isMaximizer ? PieceColor::WHITE : PieceColor::BLACK;
+			Position kingPosition = state.getPiecePosition({ colorToMove, PieceType::KING });
+			bool kingIsThreathened = MoveUtil::isFieldThreatened(state, kingPosition, isMaximizer);
+
+			if (kingIsThreathened) {
+				//If king is threathened - it is check mate
+
+				//Adjust score with depth, so quick mate is preferred no matter the other factors
+				int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (depth *VERY_LARGE_POINT_BONUS);
+				int score = isMaximizer ? -scoreValue : scoreValue;
+				
 				return { Move(), score };
 			}
 			else {
@@ -127,9 +135,10 @@ private:
 		int blacksMinorPieceThreaths = 0;
 
 		//Pieces and their positional values
-		int current = 0;
+		int current;
 		for (unsigned int i = 0; i < 8; i++) {
 			for (unsigned int j = 0; j < 8; j++) {
+				current = 0;
 				Piece piece = state.board[i][j];
 				int sign = piece.getColor() == PieceColor::WHITE ? 1 : -1;
 				bool whitePiece = sign == 1;
@@ -170,7 +179,10 @@ private:
 				case PieceType::KNIGHT:
 				{
 					int xDist = pos.x < 4 ? 3 - pos.x : 4 - pos.x;
+					xDist = xDist < 0 ? -xDist : xDist;
 					int yDist = pos.y < 4 ? 3 - pos.y : 4 - pos.y;
+					yDist = yDist < 0 ? -yDist : yDist;
+
 					int distFromCenter = xDist + yDist;
 					current = 300 + 3 * (4 - distFromCenter);
 
@@ -229,6 +241,10 @@ private:
 private:
 
 	constexpr static int DRAW_SCORE  = 0;
+
+	constexpr static int VERY_LARGE_POINT_BONUS  = 10000;
+
+	constexpr static int EVEN_LARGER_POINT_BONUS  = 1000000;
 
 	constexpr static int MAX_SCORE = std::numeric_limits<int>::max() - 1;
 
