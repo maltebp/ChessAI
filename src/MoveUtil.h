@@ -37,4 +37,6 @@ namespace MoveUtil {
 	*/
 	bool isPawnThreathening(const State& state, Position pos, bool whitesPerspective);
 
+	bool isFieldThreatened(const State& state, const Position position, bool threatenedByBlack);
+
 }

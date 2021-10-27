@@ -38,9 +38,15 @@ private:
 		std::vector<Move> moves = MoveUtil::getAllMoves(state);
 		if (moves.size() == 0) {
 			//In this case it is either a draw of a loss or current player
-			if (MoveUtil::isKingThreatened(state)) {
+			PieceColor colorToMove = isMaximizer ? PieceColor::WHITE : PieceColor::BLACK;
+			Position kingPosition = state.getPiecePosition({ colorToMove, PieceType::KING });
+			bool kingIsThreathened = MoveUtil::isFieldThreatened(state, kingPosition, isMaximizer);
+
+			if (kingIsThreathened) {
 				//If king is threathened - it is a loss
-				int score = isMaximizer ? MAX_SCORE : MIN_SCORE;
+				int scoreValue = MAX_SCORE - 10000 + (depth *10);//Adjust score with depth, so quick mate is preferred 
+				int score = isMaximizer ? -scoreValue : scoreValue;
+				
 				return { Move(), score };
 			}
 			else {
