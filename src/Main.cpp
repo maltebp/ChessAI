@@ -7,6 +7,17 @@
 
 int main(int argc, char** argv) {
 
+    Move move = { {7,6}, {7,7}, PieceType::QUEEN };
+    std::cout << move << std::endl;
+
+    move = { {7,1}, {7,0}, PieceType::QUEEN };
+    std::cout << move << std::endl;
+
+    
+    Move::fromAlgebraicNotation("e2e1q", move);
+    std::cout << move << std::endl;
+
+
     TUIPlayer localPlayer1;
     TUIPlayer localPlayer2;
     AIPlayerController ourEngine1;
