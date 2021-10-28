@@ -9,17 +9,20 @@
 #include "MoveUtil.h"
 
 
+// Remember to update .gitignore if this is changed
+const char* OUTPUT_PATH = "arena_results";
+
+// This relative path will only work when Arena is being run from Visual Studio
+const char* STOCKFISH_PATH = "resources\\stockfish\\stockfish_14_x64_popcnt.exe";
+
+
 int main(int argc, char* argv[]) {
-
-
-
-    std::string enginePath = "C:\\Users\\Malte\\Projects\\ChessAI\\resources\\stockfish\\stockfish_14_x64_popcnt.exe";
-
-    fs::path outputPath = fs::current_path() / "engine_arena_test";
+    
+    fs::path outputPath = fs::current_path() / OUTPUT_PATH;
 
     State state = State::createDefault();
 
-    UCIEngine stockfish1 = UCIEngine("Stockfish 14", enginePath, 1000);
+    UCIEngine stockfish1 = UCIEngine("Stockfish 14", STOCKFISH_PATH, 1000);
     // UCIEngine stockfish2 = UCIEngine("Stockfish 14", enginePath, 1000);
     AIPlayerController ourEngine = AIPlayerController(5);
 
@@ -31,19 +34,5 @@ int main(int argc, char* argv[]) {
     };
 
     controller.start();
-
-    // while(true) {
-    //     std::string input;
-    //     std::getline(std::cin, input);
-    //     if( input == "end" ) break;
-
-    //     if( input == "search" ) {
-    //         Move move = engine.getMove(state, {});
-    //         std::cout << "Best move: " << move;
-    //         state = MoveUtil::executeMove(state, move);
-    //     }
-
-    // }
-
 
 }

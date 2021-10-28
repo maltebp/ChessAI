@@ -5,13 +5,14 @@
 #include <cassert>
 #include <atomic>
 
-#include "external/subprocess.h"
-
 #include "Util.h"
 #include "Warning.h"
 
 
-UCIEngine::UCIEngine(const std::string& name, const std::string& enginePath, long long searchTime)
+namespace fs = std::filesystem;
+
+
+UCIEngine::UCIEngine(std::string name, fs::path enginePath, long long searchTime)
     :   name(name),
         enginePath(enginePath),
         searchTime(searchTime)
@@ -53,9 +54,9 @@ void UCIEngine::start(std::ostream* outputStream, std::ostream* errorStream) {
 
 
 void UCIEngine::startProcess() {
-    process = new Process(
+    process = new Util::Process(
         { 
-            enginePath
+            fs::absolute(enginePath).string()
         },
         [this](auto &output) { this->onEngineStdOutput(output); },
         [this](auto &error) { this->onEngineStdError(error); }

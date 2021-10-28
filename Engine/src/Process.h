@@ -8,52 +8,56 @@
 #include "external/subprocess.h"
 
 
-class Process {
-public:
+namespace Util {
 
-    using OutputListener = std::function<void(const std::string&)>;
+    class Process {
+    public:
 
-public:
+        using OutputListener = std::function<void(const std::string&)>;
 
-    Process(const std::vector<std::string>& commandLine, OutputListener stdOutListener, OutputListener stdErrorListener);
+    public:
 
-    Process(const Process&) = delete;
+        Process(const std::vector<std::string>& commandLine, OutputListener stdOutListener, OutputListener stdErrorListener);
 
-    Process(Process&&) = delete;
+        Process(const Process&) = delete;
 
-    ~Process();
+        Process(Process&&) = delete;
 
-    void writeLine(const std::string& input);
+        ~Process();
 
-    int terminate();
+        void writeLine(const std::string& input);
 
-    Process& operator=(const Process&) = delete;
+        int terminate();
 
-private:
+        Process& operator=(const Process&) = delete;
 
-    // Signature for subprocess_read_stderr and subprocess_read_stdout
-    using OutputReader = std::function<unsigned int(subprocess_s*, char*, unsigned int)>;
+    private:
 
-private:
+        // Signature for subprocess_read_stderr and subprocess_read_stdout
+        using OutputReader = std::function<unsigned int(subprocess_s*, char*, unsigned int)>;
 
-    void readOutput(OutputReader, OutputListener);
+    private:
 
-private:
+        void readOutput(OutputReader, OutputListener);
 
-    bool started = false;
+    private:
 
-    bool terminated = false;
+        bool started = false;
 
-    subprocess_s process;
+        bool terminated = false;
 
-    FILE* processStdIn;
+        subprocess_s process;
 
-    std::thread* readOutputThread;
+        FILE* processStdIn;
 
-    std::thread* readErrorThread;
+        std::thread* readOutputThread;
 
-    OutputListener stdOutListener;
+        std::thread* readErrorThread;
 
-    OutputListener stdErrorListener;
+        OutputListener stdOutListener;
 
-};
+        OutputListener stdErrorListener;
+
+    };
+
+}

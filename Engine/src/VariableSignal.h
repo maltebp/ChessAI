@@ -3,63 +3,66 @@
 #include <mutex>
 #include <condition_variable>
 
-// Simplifying wrapper around the condition_variable for
-// boolean variables
-template<typename T>
-class VariableSignal {
-public:
+namespace Util {
+
+        // Simplifying wrapper around the condition_variable for  boolean variables
+    template<typename T>
+    class VariableSignal {
+    public:
 
 
-    T wait() {
-        std::unique_lock lock(mutex);
+        T wait() {
+            std::unique_lock lock(mutex);
 
-        if( valueWritten ) {
-            return t;
-        }
-
-        T localT;
-        conditionVar.wait(lock, [&](){
             if( valueWritten ) {
-                localT = t;
-                return true;
+                return t;
             }
-            return false;
-        });
-        return localT;
-    }
 
-
-    void set(const T& valueToWrite) {
-        {
-            std::lock_guard lock(mutex);
-            t = valueToWrite;
-            valueWritten = true;
+            T localT;
+            conditionVar.wait(lock, [&](){
+                if( valueWritten ) {
+                    localT = t;
+                    return true;
+                }
+                return false;
+            });
+            return localT;
         }
-        conditionVar.notify_all();
-    }
 
 
-    void reset() {
-        {
-            std::lock_guard lock(mutex);
-            valueWritten = false;
+        void set(const T& valueToWrite) {
+            {
+                std::lock_guard lock(mutex);
+                t = valueToWrite;
+                valueWritten = true;
+            }
+            conditionVar.notify_all();
         }
-    }
 
 
-    void operator=(const T& value) {
-        set(value);
-    }
+        void reset() {
+            {
+                std::lock_guard lock(mutex);
+                valueWritten = false;
+            }
+        }
 
 
-private:
+        void operator=(const T& value) {
+            set(value);
+        }
 
-    T t;
 
-    bool valueWritten = false;
+    private:
 
-    std::mutex mutex;
+        T t;
 
-    std::condition_variable conditionVar;
+        bool valueWritten = false;
 
-};
+        std::mutex mutex;
+
+        std::condition_variable conditionVar;
+
+    };
+
+}

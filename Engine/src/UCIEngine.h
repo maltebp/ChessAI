@@ -2,6 +2,7 @@
 
 #include <string>
 #include <chrono>
+#include <filesystem>
 
 #include "VariableSignal.h"
 #include "Signal.h"
@@ -12,7 +13,7 @@
 class UCIEngine : public IPlayerController {
 public:
 
-    UCIEngine(const std::string& name, const std::string& enginePath, long long searchTime);
+    UCIEngine(std::string name, std::filesystem::path enginePath, long long searchTime);
 
     ~UCIEngine();
 
@@ -36,7 +37,7 @@ private:
 
     std::string name;
 
-    std::string enginePath;
+    std::filesystem::path enginePath;
 
     std::ostream* outputStream = nullptr;
 
@@ -44,16 +45,16 @@ private:
 
     std::chrono::milliseconds searchTime;
 
-    Process* process;
+    Util::Process* process;
 
-    Signal engineReadySignal;
+    Util::Signal engineReadySignal;
 
-    Signal uciOkSignal;
+    Util::Signal uciOkSignal;
 
-    VariableSignal<std::string> engineNameSignal;
+    Util::VariableSignal<std::string> engineNameSignal;
 
-    VariableSignal<std::string> engineAuthorSignal;
+    Util::VariableSignal<std::string> engineAuthorSignal;
 
-    VariableSignal<Move> bestMoveSignal;
+    Util::VariableSignal<Move> bestMoveSignal;
 
 };

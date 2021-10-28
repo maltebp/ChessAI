@@ -3,55 +3,59 @@
 #include <mutex>
 #include <condition_variable>
 
-// Simplifying wrapper around the condition_variable for
-// boolean variables
-class Signal {
-public:
 
-    
-    void wait() {
-        std::unique_lock lock(mutex); 
-        if( signal ) {
-            return;
+namespace Util {
+
+
+    class Signal {
+    public:
+
+        
+        void wait() {
+            std::unique_lock lock(mutex); 
+            if( signal ) {
+                return;
+            }
+
+            conditionVar.wait(lock, [this](){
+                return this->signal;
+            });
         }
 
-        conditionVar.wait(lock, [this](){
-            return this->signal;
-        });
-    }
-
-    
-    void set() {
-        {
-            std::lock_guard lock(mutex);
-            signal = true;
+        
+        void set() {
+            {
+                std::lock_guard lock(mutex);
+                signal = true;
+            }
+            conditionVar.notify_all();
         }
-        conditionVar.notify_all();
-    }
 
-    
-    void reset() {
-        {
-            std::lock_guard lock(mutex);
-            signal = false;
+        
+        void reset() {
+            {
+                std::lock_guard lock(mutex);
+                signal = false;
+            }
         }
-    }
 
 
-    bool isSet() {
-        {
-            std::lock_guard lock(mutex);
-            return signal;
+        bool isSet() {
+            {
+                std::lock_guard lock(mutex);
+                return signal;
+            }
         }
-    }
 
 
-private:
+    private:
 
-    bool signal = false;
+        bool signal = false;
 
-    std::mutex mutex;
+        std::mutex mutex;
 
-    std::condition_variable conditionVar;
+        std::condition_variable conditionVar;
 
-};
+    };
+
+}

@@ -79,7 +79,6 @@ void ArenaController::start() {
         std::cout << "Error: invalid command" << std::endl;
 
     }
-
 }
 
 
@@ -236,7 +235,6 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
             gameLog << ss.str();
             std::cout << ss.str();
 
-            // TODO: This is just a bypass of an existing bug (https://github.com/maltebp/ChessAI/issues/23) - MUST BE FIXED!
             state.turn++;
             state.drawCounter++;
             continue;
