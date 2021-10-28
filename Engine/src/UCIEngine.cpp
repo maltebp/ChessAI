@@ -118,7 +118,7 @@ Move UCIEngine::getMove(const State& state, const std::vector<Move>& validMoves,
 void UCIEngine::onEngineStdOutput(const std::string& output) {
     
     if( output.size() == 0 ) {
-        WARN("StdOut output from engine is empty");
+        std::cout << "WARNING: StdOut output from engine is empty" << std::endl;
         return;
     }
 

@@ -13,19 +13,19 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{bed2f1e6-7d85-4ebf-b102-1a0fe79b4c43}</ProjectGuid>
-    <RootNamespace>Engine</RootNamespace>
+    <ProjectGuid>{2bdab9b2-31a6-4e68-bb21-c82dd5176e17}</ProjectGuid>
+    <RootNamespace>Arena</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -46,16 +46,18 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)build\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)build\obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);src</IncludePath>
+    <IntDir>$(SolutionDir)build\obj\$(ProjectName)$(Configuration)\</IntDir>
+    <ReferencePath>$(VC_ReferencesPath_x64)</ReferencePath>
     <SourcePath>$(VC_SourcePath);src</SourcePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);src;$(SolutionDir)\Engine\src</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build\bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)build\obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);src</IncludePath>
+    <IntDir>$(SolutionDir)build\obj\$(ProjectName)$(Configuration)\</IntDir>
+    <ReferencePath>$(VC_ReferencesPath_x64)</ReferencePath>
     <SourcePath>$(VC_SourcePath);src</SourcePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);src;$(SolutionDir)\Engine\src</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -68,6 +70,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)\build\bin\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Engine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -85,40 +89,17 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)\build\bin\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Engine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\AIPlayerController.h" />
-    <ClInclude Include="src\EngineArena\EngineArenaController.h" />
-    <ClInclude Include="src\EngineArena\IEngine.h" />
-    <ClInclude Include="src\EngineArena\Main.h" />
-    <ClInclude Include="src\EngineArena\Process.h" />
-    <ClInclude Include="src\EngineArena\Signal.h" />
-    <ClInclude Include="src\EngineArena\UCIEngine.h" />
-    <ClInclude Include="src\EngineArena\VariableSignal.h" />
-    <ClInclude Include="src\EngineArena\WaitableVar.h" />
-    <ClInclude Include="src\EngineArena\Warning.h" />
-    <ClInclude Include="src\BookTree.h" />
-    <ClInclude Include="src\FENUtil.h" />
-    <ClInclude Include="src\IPlayerController.h" />
-    <ClInclude Include="src\MinMax.h" />
-    <ClInclude Include="src\Move.h" />
-    <ClInclude Include="src\MoveUtil.h" />
-    <ClInclude Include="src\Piece.h" />
-    <ClInclude Include="src\Position.h" />
-    <ClInclude Include="src\Process.h" />
-    <ClInclude Include="src\Signal.h" />
-    <ClInclude Include="src\State.h" />
-    <ClInclude Include="src\TUIUtil.h" />
-    <ClInclude Include="src\UCIEngine.h" />
-    <ClInclude Include="src\Util.h" />
-    <ClInclude Include="src\VariableSignal.h" />
+    <ClInclude Include="src\EngineArenaController.h" />
+    <ClInclude Include="src\external\subprocess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\MoveUtil.cpp" />
-    <ClCompile Include="src\Process.cpp" />
-    <ClCompile Include="src\State.cpp" />
-    <ClCompile Include="src\UCIEngine.cpp" />
+    <ClCompile Include="src\EngineArenaController.cpp" />
+    <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
