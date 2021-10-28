@@ -18,7 +18,7 @@
     <ClInclude Include="src\external\subprocess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\EngineArenaController.h">
+    <ClInclude Include="src\ArenaController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -26,7 +26,7 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\EngineArenaController.cpp">
+    <ClCompile Include="src\ArenaController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

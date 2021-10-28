@@ -1,4 +1,4 @@
-#include "EngineArenaController.h"
+#include "ArenaController.h"
 
 #include <cassert>
 #include <fstream>
@@ -11,7 +11,7 @@
 #include "MoveUtil.h"
 
 
-EngineArenaController::EngineArenaController(
+ArenaController::ArenaController(
     const fs::path& outputPath,
     unsigned int numGames,
     IPlayerController& engine1,
@@ -36,7 +36,7 @@ EngineArenaController::EngineArenaController(
 }
 
 
-void EngineArenaController::start() {
+void ArenaController::start() {
 
     std::cout << "  Output path: " << outputPath << std::endl;
 
@@ -83,7 +83,7 @@ void EngineArenaController::start() {
 }
 
 
-void EngineArenaController::runSession(const fs::path& outputPath) {
+void ArenaController::runSession(const fs::path& outputPath) {
 
     fs::create_directories(outputPath);
     fs::path resultsFilePath = outputPath / "results.csv";
@@ -130,7 +130,7 @@ void EngineArenaController::runSession(const fs::path& outputPath) {
 }
 
 
-EngineArenaController::GameResult EngineArenaController::runGame(unsigned int gameNum, const fs::path& dir) {
+ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const fs::path& dir) {
 
     GameResult result;
 

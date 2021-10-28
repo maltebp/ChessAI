@@ -10,10 +10,10 @@
 namespace fs = std::filesystem;
 
 
-class EngineArenaController {
+class ArenaController {
 public:
 
-    EngineArenaController(
+    ArenaController(
         const fs::path& path,
         unsigned int numGames,
         IPlayerController& engine1,

@@ -94,11 +94,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\EngineArenaController.h" />
+    <ClInclude Include="src\ArenaController.h" />
     <ClInclude Include="src\external\subprocess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\EngineArenaController.cpp" />
+    <ClCompile Include="src\ArenaController.cpp" />
     <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

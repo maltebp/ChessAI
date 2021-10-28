@@ -3,7 +3,7 @@
 #include <string>
 
 #include "AIPlayerController.h"
-#include "EngineArenaController.h"
+#include "ArenaController.h"
 #include "State.h"
 #include "UCIEngine.h"
 #include "MoveUtil.h"
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     // UCIEngine stockfish2 = UCIEngine("Stockfish 14", enginePath, 1000);
     AIPlayerController ourEngine = AIPlayerController(5);
 
-    EngineArenaController controller = {
+    ArenaController controller = {
         outputPath,
         2,
         ourEngine,
