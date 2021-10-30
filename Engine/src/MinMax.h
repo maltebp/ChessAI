@@ -25,7 +25,7 @@ public:
 	struct Result {
 		Move bestMove;
 		double searchTime = 0;
-		unsigned long long nodesVisited = 0;
+		unsigned long long nodesVisitd = 0;
 		double branchingFactor = 0;
 		unsigned long long cutOffs = 0; // Maybe this should be a cut off for each depth?
 		unsigned long long checkmates = 0;

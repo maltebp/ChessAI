@@ -81,7 +81,7 @@ void runTestCase(TestCase testCase) {
         MinMaxSearcher::Result averageSample;
 
         for( int i=0; i < SAMPLES; i++ ) {
-            out << " Sample " << i << ".. " << std::flush;
+            out << " Sample " << (i+1) << ".. " << std::flush;
             samples[i] = MinMaxSearcher::search(testCase.state, depth);
 
             averageSample.searchTime += samples[i].searchTime;
@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
     std::string timeString = Util::getDateString("%d-%m-%H-%M-%S");
 
     csvDepths.open(
-        outputDir / (timeString + "-depths.csv"),
+        outputDir / (timeString + ".csv"),
         std::fstream::out | std::fstream::app
     );
     csvDepths << std::fixed<< std::setprecision(2);
