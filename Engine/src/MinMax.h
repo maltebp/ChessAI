@@ -22,32 +22,24 @@ class MinMaxSearcher {
 public:
 
 
-	struct DepthResult {
-		unsigned long long nodesVisited = 0;
-		unsigned long long cutOffs = 0; // Maybe this should be a cut off for each depth?
-		double branchingFactor = 0;
-		unsigned long long draws = 0;
-		unsigned long long checkmates = 0;
-	};
-
-
 	struct Result {
 		Move bestMove;
-		// Results at each depth visited
-		std::vector<DepthResult> depthResults;
-		unsigned long long staticEvaluations = 0;
 		double searchTime = 0;
+		unsigned long long nodesVisited = 0;
+		double branchingFactor = 0;
+		unsigned long long cutOffs = 0; // Maybe this should be a cut off for each depth?
+		unsigned long long checkmates = 0;
+		unsigned long long draws = 0;
+		unsigned long long staticEvaluations = 0;
 
 	};
+	
 
 public:
 
 
 	static Result search(const State& state, int depth) {
 		Result result;
-		for( int i=0; i<=depth; i++) {
-			result.depthResults.push_back(DepthResult());
-		}
 
 	    auto startTime = std::chrono::system_clock::now();
 
@@ -67,7 +59,7 @@ private:
 	
 	static std::tuple<Move, int> searchInternal(const State& state, int depth, int alpha, int beta, Result& result) {
 
-		result.depthResults[depth].nodesVisited++;
+		result.nodesVisited++;
 
 		//Base case: Leaf node
 		if (depth == 0) {
@@ -93,28 +85,28 @@ private:
 				int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (depth *VERY_LARGE_POINT_BONUS);
 				int score = isMaximizer ? -scoreValue : scoreValue;
 
-				result.depthResults[depth].checkmates++;
+				result.checkmates++;
 				
 				return { Move(), score };
 			}
 			else {
 				//Else it is a draw
-				result.depthResults[depth].draws++;
+				result.draws++;
 				return { Move(), DRAW_SCORE };
 			}
 		}
 
 		// Branching factor is average of all nodes
-		double currentBranchingFactor = result.depthResults[depth].branchingFactor;
-		result.depthResults[depth].branchingFactor =
-			currentBranchingFactor + (moves.size() - currentBranchingFactor) / result.depthResults[depth].nodesVisited;
+		double currentBranchingFactor = result.branchingFactor;
+		result.branchingFactor =
+			currentBranchingFactor + (moves.size() - currentBranchingFactor) / result.nodesVisited;
 
 		Move bestMove;
 		for(int i=0; i<moves.size(); i++) {
             Move move = moves[i];
 
 			if (alpha >= beta) {
-				result.depthResults[depth].cutOffs += moves.size() - i;
+				result.cutOffs += moves.size() - i;
 				break;
 			}
 

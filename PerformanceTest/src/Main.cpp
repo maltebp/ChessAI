@@ -69,41 +69,45 @@ void runTestCase(TestCase testCase) {
     out << "    Black: " << blackPieces << std::endl;
 
     out << "\n  Running tests..." << std::endl;
-    MinMaxSearcher::Result samples[SAMPLES];
-    for( int i=0; i < SAMPLES; i++ ) {
-        out << "    Sample 1.. " << std::flush;
-        samples[i] = MinMaxSearcher::search(testCase.state, DEPTH);
+
+    std::vector<MinMaxSearcher::Result> results;
+    std::vector<MinMaxSearcher::Result> averageResults;
+
+    for( int depth=1; depth <= DEPTH; depth++ ) {
+
+        out << "    Depth " << depth  << ".. " << std::flush;
+
+        MinMaxSearcher::Result samples[SAMPLES];
+        MinMaxSearcher::Result averageSample;
+
+        for( int i=0; i < SAMPLES; i++ ) {
+            out << " Sample " << i << ".. " << std::flush;
+            samples[i] = MinMaxSearcher::search(testCase.state, depth);
+
+            averageSample.searchTime += samples[i].searchTime;
+            averageSample.staticEvaluations += samples[i].staticEvaluations;
+            averageSample.branchingFactor += samples[i].branchingFactor;
+            averageSample.cutOffs += samples[i].cutOffs;
+            averageSample.nodesVisited += samples[i].nodesVisited;
+            averageSample.checkmates += samples[i].checkmates;
+            averageSample.draws += samples[i].draws;
+        }
+
+        averageSample.searchTime /= SAMPLES;
+        averageSample.staticEvaluations /= SAMPLES;
+        averageSample.branchingFactor/= SAMPLES;
+        averageSample.cutOffs /= SAMPLES;
+        averageSample.nodesVisited /= SAMPLES;
+        averageSample.checkmates /= SAMPLES;
+        averageSample.draws /= SAMPLES;
+
+        results.push_back(averageSample);
+
         out << "Done" << std::endl;
     }
+    
 
     out << "\n  Results:" << std::endl;
-
-    MinMaxSearcher::Result averageResult;
-
-    // Compute sum
-    for( int i=0; i < DEPTH + 1; i++ ) {
-        averageResult.depthResults.push_back(MinMaxSearcher::DepthResult());
-    }
-    for( int i=0; i < SAMPLES; i++ ) {
-        averageResult.searchTime += samples[i].searchTime;
-        averageResult.staticEvaluations += samples[i].staticEvaluations;
-
-        for( int j=0; j < DEPTH + 1; j++ ) {
-            averageResult.depthResults[j].branchingFactor += samples[i].depthResults[j].branchingFactor;
-            averageResult.depthResults[j].cutOffs += samples[i].depthResults[j].cutOffs;
-            averageResult.depthResults[j].nodesVisited += samples[i].depthResults[j].nodesVisited;
-        }
-    }
-    
-    // Average sum
-    averageResult.searchTime /= SAMPLES;
-    averageResult.staticEvaluations /= SAMPLES;
-
-    for( int i=0; i < DEPTH + 1; i++ ) {
-        averageResult.depthResults[i].branchingFactor /= SAMPLES;
-        averageResult.depthResults[i].cutOffs /= SAMPLES;
-        averageResult.depthResults[i].nodesVisited /= SAMPLES;
-    }
 
     double averageBranchFactor = 0;
     unsigned long long totalNodesVisited = 0;
@@ -111,21 +115,26 @@ void runTestCase(TestCase testCase) {
     unsigned long long totalCheckMates = 0;
     unsigned long long totalDraws = 0;
 
-    for( int i=0; i < DEPTH + 1; i++ ) {
+    for( int i=0; i < DEPTH; i++ ) {
 
-        MinMaxSearcher::DepthResult depthResult = averageResult.depthResults[DEPTH-i];
+        MinMaxSearcher::Result depthResult = results[i];
+        int cutOffFactor = (double)totalCutOffs / totalNodesVisited;
+
 
         out << '\n';
-        out << "    Depth " << i << ":" << std::endl;
+        out << "    Depth " << (i+1) << ":" << std::endl;
+        out << "      Search time:    " << depthResult.searchTime << " sec" << std::endl;
         out << "      Nodes visited:  " << depthResult.nodesVisited << std::endl;
         out << "      Branch factor:  " << depthResult.branchingFactor << std::endl;
-        out << "      Cut offs:       " << depthResult.cutOffs << std::endl;
+        out << "      Cut offs:       " << depthResult.cutOffs << " (" << cutOffFactor << ")" << std::endl;
+        out << "      Evaluations:    " << depthResult.staticEvaluations << std::endl;
         out << "      Checkmates:     " << depthResult.checkmates << std::endl;
-        out << "      Draws:          " << depthResult.checkmates << std::endl;
+        out << "      Draws:          " << depthResult.draws << std::endl;
 
         csvDepths 
             << testCase.id << ','
             << i << ','
+            << depthResult.searchTime << ','
             << depthResult.nodesVisited << ','
             << depthResult.branchingFactor << ','
             << depthResult.cutOffs << ','
@@ -139,26 +148,6 @@ void runTestCase(TestCase testCase) {
         totalCheckMates += depthResult.checkmates;
         totalDraws += depthResult.draws;
     }
-
-    averageBranchFactor /= (DEPTH-1);
-
-    int cutOffFactor = (int) ((double)totalCutOffs / totalNodesVisited * 100);
-
-    out << '\n';
-    out << "    Totals: " << std::endl;
-    out << "      Search time:     " << averageResult.searchTime << " sec" << std::endl;
-    out << "      Evaluations:     " << averageResult.staticEvaluations << std::endl;
-    out << "      Nodes visisted:  " << totalNodesVisited << std::endl;
-    out << "      Branch factor:   " << averageBranchFactor << std::endl;
-    out << "      Cut offs:        " << totalCutOffs << " (" << cutOffFactor << "%)" << std::endl;
-    out << "      Checkmates:      " << totalCheckMates << std::endl;
-    out << "      Draws:           " << totalDraws << std::endl;
-
-    csvTotals 
-        << testCase.id << ','
-        << averageResult.searchTime << ','
-        << averageResult.staticEvaluations
-        << std::endl;
 }
 
 
@@ -192,17 +181,6 @@ int main(int argc, char* argv[]) {
 
     std::string timeString = Util::getDateString("%d-%m-%H-%M-%S");
 
-    csvTotals.open(
-        outputDir / (timeString + "-totals.csv"),
-        std::fstream::out | std::fstream::app
-    );
-    csvTotals << std::fixed<< std::setprecision(2);
-    csvTotals
-        << "case,"
-        << "time,"
-        << "evaluations"
-        << std::endl;
-
     csvDepths.open(
         outputDir / (timeString + "-depths.csv"),
         std::fstream::out | std::fstream::app
@@ -211,6 +189,7 @@ int main(int argc, char* argv[]) {
     csvDepths
         << "case,"
         << "depth,"
+        << "time,"
         << "nodes,"
         << "branching,"
         << "cutoffs,"
