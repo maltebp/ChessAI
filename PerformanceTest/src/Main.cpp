@@ -1,23 +1,39 @@
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <chrono>
 #include <cassert>
+#include <filesystem>
 
+#include "Util.h"
 #include "State.h"
 #include "../src/MinMax.h" // Have to do this to avoid ambiguity with "minmax.h" (windows header file)
 
 
-const unsigned int SAMPLES = 4;
-
-const unsigned int DEPTH = 7;
-
-std::ostream& out = std::cout;
+namespace fs = std::filesystem;
 
 
 struct TestCase {
+    unsigned int id;
     std::string name;
     State state;
 };
+
+const std::vector<TestCase> TEST_CASES = 
+    {
+        { 0, "Start state", State::createDefault() },
+        { 1, "Misc state 1", {"r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"} }
+    };
+
+const unsigned int SAMPLES = 3;
+
+const unsigned int DEPTH = 5;
+
+std::ostream& out = std::cout;
+
+std::fstream csvDepths;
+
+std::fstream csvTotals;
 
 
 void runTestCase(TestCase testCase) {
@@ -89,23 +105,39 @@ void runTestCase(TestCase testCase) {
         averageResult.depthResults[i].nodesVisited /= SAMPLES;
     }
 
+    double averageBranchFactor = 0;
+    unsigned long long totalNodesVisited = 0;
+    unsigned long long totalCutOffs = 0;
+    unsigned long long totalCheckMates = 0;
+    unsigned long long totalDraws = 0;
+
     for( int i=0; i < DEPTH + 1; i++ ) {
+
         MinMaxSearcher::DepthResult depthResult = averageResult.depthResults[DEPTH-i];
+
         out << '\n';
         out << "    Depth " << i << ":" << std::endl;
         out << "      Nodes visited:  " << depthResult.nodesVisited << std::endl;
         out << "      Branch factor:  " << depthResult.branchingFactor << std::endl;
         out << "      Cut offs:       " << depthResult.cutOffs << std::endl;
-    }
+        out << "      Checkmates:     " << depthResult.checkmates << std::endl;
+        out << "      Draws:          " << depthResult.checkmates << std::endl;
 
-    double averageBranchFactor = 0;
-    unsigned long long totalNodesVisited = 0;
-    unsigned long long totalCutOffs = 0;
+        csvDepths 
+            << testCase.id << ','
+            << i << ','
+            << depthResult.nodesVisited << ','
+            << depthResult.branchingFactor << ','
+            << depthResult.cutOffs << ','
+            << depthResult.checkmates << ','
+            << depthResult.draws 
+            << std::endl;
 
-    for( int i=0; i < DEPTH + 1; i++ ) {
-        averageBranchFactor += averageResult.depthResults[i].branchingFactor;
-        totalNodesVisited += averageResult.depthResults[i].nodesVisited;
-        totalCutOffs += averageResult.depthResults[i].cutOffs;
+        averageBranchFactor += depthResult.branchingFactor;
+        totalNodesVisited += depthResult.nodesVisited;
+        totalCutOffs += depthResult.cutOffs;
+        totalCheckMates += depthResult.checkmates;
+        totalDraws += depthResult.draws;
     }
 
     averageBranchFactor /= (DEPTH-1);
@@ -119,6 +151,14 @@ void runTestCase(TestCase testCase) {
     out << "      Nodes visisted:  " << totalNodesVisited << std::endl;
     out << "      Branch factor:   " << averageBranchFactor << std::endl;
     out << "      Cut offs:        " << totalCutOffs << " (" << cutOffFactor << "%)" << std::endl;
+    out << "      Checkmates:      " << totalCheckMates << std::endl;
+    out << "      Draws:           " << totalDraws << std::endl;
+
+    csvTotals 
+        << testCase.id << ','
+        << averageResult.searchTime << ','
+        << averageResult.staticEvaluations
+        << std::endl;
 }
 
 
@@ -145,14 +185,41 @@ void runTests(std::vector<TestCase> testCases) {
 
 int main(int argc, char* argv[]) {
 
-    out << std::setprecision(2);
+    out << std::fixed<< std::setprecision(2);
 
-    runTests({
+    fs::path outputDir = fs::current_path() / "performance-tests/";
+    fs::create_directories(outputDir);
 
-        { "Start state", State::createDefault() },
+    std::string timeString = Util::getDateString("%d-%m-%H-%M-%S");
 
-        
+    csvTotals.open(
+        outputDir / (timeString + "-totals.csv"),
+        std::fstream::out | std::fstream::app
+    );
+    csvTotals << std::fixed<< std::setprecision(2);
+    csvTotals
+        << "case,"
+        << "time,"
+        << "evaluations"
+        << std::endl;
 
-    });
+    csvDepths.open(
+        outputDir / (timeString + "-depths.csv"),
+        std::fstream::out | std::fstream::app
+    );
+    csvDepths << std::fixed<< std::setprecision(2);
+    csvDepths
+        << "case,"
+        << "depth,"
+        << "nodes,"
+        << "branching,"
+        << "cutoffs,"
+        << "checkmates,"
+        << "draws"
+        << std::endl;
 
+    runTests(TEST_CASES);
+
+    csvTotals.close();
+    csvDepths.close();
 }

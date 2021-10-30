@@ -26,6 +26,8 @@ public:
 		unsigned long long nodesVisited = 0;
 		unsigned long long cutOffs = 0; // Maybe this should be a cut off for each depth?
 		double branchingFactor = 0;
+		unsigned long long draws = 0;
+		unsigned long long checkmates = 0;
 	};
 
 
@@ -35,8 +37,8 @@ public:
 		std::vector<DepthResult> depthResults;
 		unsigned long long staticEvaluations = 0;
 		double searchTime = 0;
-	};
 
+	};
 
 public:
 
@@ -90,11 +92,14 @@ private:
 				//Adjust score with depth, so quick mate is preferred no matter the other factors
 				int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (depth *VERY_LARGE_POINT_BONUS);
 				int score = isMaximizer ? -scoreValue : scoreValue;
+
+				result.depthResults[depth].checkmates++;
 				
 				return { Move(), score };
 			}
 			else {
 				//Else it is a draw
+				result.depthResults[depth].draws++;
 				return { Move(), DRAW_SCORE };
 			}
 		}
