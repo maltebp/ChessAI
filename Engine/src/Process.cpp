@@ -11,12 +11,18 @@ namespace Util {
     constexpr size_t OUTPUT_BUFFER_SIZE = 1;
 
 
-    Process::Process(const std::vector<std::string>& commandLine, OutputListener stdOutListener, OutputListener stdErrorListener)
+    Process::Process(
+        const std::vector<std::string>& commandLine, 
+        OutputListener stdOutListener,
+        OutputListener stdErrorListener,
+        std::function<void()> terminationCallback
+    )
         :   stdOutListener(stdOutListener),
             stdErrorListener(stdErrorListener)
     {
         assert(stdOutListener != nullptr && "stdOutListener must not be null");
         assert(stdErrorListener != nullptr && "stdErrorListener must not be null");
+        assert(terminationCallback != nullptr && "terminationCallback must not be null");
 
         std::vector<const char*> args;
         for( auto& element : commandLine ) {
@@ -36,6 +42,14 @@ namespace Util {
         }
 
         started = true;
+
+        processWatcherThread = new std::thread([&](){
+            std::chrono::milliseconds aliveCheckFrequency(100);
+            while( subprocess_alive(&process) ) {
+                std::this_thread::sleep_for(aliveCheckFrequency);    
+            }
+            terminationCallback();
+        });
 
         processStdIn = subprocess_stdin(&process);
 
@@ -73,9 +87,11 @@ namespace Util {
 
         readOutputThread->join();
         readErrorThread->join();
+        processWatcherThread->join();
 
         delete readOutputThread;
         delete readErrorThread;
+        delete processWatcherThread;
 
         subprocess_destroy(&process);
 

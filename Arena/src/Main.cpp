@@ -22,7 +22,8 @@ int main(int argc, char* argv[]) {
 
     State state = State::createDefault();
 
-    UCIEngine stockfish1 = UCIEngine("Stockfish 14", STOCKFISH_PATH, 1000);
+    UCIEngine stockfish1 = UCIEngine("Stockfish 14", STOCKFISH_PATH, 8000);
+
     // UCIEngine stockfish2 = UCIEngine("Stockfish 14", enginePath, 1000);
     AIPlayerController ourEngine = AIPlayerController(5);
 

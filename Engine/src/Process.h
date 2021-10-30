@@ -17,13 +17,20 @@ namespace Util {
 
     public:
 
-        Process(const std::vector<std::string>& commandLine, OutputListener stdOutListener, OutputListener stdErrorListener);
+        Process(
+            const std::vector<std::string>& commandLine,
+            OutputListener stdOutListener,
+            OutputListener stdErrorListener,
+            std::function<void()> terminationCallback
+        );
 
         Process(const Process&) = delete;
 
         Process(Process&&) = delete;
 
         ~Process();
+
+        void start();
 
         void writeLine(const std::string& input);
 
@@ -53,6 +60,8 @@ namespace Util {
         std::thread* readOutputThread;
 
         std::thread* readErrorThread;
+
+        std::thread* processWatcherThread; // Watches the lifetime of the process
 
         OutputListener stdOutListener;
 
