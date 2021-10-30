@@ -1,7 +1,10 @@
-#include "MoveUtil.h"
+#pragma once
 
 #include <algorithm>
 #include <limits>
+
+#include "MoveUtil.h"
+
 
 const static double pawnFieldValuesForWhite[8][8] = {
 		{0,-2,-4,-4,-3,8,23,0},
@@ -14,20 +17,59 @@ const static double pawnFieldValuesForWhite[8][8] = {
 		{0,-2,-4,-4,-3,8,23,0},
 };
 
+
 class MinMaxSearcher {
 public:
 
-	static Move search(const State& state, int depth) {
-		auto [move, score] = searchInternal(state, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
-		return move;
+
+	struct DepthResult {
+		unsigned long long nodesVisited = 0;
+		unsigned long long cutOffs = 0; // Maybe this should be a cut off for each depth?
+		double branchingFactor = 0;
+	};
+
+
+	struct Result {
+		Move bestMove;
+		// Results at each depth visited
+		std::vector<DepthResult> depthResults;
+		unsigned long long staticEvaluations = 0;
+		double searchTime = 0;
+	};
+
+
+public:
+
+
+	static Result search(const State& state, int depth) {
+		Result result;
+		for( int i=0; i<=depth; i++) {
+			result.depthResults.push_back(DepthResult());
+		}
+
+	    auto startTime = std::chrono::system_clock::now();
+
+		auto [move, score] = searchInternal(state, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), result);
+
+    	auto endTime = std::chrono::system_clock::now();
+    	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+		
+		result.searchTime = elapsed.count() / 1000.0;
+
+		return result;
 	}
 
+
 private:
+
 	
-	static std::tuple<Move, int> searchInternal(const State& state, int depth, int alpha, int beta) {
+	static std::tuple<Move, int> searchInternal(const State& state, int depth, int alpha, int beta, Result& result) {
+
+		result.depthResults[depth].nodesVisited++;
 
 		//Base case: Leaf node
 		if (depth == 0) {
+			result.staticEvaluations++;
 			int score = danielsenHeuristic(state);
 			return { Move(), score };
 		}
@@ -57,17 +99,23 @@ private:
 			}
 		}
 
+		// Branching factor is average of all nodes
+		double currentBranchingFactor = result.depthResults[depth].branchingFactor;
+		result.depthResults[depth].branchingFactor =
+			currentBranchingFactor + (moves.size() - currentBranchingFactor) / result.depthResults[depth].nodesVisited;
 
 		Move bestMove;
-		for (Move move : moves)
-		{
+		for(int i=0; i<moves.size(); i++) {
+            Move move = moves[i];
+
 			if (alpha >= beta) {
+				result.depthResults[depth].cutOffs += moves.size() - i;
 				break;
 			}
 
 			State resultState = MoveUtil::executeMove(state, move);
 
-			auto [resultMove, resultScore] = searchInternal(resultState, depth - 1, alpha, beta);
+			auto [resultMove, resultScore] = searchInternal(resultState, depth - 1, alpha, beta, result);
 			if (isMaximizer && resultScore > alpha) 
 			{
 				alpha = resultScore;
@@ -88,9 +136,11 @@ private:
 		return { bestMove,score };
 	}
 
+
 	static int randomHeuristic(const State& state) {
 		return rand() % 100;
 	}
+
 
 	static int simpleHeuristic(const State& state) {
 		int sum = 0;
