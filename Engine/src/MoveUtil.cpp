@@ -3,6 +3,16 @@
 
 namespace MoveUtil {
 
+	int manhattanDistFromMiddle(const Position pos) {
+		int xDist = pos.x < 4 ? 3 - pos.x : 4 - pos.x;
+		xDist = xDist < 0 ? -xDist : xDist;
+		int yDist = pos.y < 4 ? 3 - pos.y : 4 - pos.y;
+		yDist = yDist < 0 ? -yDist : yDist;
+
+		return xDist + yDist;
+	}
+
+
 	Piece getFirstPieceInSlidingPosition(const State& state, Position origin, int dx, int dy) {
 		Position currentPos = origin;
 
