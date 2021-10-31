@@ -8,9 +8,6 @@
 #include "UCIEngine.h"
 #include "MoveUtil.h"
 
-// Used for comparison in the analysis
-constexpr int VERSION = 1;
-
 // Remember to update .gitignore if this is changed
 const char* OUTPUT_PATH = "arena_results";
 
@@ -27,14 +24,14 @@ int main(int argc, char* argv[]) {
     /*UCIEngine stockfish1 = UCIEngine("Stockfish", STOCKFISH_PATH, 8000);
     AIPlayerController ourEngine = AIPlayerController(5);*/
 
-    UCIEngine stockfish1 = UCIEngine("Stockfish", STOCKFISH_PATH, 2000);
-    AIPlayerController ourEngine = AIPlayerController(3);
+    UCIEngine stockfish1 = UCIEngine("Stockfish", STOCKFISH_PATH, 250);
+    AIPlayerController ourEngine = AIPlayerController(5);
 
     ArenaController controller = {
         outputPath,
         ourEngine,
         stockfish1,
-        VERSION
+        "base_1_5_250"
     };
 
     controller.start();

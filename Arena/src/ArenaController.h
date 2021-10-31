@@ -17,7 +17,7 @@ public:
         const fs::path& path,
         IPlayerController& engine1,
         IPlayerController& engine2,
-        int version
+        std::string tag
     ); 
 
     void start(); 
@@ -68,6 +68,6 @@ private:
 
     bool testThreadHasStopped = false;
     
-    int version;
+    std::string tag;
 
 };

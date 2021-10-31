@@ -15,12 +15,12 @@ ArenaController::ArenaController(
     const fs::path& outputPath,
     IPlayerController& engine1,
     IPlayerController& engine2,
-    int version
+    std::string tag
 )
     :   outputPath(outputPath),
         engine1(engine1),
         engine2(engine2),
-        version(version)
+        tag(tag)
 {
     
     // Remove white space from names, and check if they are the same
@@ -95,7 +95,7 @@ void ArenaController::runSession(const fs::path& outputPath) {
 
     // CSV header
     resultsFile 
-        << "version,"
+        << "tag,"
         << "game_id,"
         << "winner," // Engine number
         << "white,"
@@ -117,7 +117,7 @@ void ArenaController::runSession(const fs::path& outputPath) {
         streamState.copyfmt(resultsFile);
         resultsFile << std::setprecision(2) << std::fixed;
         resultsFile 
-            << version << ','
+            << tag << ','
             << gameId << ',' 
             << result.winner << ','
             << result.whitePlayerId << ','
