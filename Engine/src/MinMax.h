@@ -48,7 +48,8 @@ public:
 
     	auto endTime = std::chrono::system_clock::now();
     	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-		
+
+		result.bestMove = move;		
 		result.searchTime = elapsed.count() / 1000.0;
 
 		return result;
