@@ -7,3 +7,4 @@ engine_arena_test/
 build/
 *.user
 arena_results/
+performance_test_results/

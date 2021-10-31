@@ -27,7 +27,7 @@ public:
 		double searchTime = 0;
 		unsigned long long nodesVisited = 0;
 		double branchingFactor = 0;
-		unsigned long long cutOffs = 0; // Maybe this should be a cut off for each depth?
+		double cutOffFactor = 0; // Cut off per node
 		unsigned long long checkmates = 0;
 		unsigned long long draws = 0;
 		unsigned long long staticEvaluations = 0;
@@ -107,7 +107,11 @@ private:
             Move move = moves[i];
 
 			if (alpha >= beta) {
-				result.cutOffs += moves.size() - i;
+				unsigned int numCutOffs = moves.size() - i;
+				double currentCutOffFactor = result.cutOffFactor;
+				result.cutOffFactor =
+					currentCutOffFactor + (numCutOffs - currentCutOffFactor) / result.nodesVisited;
+
 				break;
 			}
 

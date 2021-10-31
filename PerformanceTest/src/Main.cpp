@@ -13,11 +13,6 @@
 namespace fs = std::filesystem;
 
 
-#ifdef _DEBUG
-    #error "Do not run performance test in Debug mode!"
-#endif
-
-
 struct TestCase {
     unsigned int id;
     std::string name;
@@ -100,7 +95,7 @@ void runTestCase(TestCase testCase) {
             averageSample.searchTime += samples[i].searchTime;
             averageSample.staticEvaluations += samples[i].staticEvaluations;
             averageSample.branchingFactor += samples[i].branchingFactor;
-            averageSample.cutOffs += samples[i].cutOffs;
+            averageSample.cutOffFactor += samples[i].cutOffFactor;
             averageSample.nodesVisited += samples[i].nodesVisited;
             averageSample.checkmates += samples[i].checkmates;
             averageSample.draws += samples[i].draws;
@@ -109,7 +104,7 @@ void runTestCase(TestCase testCase) {
         averageSample.searchTime /= SAMPLES;
         averageSample.staticEvaluations /= SAMPLES;
         averageSample.branchingFactor/= SAMPLES;
-        averageSample.cutOffs /= SAMPLES;
+        averageSample.cutOffFactor /= SAMPLES;
         averageSample.nodesVisited /= SAMPLES;
         averageSample.checkmates /= SAMPLES;
         averageSample.draws /= SAMPLES;
@@ -139,7 +134,7 @@ void runTestCase(TestCase testCase) {
         out << "      Search time:    " << depthResult.searchTime << " sec" << std::endl;
         out << "      Nodes visited:  " << depthResult.nodesVisited << std::endl;
         out << "      Branch factor:  " << depthResult.branchingFactor << std::endl;
-        out << "      Cut offs:       " << depthResult.cutOffs << " (" << cutOffFactor << ")" << std::endl;
+        out << "      Cut offs:       " << depthResult.cutOffFactor << std::endl;
         out << "      Evaluations:    " << depthResult.staticEvaluations << std::endl;
         out << "      Checkmates:     " << depthResult.checkmates << std::endl;
         out << "      Draws:          " << depthResult.draws << std::endl;
@@ -147,18 +142,18 @@ void runTestCase(TestCase testCase) {
         csvDepths 
             << testCase.id << ','
             << testCase.name << ","
-            << i << ','
+            << (i+1) << ','
             << depthResult.searchTime << ','
             << depthResult.nodesVisited << ','
             << depthResult.branchingFactor << ','
-            << depthResult.cutOffs << ','
+            << depthResult.cutOffFactor << ','
             << depthResult.checkmates << ','
             << depthResult.draws 
             << std::endl;
 
         averageBranchFactor += depthResult.branchingFactor;
         totalNodesVisited += depthResult.nodesVisited;
-        totalCutOffs += depthResult.cutOffs;
+        totalCutOffs += depthResult.cutOffFactor;
         totalCheckMates += depthResult.checkmates;
         totalDraws += depthResult.draws;
     }
@@ -190,7 +185,7 @@ int main(int argc, char* argv[]) {
 
     out << std::fixed<< std::setprecision(2);
 
-    fs::path outputDir = fs::current_path() / "performance-tests/";
+    fs::path outputDir = fs::current_path() / "performance_tests_results/";
     fs::create_directories(outputDir);
 
     std::string timeString = Util::getDateString("%d-%m-%H-%M-%S");
