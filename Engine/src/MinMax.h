@@ -15,7 +15,6 @@ const static double pawnFieldValuesForWhite[8][8] = {
 };
 
 class MinMaxSearcher {
-	static std::vector<Move> moves;
 public:
 
 	static Move search(const State& state, int depth) {
@@ -266,6 +265,8 @@ private:
 
 private:
 
+	static inline std::vector<Move> moves;
+
 	constexpr static int ENDGAME_WINNER_SCORE_THRESHOLD  = 500;
 
 	constexpr static int ENDGAME_PIECES_THRESHOLD  = 8;
@@ -279,7 +280,6 @@ private:
 	constexpr static int MAX_SCORE = std::numeric_limits<int>::max() - 1;
 
 	constexpr static int MIN_SCORE = std::numeric_limits<int>::min() + 1;
-
 
 };
 
