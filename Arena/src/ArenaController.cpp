@@ -76,6 +76,17 @@ void ArenaController::start() {
             break;
         }
 
+        if( command == "results" ) {
+            std::ifstream resultsFile(sessionPath / "results.csv");
+            std::string content( 
+                (std::istreambuf_iterator<char>(resultsFile)),
+                (std::istreambuf_iterator<char>()) 
+            );
+
+            std::cout << "\nresults.csv:\n" << content << std::endl; 
+            break;
+        }
+
         std::cout << "Error: invalid command" << std::endl;
 
     }

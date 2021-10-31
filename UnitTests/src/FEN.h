@@ -31,7 +31,6 @@ TEST_CASE("FEN conversion: Simple move sequence", "[fen]") {
 }
 
 
-
 TEST_CASE("FEN conversion: Castling", "[fen]") {
 
     // Default state

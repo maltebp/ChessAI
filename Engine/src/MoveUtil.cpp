@@ -529,20 +529,20 @@ namespace MoveUtil {
 				newState.blackCanCastleQueenSide = false;
 			}
 		}
-		else if (piece.getType() == PieceType::ROOK) {
-			//If we're moving from origianl rook position ==> disable that sides castling
-			if (move.fromField == Position{ 0, 0 }) {
-				newState.whiteCanCastleQueenSide = false;
-			}
-			else if (move.fromField == Position{ 7, 0 }) {
-				newState.whiteCanCastleKingSide = false;
-			}
-			else if (move.fromField == Position{ 0, 7 }) {
-				newState.blackCanCastleQueenSide = false;
-			}
-			else if (move.fromField == Position{ 7, 7 }) {
-				newState.blackCanCastleKingSide = false;
-			}
+
+		// If anything moves from or to Rook fields, we can safely
+		// disable castling in the given side
+		if( move.toField == Position{0,0} || move.fromField == Position{0,0}) {
+			newState.whiteCanCastleQueenSide = false;
+		}
+		if( move.toField == Position{7,0} || move.fromField == Position{7,0}) {
+			newState.whiteCanCastleKingSide = false;
+		}
+		if( move.toField == Position{0,7} || move.fromField == Position{0,7}) {
+			newState.blackCanCastleQueenSide = false;
+		}
+		if( move.toField == Position{7,7} || move.fromField == Position{7,7}) {
+			newState.blackCanCastleKingSide = false;
 		}
 	}
 	

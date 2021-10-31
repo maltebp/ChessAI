@@ -73,6 +73,7 @@ TEST_CASE("Castling Moves: Execution White Queenside ", "[moves][castling][king]
 	REQUIRE((state.whiteCanCastleKingSide == false && state.whiteCanCastleQueenSide == false));
 }
 
+
 TEST_CASE("Castling Moves: Execution White Kingside ", "[moves][castling][king][rook]") {
 	State state = createPromotionState();
 	Move whiteCastlesKingSide = Move{ {4,0}, {6,0} };
@@ -121,6 +122,7 @@ TEST_CASE("Castling Moves: Execution Black queenside", "[moves][castling][king][
 	REQUIRE((state.blackCanCastleKingSide == false && state.blackCanCastleQueenSide == false));
 }
 
+
 TEST_CASE("Castling Moves: Execution Black kingside", "[moves][castling][king][rook]") {
 	State state = createPromotionState();
 	state.turn++;
@@ -143,4 +145,36 @@ TEST_CASE("Castling Moves: Execution Black kingside", "[moves][castling][king][r
 
 	//Castling no more possible for black
 	REQUIRE((state.blackCanCastleKingSide == false && state.blackCanCastleQueenSide == false));
+}
+
+
+
+TEST_CASE("Castling: capture rook", "[moves][castling]") {
+
+	// Ensure that captures disables castling
+	// This was experienced in commit 197921ff18f5d5b2a04dd1dc016c51425b1909b6
+
+	// Rooks and kings in original places
+	State state = "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1";
+
+	REQUIRE(state.whiteCanCastleKingSide);
+	REQUIRE(state.whiteCanCastleQueenSide);
+	REQUIRE(state.blackCanCastleKingSide);
+	REQUIRE(state.blackCanCastleQueenSide);
+	
+	// Right White Rook capture Right black root
+	state = MoveUtil::executeMove( state, {{7,0}, {7,7}} );
+
+	REQUIRE(!state.whiteCanCastleKingSide);
+	REQUIRE(state.whiteCanCastleQueenSide);
+	REQUIRE(!state.blackCanCastleKingSide);
+	REQUIRE(state.blackCanCastleQueenSide);
+
+	// Left Black Rook capture Left White root
+	state = MoveUtil::executeMove( state, {{0,7}, {0,0}} );
+
+	REQUIRE(!state.whiteCanCastleKingSide);
+	REQUIRE(!state.whiteCanCastleQueenSide);
+	REQUIRE(!state.blackCanCastleKingSide);
+	REQUIRE(!state.blackCanCastleQueenSide);
 }
