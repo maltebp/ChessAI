@@ -53,10 +53,7 @@ TEST_CASE("Check", "[checkmate]") {
 
     std::vector<Move> moves = MoveUtil::getAllMoves(state);
 
-    REQUIRE( Util::contains(moves, Move{{6,1}, {6,4}}) );
-    REQUIRE( Util::contains(moves, Move{{7,3}, {6,4}}) );
-    REQUIRE( Util::contains(moves, Move{{7,3}, {6,3}}) );
     REQUIRE( Util::contains(moves, Move{{7,3}, {7,4}}) );
 
-    REQUIRE( moves.size() == 4 );
+    REQUIRE( moves.size() == 1 );
 }
