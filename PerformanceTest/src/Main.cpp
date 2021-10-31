@@ -13,6 +13,11 @@
 namespace fs = std::filesystem;
 
 
+#ifdef _DEBUG
+    #error "Do not run performance test in Debug mode!"
+#endif
+
+
 struct TestCase {
     unsigned int id;
     std::string name;
@@ -21,19 +26,27 @@ struct TestCase {
 
 const std::vector<TestCase> TEST_CASES = 
     {
+        // WARNING: changing order or IDs of test cases will break our analysis setup
+
         { 0, "Start state", State::createDefault() },
-        { 1, "Misc state 1", {"r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"} }
+
+        { 1, "Early game 1",    {"r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"} }, // Source: https://www.chessprogramming.org/Perft_Results
+        { 2, "Early game 2",    {"r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"} }, // Source: https://www.chessprogramming.org/Perft_Results
+        
+        { 3, "Mid game 1",      {"5rk1/1R3p2/p5pp/2PbP3/5P2/8/PP3BPP/R5K1 w - - 1 27"} }, // Source: engine arena
+        { 4, "Mid game 2",      {"N4b1Q/pp2kpp1/8/2p2b2/8/3P4/PP1K1PPP/n1B4R w - - 3 19"} }, // Source: engine arena
+        
+        { 5, "Late game 1",     {"8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1"} }, // Source: https://www.chessprogramming.org/Perft_Results
+        { 6, "Late game 2",     {"8/4Rp2/4P1pk/3R3p/5P2/1P6/P4BPP/7K w - - 1 44"} }, // Source: engine arena
     };
 
-const unsigned int SAMPLES = 3;
+const unsigned int SAMPLES = 2;
 
-const unsigned int DEPTH = 5;
+const unsigned int DEPTH = 6;
 
 std::ostream& out = std::cout;
 
 std::fstream csvDepths;
-
-std::fstream csvTotals;
 
 
 void runTestCase(TestCase testCase) {
@@ -133,6 +146,7 @@ void runTestCase(TestCase testCase) {
 
         csvDepths 
             << testCase.id << ','
+            << testCase.name << ","
             << i << ','
             << depthResult.searchTime << ','
             << depthResult.nodesVisited << ','
@@ -188,6 +202,7 @@ int main(int argc, char* argv[]) {
     csvDepths << std::fixed<< std::setprecision(2);
     csvDepths
         << "case,"
+        << "case_name,"
         << "depth,"
         << "time,"
         << "nodes,"
@@ -197,8 +212,14 @@ int main(int argc, char* argv[]) {
         << "draws"
         << std::endl;
 
+    auto startTime = std::chrono::system_clock::now();
+
     runTests(TEST_CASES);
 
-    csvTotals.close();
+    auto endTime = std::chrono::system_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+
+    out << "\nTotal test time: " << (elapsed.count() / 1000.0) << " sec" << std::endl;
+
     csvDepths.close();
 }
