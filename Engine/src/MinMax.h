@@ -25,7 +25,7 @@ public:
 	struct Result {
 		Move bestMove;
 		double searchTime = 0;
-		unsigned long long nodesVisitd = 0;
+		unsigned long long nodesVisited = 0;
 		double branchingFactor = 0;
 		unsigned long long cutOffs = 0; // Maybe this should be a cut off for each depth?
 		unsigned long long checkmates = 0;
@@ -72,6 +72,7 @@ private:
 
 		//Get all possible moves
 		std::vector<Move> moves = MoveUtil::getAllMoves(state);
+
 		if (moves.size() == 0) {
 			//In this case it is either a draw of a loss or current player
 			PieceColor colorToMove = isMaximizer ? PieceColor::WHITE : PieceColor::BLACK;
@@ -121,9 +122,6 @@ private:
 			{
 				beta = resultScore;
 				bestMove = move;
-			}
-			if (beta == std::numeric_limits<int>::min()) {
-				int x = 1;
 			}
 
 		}
@@ -177,6 +175,8 @@ private:
 
 	static int danielsenHeuristic(const State& state) {
 		int sum = 0;
+		int piecesLeft = 0;
+		Position blackKingPos, whiteKingPos;
 
 		int whitesMinorPieceThreaths = 0;
 		int blacksMinorPieceThreaths = 0;
@@ -195,6 +195,14 @@ private:
 				{
 				case PieceType::KING:
 				{
+					//This will be usefull if we are in endgame 
+					if (piece.getColor() == PieceColor::WHITE) {
+						whiteKingPos = { i,j };
+					}
+					else {
+						blackKingPos = { i,j };
+					}
+					piecesLeft++;
 					break;
 				}
 				case PieceType::QUEEN:
@@ -205,6 +213,8 @@ private:
 						|| MoveUtil::isBishopThreathening(state, pos, whitePiece)
 						|| MoveUtil::isKnightThreathening(state, pos, whitePiece)
 						|| MoveUtil::isPawnThreathening(state, pos, whitePiece);
+					piecesLeft++;
+
 					break;
 				}
 				case PieceType::ROOK:
@@ -214,6 +224,7 @@ private:
 					minorPieceThreathening = MoveUtil::isBishopThreathening(state, pos, whitePiece)
 						|| MoveUtil::isKnightThreathening(state, pos, whitePiece)
 						|| MoveUtil::isPawnThreathening(state, pos, whitePiece);
+					piecesLeft++;
 					break;
 				}
 				case PieceType::BISHOP:
@@ -221,19 +232,16 @@ private:
 					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
 					current = 300 + 2 * controlledSquares;
 					minorPieceThreathening = MoveUtil::isPawnThreathening(state, pos, whitePiece);
+					piecesLeft++;
 					break;
 				}
 				case PieceType::KNIGHT:
 				{
-					int xDist = pos.x < 4 ? 3 - pos.x : 4 - pos.x;
-					xDist = xDist < 0 ? -xDist : xDist;
-					int yDist = pos.y < 4 ? 3 - pos.y : 4 - pos.y;
-					yDist = yDist < 0 ? -yDist : yDist;
-
-					int distFromCenter = xDist + yDist;
+					int distFromCenter = MoveUtil::manhattanDistFromMiddle(pos);
 					current = 300 + 3 * (4 - distFromCenter);
 
 					minorPieceThreathening = MoveUtil::isPawnThreathening(state, pos, whitePiece);
+					piecesLeft++;
 					break;
 				}
 				case PieceType::PAWN:
@@ -250,6 +258,7 @@ private:
 						//We have a double pawn
 						current += 8;
 					}
+					piecesLeft++;
 					break;
 				}
 				case PieceType::NONE:
@@ -278,6 +287,23 @@ private:
 		sum += minorPiecesThreatheningPoints(whitesMinorPieceThreaths);
 		sum -= minorPiecesThreatheningPoints(blacksMinorPieceThreaths);
 
+		//This part is not from original Danielsen Heuristic, but added to handle endgame better
+		//---------------------------------------------------
+		bool isEndgame = piecesLeft < ENDGAME_PIECES_THRESHOLD;
+		if (isEndgame) {
+			//Best to keep the king in the middle - effect is stronger, the fewer pieces are left
+			int whiteKingDist = MoveUtil::manhattanDistFromMiddle(whiteKingPos);
+			int blackKingDist = MoveUtil::manhattanDistFromMiddle(blackKingPos);
+
+			//Award white points for black kings distance
+			sum += (ENDGAME_PIECES_THRESHOLD - piecesLeft) * blackKingDist * 10;
+
+			//Award black points for white kings distance
+			sum -= (ENDGAME_PIECES_THRESHOLD - piecesLeft) * whiteKingDist * 10;
+		}
+
+		//---------------------------------------------------
+
 		return sum;
 	}
 
@@ -286,6 +312,10 @@ private:
 	}
 
 private:
+
+	constexpr static int ENDGAME_WINNER_SCORE_THRESHOLD  = 500;
+
+	constexpr static int ENDGAME_PIECES_THRESHOLD  = 8;
 
 	constexpr static int DRAW_SCORE  = 0;
 
@@ -296,7 +326,6 @@ private:
 	constexpr static int MAX_SCORE = std::numeric_limits<int>::max() - 1;
 
 	constexpr static int MIN_SCORE = std::numeric_limits<int>::min() + 1;
-
 
 };
 

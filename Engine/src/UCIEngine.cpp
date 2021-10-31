@@ -12,6 +12,11 @@
 namespace fs = std::filesystem;
 
 
+// It's uncertain whether printing debug info will slow down Engine
+// (it's untested).
+constexpr bool PRINT_DEBUG_INFO = true;
+
+
 UCIEngine::UCIEngine(std::string name, fs::path enginePath, long long searchTime)
     :   name(name),
         enginePath(enginePath),
@@ -44,6 +49,7 @@ void UCIEngine::start(std::ostream* outputStream, std::ostream* errorStream) {
     }
 
     *outputStream << "Starting new game.." << std::endl;
+    *outputStream << "  Search time: " << searchTime.count() << "ms" << std::endl; 
     writeToEngine("ucinewgame");
     writeToEngine("position startpos");
     engineReadySignal.reset();
@@ -58,8 +64,9 @@ void UCIEngine::startProcess() {
         { 
             fs::absolute(enginePath).string()
         },
-        [this](auto &output) { this->onEngineStdOutput(output); },
-        [this](auto &error) { this->onEngineStdError(error); }
+        [&](auto &output) { this->onEngineStdOutput(output); },
+        [&](auto &error) { this->onEngineStdError(error); },
+        [&]() { this->onProcessTerminated(); }
     );
 
     engineNameSignal.reset();
@@ -81,6 +88,10 @@ void UCIEngine::startProcess() {
     // if we switch it out with another. This should really be setup using a more
     // general system
     writeToEngine("setoption name UCI_LimitStrength value true"); // Enables lower elo (default is 1359)
+
+    if( PRINT_DEBUG_INFO ) {
+        writeToEngine("debug on");
+    }
 
     engineReadySignal.reset();
     writeToEngine("isready");
@@ -116,6 +127,17 @@ Move UCIEngine::getMove(const State& state, const std::vector<Move>& validMoves,
 }
 
 
+void UCIEngine::writeToEngine(const std::string& message) {
+    if( outputStream != nullptr ) {
+        *outputStream << message << std::endl;
+    }
+    process->writeLine(message);
+     if( outputStream != nullptr ) {
+        *outputStream << "Sent" << std::endl;
+    }   
+}
+
+
 void UCIEngine::onEngineStdOutput(const std::string& output) {
     
     if( output.size() == 0 ) {
@@ -127,7 +149,7 @@ void UCIEngine::onEngineStdOutput(const std::string& output) {
      
     std::vector<std::string> tokens = Util::splitString(output, " \t\r\n\0");
     if( tokens.size() == 0 ) {
-        *outputStream << "StdOut output from engine parsed into no tokens";
+        *outputStream << "StdOut output from engine parsed into no tokens" << std::endl;
         return;
     }    
 
@@ -166,9 +188,10 @@ void UCIEngine::onEngineStdError(const std::string& error) {
 }
 
 
-void UCIEngine::writeToEngine(const std::string& message) {
-    if( outputStream != nullptr ) {
-        *outputStream << message << std::endl;
-    }
-    process->writeLine(message);
+void UCIEngine::onProcessTerminated() {
+    *outputStream << "Engine process terminated" << std::endl;
+
+    // Note: we don't do anything to unblock the engine, which may be waiting
+    // for a response from the Engine. We can do that (+ proper restarting)
+    // if we have time.
 }

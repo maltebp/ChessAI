@@ -20,7 +20,8 @@ public:
 
 
     void start(std::ostream* outputStream, std::ostream* errorStream) override {
-
+        *outputStream << "Starting Our Engine" << std::endl;
+        *outputStream << "Search depth: " << searchDepth << std::endl;
     }
     
 

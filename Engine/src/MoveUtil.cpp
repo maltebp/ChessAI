@@ -3,6 +3,16 @@
 
 namespace MoveUtil {
 
+	int manhattanDistFromMiddle(const Position pos) {
+		int xDist = pos.x < 4 ? 3 - pos.x : 4 - pos.x;
+		xDist = xDist < 0 ? -xDist : xDist;
+		int yDist = pos.y < 4 ? 3 - pos.y : 4 - pos.y;
+		yDist = yDist < 0 ? -yDist : yDist;
+
+		return xDist + yDist;
+	}
+
+
 	Piece getFirstPieceInSlidingPosition(const State& state, Position origin, int dx, int dy) {
 		Position currentPos = origin;
 
@@ -402,7 +412,11 @@ namespace MoveUtil {
 
 	void getCastlingMoves(State state, std::vector<Move>& moves) {
 		bool isWhite = state.getTurnColor() == PieceColor::WHITE;
-		if (isWhite) {
+		bool whiteKingInPlace = state.board[4][0].getType() == PieceType::KING 
+			&& state.board[4][0].getColor()==PieceColor::WHITE;
+		bool blackKingInPlace = state.board[4][7].getType() == PieceType::KING
+			&& state.board[4][7].getColor() == PieceColor::BLACK;
+		if (isWhite && whiteKingInPlace) {
 			if (state.whiteCanCastleQueenSide) {
 				//Check that fields in the middle are empty
 				bool field1Empty = state.board[1][0].getType() == PieceType::NONE;
@@ -433,7 +447,7 @@ namespace MoveUtil {
 				}
 			}
 		}
-		else {//Is black
+		else if (blackKingInPlace) {//Is black
 			if (state.blackCanCastleQueenSide) {
 				//Check that fields in the middle are empty
 				bool field1Empty = state.board[1][7].getType() == PieceType::NONE;

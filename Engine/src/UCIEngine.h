@@ -33,6 +33,8 @@ private:
 
     void onEngineStdError(const std::string&);
 
+    void onProcessTerminated();
+
 private:
 
     std::string name;
