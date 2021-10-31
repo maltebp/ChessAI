@@ -32,8 +32,8 @@ public:
         if last move isn't NULL, last move is a book move and turn is black insert move into black tree and return a response from the next nodes
         */ 
         // ACTUALLY all trees should work for both players.
-        Move move = MinMaxSearcher::search(state, searchDepth);
-        return move;
+        MinMaxSearcher::Result result = MinMaxSearcher::search(state, searchDepth);
+        return result.bestMove;
     }
 
 
