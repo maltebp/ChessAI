@@ -35,7 +35,7 @@ private:
 		bool isMaximizer = state.turn % 2 == 0;
 
 		//Get all possible moves
-		moves = MoveUtil::getAllMoves(state);
+		std::vector<Move> moves = MoveUtil::getAllMoves(state);
 
 		if (moves.size() == 0) {
 			//In this case it is either a draw of a loss or current player
@@ -264,8 +264,6 @@ private:
 	}
 
 private:
-
-	static inline std::vector<Move> moves;
 
 	constexpr static int ENDGAME_WINNER_SCORE_THRESHOLD  = 500;
 
