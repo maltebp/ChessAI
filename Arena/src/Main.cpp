@@ -8,6 +8,8 @@
 #include "UCIEngine.h"
 #include "MoveUtil.h"
 
+// Used for comparison in the analysis
+constexpr int VERSION = 1;
 
 // Remember to update .gitignore if this is changed
 const char* OUTPUT_PATH = "arena_results";
@@ -22,16 +24,17 @@ int main(int argc, char* argv[]) {
 
     State state = State::createDefault();
 
-    UCIEngine stockfish1 = UCIEngine("Stockfish 14", STOCKFISH_PATH, 8000);
+    /*UCIEngine stockfish1 = UCIEngine("Stockfish", STOCKFISH_PATH, 8000);
+    AIPlayerController ourEngine = AIPlayerController(5);*/
 
-    // UCIEngine stockfish2 = UCIEngine("Stockfish 14", enginePath, 1000);
-    AIPlayerController ourEngine = AIPlayerController(5);
+    UCIEngine stockfish1 = UCIEngine("Stockfish", STOCKFISH_PATH, 2000);
+    AIPlayerController ourEngine = AIPlayerController(3);
 
     ArenaController controller = {
         outputPath,
-        2,
         ourEngine,
-        stockfish1
+        stockfish1,
+        VERSION
     };
 
     controller.start();
