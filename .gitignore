@@ -8,3 +8,5 @@ build/
 *.user
 arena_results/
 performance_test_results/
+__pycache__/
+.ipynb_checkpoints/
