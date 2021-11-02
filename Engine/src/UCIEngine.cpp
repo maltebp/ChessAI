@@ -100,7 +100,7 @@ void UCIEngine::startProcess() {
 }
 
 
-Move UCIEngine::getMove(const State& state, const std::vector<Move>& validMoves, const Move& lastMove) {
+Move UCIEngine::getMove(const State& state, const MoveUtil::GenerationList& validMoves, const Move& lastMove) {
 
     *outputStream << "\nStarting engine search" << std::endl;
     std::stringstream ss;

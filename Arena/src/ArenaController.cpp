@@ -47,7 +47,7 @@ void ArenaController::start() {
     std::thread s([&]() { this->runSession(sessionPath); });
 
     // Start input parsing
-    
+        
     while(true) {
 
         // In case the test thread stops before we request it to
@@ -222,7 +222,8 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
             break;
         }
 
-        std::vector<Move> availableMoves = MoveUtil::getAllMoves(state);
+        MoveUtil::GenerationList availableMoves;
+        MoveUtil::getAllMoves(state, availableMoves);
         if( availableMoves.size() == 0 ) {
             bool whiteWins = !whitesTurn;
             std::string winnerName = whiteWins ? whitePlayer.getName() : blackPlayer.getName();
@@ -251,8 +252,8 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
             std::stringstream ss;
             ss << currentEngine.getName() << " did INVALID MOVE!" << std::endl;
             ss << "Available moves were:" << std::endl;
-            for( auto move : availableMoves ) {
-                ss << "  " << move << std::endl;
+            for( size_t i = 0; i < availableMoves.size(); i++ ) {
+                ss << "  " << availableMoves[i] << std::endl;
             }
 
             gameLog << ss.str();

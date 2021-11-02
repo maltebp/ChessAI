@@ -8,7 +8,7 @@
 #include "Util.h"
 #include "State.h"
 #include "../src/MinMax.h" // Have to do this to avoid ambiguity with "minmax.h" (windows header file)
-
+#include "DynamicAllocation.h"
 
 namespace fs = std::filesystem;
 
@@ -37,7 +37,8 @@ const std::vector<TestCase> TEST_CASES =
 
 const unsigned int SAMPLES = 3;
 
-const unsigned int DEPTH = 6;
+// Our analysis assumes that we use depth 6
+const unsigned int DEPTH = 4;
 
 std::ostream& out = std::cout;
 
@@ -99,6 +100,7 @@ void runTestCase(TestCase testCase) {
             averageSample.nodesVisited += samples[i].nodesVisited;
             averageSample.checkmates += samples[i].checkmates;
             averageSample.draws += samples[i].draws;
+            averageSample.dynamicAllocations += samples[i].dynamicAllocations;
         }
 
         averageSample.searchTime /= SAMPLES;
@@ -108,13 +110,13 @@ void runTestCase(TestCase testCase) {
         averageSample.nodesVisited /= SAMPLES;
         averageSample.checkmates /= SAMPLES;
         averageSample.draws /= SAMPLES;
+        averageSample.dynamicAllocations /= SAMPLES;
 
         results.push_back(averageSample);
 
         out << "Done" << std::endl;
     }
     
-
     out << "\n  Results:" << std::endl;
 
     double averageBranchFactor = 0;
@@ -138,6 +140,7 @@ void runTestCase(TestCase testCase) {
         out << "      Evaluations:    " << depthResult.staticEvaluations << std::endl;
         out << "      Checkmates:     " << depthResult.checkmates << std::endl;
         out << "      Draws:          " << depthResult.draws << std::endl;
+        out << "      Num. allocs:    " << depthResult.dynamicAllocations << std::endl;
 
         csvDepths 
             << testCase.id << ','
@@ -148,7 +151,8 @@ void runTestCase(TestCase testCase) {
             << depthResult.branchingFactor << ','
             << depthResult.cutOffFactor << ','
             << depthResult.checkmates << ','
-            << depthResult.draws 
+            << depthResult.draws << ','
+            << depthResult.dynamicAllocations 
             << std::endl;
 
         averageBranchFactor += depthResult.branchingFactor;
@@ -172,8 +176,8 @@ void runTests(std::vector<TestCase> testCases) {
     }
 
     out << '\n';
-    out << "Samples: " << SAMPLES << std::endl;;
-    out << "Depth:   " << DEPTH << std::endl;;
+    out << "Samples: " << SAMPLES << std::endl;
+    out << "Depth:   " << DEPTH << std::endl;
 
     for( auto& testCase : testCases ) {
         runTestCase(testCase);
@@ -204,7 +208,8 @@ int main(int argc, char* argv[]) {
         << "branching,"
         << "cutoffs,"
         << "checkmates,"
-        << "draws"
+        << "draws,"
+        << "dynamic_allocs"
         << std::endl;
 
     auto startTime = std::chrono::system_clock::now();

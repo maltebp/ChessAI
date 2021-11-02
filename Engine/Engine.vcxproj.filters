@@ -90,6 +90,9 @@
     <ClInclude Include="src\VariableSignal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\MoveSorter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MoveUtil.cpp">
@@ -102,6 +105,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\UCIEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DynamicAllocation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

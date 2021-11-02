@@ -88,6 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\MoveSorter.h" />
     <ClInclude Include="src\AIPlayerController.h" />
     <ClInclude Include="src\EngineArena\EngineArenaController.h" />
     <ClInclude Include="src\EngineArena\IEngine.h" />
@@ -115,6 +116,7 @@
     <ClInclude Include="src\VariableSignal.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\DynamicAllocation.cpp" />
     <ClCompile Include="src\MoveUtil.cpp" />
     <ClCompile Include="src\Process.cpp" />
     <ClCompile Include="src\State.cpp" />

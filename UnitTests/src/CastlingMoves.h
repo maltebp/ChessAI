@@ -35,19 +35,21 @@ State createPromotionState() {
 
 
 TEST_CASE("Castling Moves: Generation", "[moves][castling][king][rook]") {
-	State state = createPromotionState();
 	
-    std::vector<Move> moves = MoveUtil::getAllMoves(state);
+	State state = createPromotionState();
+	MoveUtil::GenerationList moves;
+	
+    MoveUtil::getAllMoves(state, moves);
 
-	REQUIRE(Util::contains(moves, Move{ {4,0}, {6,0} }));
-	REQUIRE(Util::contains(moves, Move{ {4,0}, {2,0} }));
+	REQUIRE(moves.contains(Move{ {4,0}, {6,0} }));
+	REQUIRE(moves.contains(Move{ {4,0}, {2,0} }));
 
     state.turn++;
 
-    moves = MoveUtil::getAllMoves(state);
+    MoveUtil::getAllMoves(state, moves);
 
-	REQUIRE(Util::contains(moves, Move{ {4,7}, {6,7} }));
-	REQUIRE(Util::contains(moves, Move{ {4,7}, {2,7} }));
+	REQUIRE(moves.contains(Move{ {4,7}, {6,7} }));
+	REQUIRE(moves.contains(Move{ {4,7}, {2,7} }));	
 }
 
 TEST_CASE("Castling Moves: Execution White Queenside ", "[moves][castling][king][rook]") {

@@ -4,7 +4,9 @@
 #include <limits>
 #include <chrono>
 
+#include "DynamicAllocation.h"
 #include "MoveUtil.h"
+#include "MoveSorter.h"
 
 
 const static double pawnFieldValuesForWhite[8][8] = {
@@ -32,6 +34,7 @@ public:
 		unsigned long long checkmates = 0;
 		unsigned long long draws = 0;
 		unsigned long long staticEvaluations = 0;
+		unsigned long long dynamicAllocations = 0;
 
 	};
 	
@@ -42,15 +45,24 @@ public:
 	static Result search(const State& state, int depth) {
 		Result result;
 
-	    auto startTime = std::chrono::system_clock::now();
+	    unsigned long long numAllocationsAtStart = DynamicAllocation::numAllocations;
 
-		auto [move, score] = searchInternal(state, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), result);
+	    auto startTime = std::chrono::system_clock::now();
+		Move bestMove;
+		for (int i = 1; i <= depth; i++) {
+			bool useMoveSequence = i > 1;
+			auto [move, score] = searchInternal(state, i, 0, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), result, useMoveSequence);
+			bestMove = move;
+			previousBestMoves = moveList;
+			moveList.clear();
+		}
 
     	auto endTime = std::chrono::system_clock::now();
     	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
 
-		result.bestMove = move;		
+		result.bestMove = bestMove;		
 		result.searchTime = elapsed.count() / 1000.0;
+		result.dynamicAllocations = DynamicAllocation::numAllocations - numAllocationsAtStart;
 
 		return result;
 	}
@@ -58,13 +70,21 @@ public:
 
 private:
 
+	static void deleteElementsBetween(std::vector<Move>& v, size_t startIndex, size_t endIndex) {
+		if( startIndex >= endIndex ) return;
+		v.erase(v.begin() + startIndex, v.begin() + endIndex ); 
+	}
+
 	
-	static std::tuple<Move, int> searchInternal(const State& state, int depth, int alpha, int beta, Result& result) {
+	
+	static std::tuple<Move, int> searchInternal(const State& state, int remainingDepth, int currentDepth, int alpha, int beta, Result& result, bool useMoveSequence) {
+
+		size_t startIndex = moveList.size();
 
 		result.nodesVisited++;
 
 		//Base case: Leaf node
-		if (depth == 0) {
+		if (remainingDepth == 0) {
 			result.staticEvaluations++;
 			int score = danielsenHeuristic(state);
 			return { Move(), score };
@@ -73,7 +93,8 @@ private:
 		bool isMaximizer = state.turn % 2 == 0;
 
 		//Get all possible moves
-		std::vector<Move> moves = MoveUtil::getAllMoves(state);
+		MoveUtil::GenerationList moves;
+		MoveUtil::getAllMoves(state, moves);
 
 		if (moves.size() == 0) {
 			//In this case it is either a draw of a loss or current player
@@ -85,7 +106,7 @@ private:
 				//If king is threathened - it is check mate
 
 				//Adjust score with depth, so quick mate is preferred no matter the other factors
-				int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (depth *VERY_LARGE_POINT_BONUS);
+				int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (remainingDepth *VERY_LARGE_POINT_BONUS);
 				int score = isMaximizer ? -scoreValue : scoreValue;
 
 				result.checkmates++;
@@ -104,6 +125,14 @@ private:
 		result.branchingFactor =
 			currentBranchingFactor + (moves.size() - currentBranchingFactor) / result.nodesVisited;
 
+		Move bestMoveFromPrevious = Move();
+		if (useMoveSequence) {
+			bestMoveFromPrevious = previousBestMoves[currentDepth];
+		}
+
+		//Sort the list of moves according to moveorder heuristic
+		MoveSorter::sortMoves(state, moves, bestMoveFromPrevious);
+
 		Move bestMove;
 		for(int i=0; i<moves.size(); i++) {
             Move move = moves[i];
@@ -117,17 +146,27 @@ private:
 				break;
 			}
 
+			size_t currentIndex = moveList.size();
+			moveList.push_back(move);
+
 			State resultState = MoveUtil::executeMove(state, move);
 
-			auto [resultMove, resultScore] = searchInternal(resultState, depth - 1, alpha, beta, result);
+			bool useMoveSequenceAgain = useMoveSequence && move == bestMoveFromPrevious && remainingDepth -1 > 1;
+			auto [resultMove, resultScore] = searchInternal(resultState, remainingDepth - 1, currentDepth+1, alpha, beta, result, useMoveSequenceAgain);
 			if (isMaximizer && resultScore > alpha) 
 			{
 				alpha = resultScore;
 				bestMove = move;
+
+				deleteElementsBetween(moveList, startIndex, currentIndex);
 			} else if (!isMaximizer && resultScore < beta) 
 			{
 				beta = resultScore;
 				bestMove = move;
+
+				deleteElementsBetween(moveList, startIndex, currentIndex);
+			} else {
+				deleteElementsBetween(moveList, currentIndex, moveList.size());
 			}
 
 		}
@@ -180,6 +219,9 @@ private:
 	}
 
 	static int danielsenHeuristic(const State& state) {
+		static std::vector<Position> slidingPositions;
+		
+
 		int sum = 0;
 		int piecesLeft = 0;
 		Position blackKingPos, whiteKingPos;
@@ -191,6 +233,7 @@ private:
 		int current;
 		for (unsigned int i = 0; i < 8; i++) {
 			for (unsigned int j = 0; j < 8; j++) {
+				slidingPositions.clear();
 				current = 0;
 				Piece piece = state.board[i][j];
 				int sign = piece.getColor() == PieceColor::WHITE ? 1 : -1;
@@ -213,7 +256,8 @@ private:
 				}
 				case PieceType::QUEEN:
 				{
-					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
+					int controlledSquares = slidingPositions.size();
 					current = 900 + 1 * controlledSquares;
 					minorPieceThreathening = MoveUtil::isRooksThreathening(state, pos, whitePiece)
 						|| MoveUtil::isBishopThreathening(state, pos, whitePiece)
@@ -225,7 +269,8 @@ private:
 				}
 				case PieceType::ROOK:
 				{
-					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
+					int controlledSquares = slidingPositions.size();
 					current = (int)(500 + 1.5 * controlledSquares);
 					minorPieceThreathening = MoveUtil::isBishopThreathening(state, pos, whitePiece)
 						|| MoveUtil::isKnightThreathening(state, pos, whitePiece)
@@ -235,7 +280,8 @@ private:
 				}
 				case PieceType::BISHOP:
 				{
-					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
+					int controlledSquares = slidingPositions.size();
 					current = 300 + 2 * controlledSquares;
 					minorPieceThreathening = MoveUtil::isPawnThreathening(state, pos, whitePiece);
 					piecesLeft++;
@@ -318,6 +364,10 @@ private:
 	}
 
 private:
+
+	static inline std::vector<Move> moveList;
+
+	static inline std::vector<Move> previousBestMoves;
 
 	constexpr static int ENDGAME_WINNER_SCORE_THRESHOLD  = 500;
 
