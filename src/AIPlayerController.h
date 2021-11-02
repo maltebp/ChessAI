@@ -4,20 +4,33 @@
 
 #include "IPlayerController.h"
 #include "MinMax.h"
+#include "BookTree.h"
+#include <cstdlib>
 
 class AIPlayerController : public IPlayerController {
     
     int searchDepth = 4;
-
+    bool book = false;
+    BookMoves::Node* current;
 public:
 
     Move getMove(const State& state, const std::vector<Move>& initialMoves, const Move& lastMove) {
-        //TODO: check state tur tur %2 er hvid overfør last white move eller last black move
-        /*TODO: first take lastMove. If last move is NULL start from white tree 
-        if last move isn't NULL, last move is a book move and turn is white insert move into white tree and return a response from the next nodes
-        if last move isn't NULL, last move is a book move and turn is black insert move into black tree and return a response from the next nodes
-        */ 
-        // ACTUALLY all trees should work for both players.
+        if (book) {
+            std::vector<BookMoves::Node*> bookmoves;
+            if (current == NULL) {
+                BookMoves::initTree;
+                bookmoves = BookMoves::Node::getRoots();
+                current = bookmoves[rand() % bookmoves.size()];
+                return current->move;
+            }
+            BookMoves::Node* last = current->findChild(lastMove);
+            if (last != NULL && last->children.size() > 0) {
+                current = last->children[rand() % last->children.size()];
+                return current->move;
+            }
+            else book = false;
+
+        }
         auto [move, score] = MinMaxSearcher::search(state, searchDepth, -1000, 1000);
         return move;
     }

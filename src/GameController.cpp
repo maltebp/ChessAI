@@ -63,7 +63,7 @@ void GameController::start(State state) {
         }
 
         std::cout << "\nWaiting for " << (state.turn % 2 == 0 ? "White" : "Black") << " to make a move..." << std::endl;
-        //TODO: Overfør last move, check vis tur det er
+        // Overfør last move, check vis tur det er
         Move move;
         if (state.turn % 2 == 0)
             move = currentPlayer.getMove(state, availableMoves, lastBlackMove);
