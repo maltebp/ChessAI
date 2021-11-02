@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <limits>
 #include <chrono>
+#include <cstdlib>
 
 #include "MoveUtil.h"
 
@@ -183,7 +184,8 @@ private:
 		int sum = 0;
 		int piecesLeft = 0;
 		Position blackKingPos, whiteKingPos;
-
+		int whiteSum = 0;
+		int blackSum = 0;
 		int whitesMinorPieceThreaths = 0;
 		int blacksMinorPieceThreaths = 0;
 
@@ -282,6 +284,12 @@ private:
 				}
 
 				sum += sign * current;
+				if (whitePiece) {
+					whiteSum += current;
+				}
+				else {
+					blackSum += current;
+				}
 			}
 		}
 
@@ -293,19 +301,33 @@ private:
 		sum += minorPiecesThreatheningPoints(whitesMinorPieceThreaths);
 		sum -= minorPiecesThreatheningPoints(blacksMinorPieceThreaths);
 
-		//This part is not from original Danielsen Heuristic, but added to handle endgame better
+		//This part is from original Danielsen Heuristic, added to handle endgame better
 		//---------------------------------------------------
-		bool isEndgame = piecesLeft < ENDGAME_PIECES_THRESHOLD;
+		bool isEndgame = (whiteSum <= ENDGAME_SCORE_THRESHOLD || blackSum <= ENDGAME_SCORE_THRESHOLD);
 		if (isEndgame) {
-			//Best to keep the king in the middle - effect is stronger, the fewer pieces are left
-			int whiteKingDist = MoveUtil::manhattanDistFromMiddle(whiteKingPos);
-			int blackKingDist = MoveUtil::manhattanDistFromMiddle(blackKingPos);
 
-			//Award white points for black kings distance
-			sum += (ENDGAME_PIECES_THRESHOLD - piecesLeft) * blackKingDist * 10;
+			int whiteDistFromCenter = MoveUtil::manhattanDistFromMiddle(whiteKingPos);
+			int blackDistFromCenter = MoveUtil::manhattanDistFromMiddle(blackKingPos);
+			whiteSum -= 1 * whiteDistFromCenter;
+			blackSum -= 1 * blackDistFromCenter;
+			sum += -1 * whiteDistFromCenter;
+			sum -= -1 * blackDistFromCenter;
 
-			//Award black points for white kings distance
-			sum -= (ENDGAME_PIECES_THRESHOLD - piecesLeft) * whiteKingDist * 10;
+			bool isMating = (whiteSum <= MATING_SCORE_THRESHOLD || blackSum <= MATING_SCORE_THRESHOLD);
+			if (isMating) {
+				int distBetweenKings = std::abs((int)whiteKingPos.x-(int)blackKingPos.x) + std::abs((int)whiteKingPos.y - (int)blackKingPos.y);
+
+				if (whiteSum >= blackSum) {//white winning
+					sum -= -8 * blackDistFromCenter;
+					sum += -2 * distBetweenKings;
+				}
+				else { //black winning
+					sum += -8 * whiteDistFromCenter;
+					sum -= -2 * distBetweenKings;
+
+				}
+
+			}
 		}
 
 		//---------------------------------------------------
@@ -321,7 +343,9 @@ private:
 
 	constexpr static int ENDGAME_WINNER_SCORE_THRESHOLD  = 500;
 
-	constexpr static int ENDGAME_PIECES_THRESHOLD  = 8;
+	constexpr static int ENDGAME_SCORE_THRESHOLD  = 1500;
+
+	constexpr static int MATING_SCORE_THRESHOLD = 600;
 
 	constexpr static int DRAW_SCORE  = 0;
 
