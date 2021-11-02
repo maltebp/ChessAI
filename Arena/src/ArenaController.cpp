@@ -208,7 +208,8 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
             break;
         }
 
-        std::vector<Move> availableMoves = MoveUtil::getAllMoves(state);
+        MoveUtil::GenerationList availableMoves;
+        MoveUtil::getAllMoves(state, availableMoves);
         if( availableMoves.size() == 0 ) {
             bool whiteWins = state.turn % 2 == 1;
             // Note: at some point, eninge1 should NOT be synonymous with "white"
@@ -239,8 +240,8 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
             std::stringstream ss;
             ss << (state.turn % 2 == 0 ? engine1Name : engine2Name) << " did INVALID MOVE!" << std::endl;
             ss << "Available moves were:" << std::endl;
-            for( auto move : availableMoves ) {
-                ss << "  " << move << std::endl;
+            for( size_t i = 0; i < availableMoves.size(); i++ ) {
+                ss << "  " << availableMoves[i] << std::endl;
             }
 
             gameLog << ss.str();

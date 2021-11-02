@@ -29,7 +29,7 @@ public:
     }
     
 
-    Move getMove(const State& state, const std::vector<Move>& initialMoves, const Move& lastMove) {
+    Move getMove(const State& state, const MoveUtil::GenerationList& validMoves, const Move& lastMove) {
         if (book) {
             std::vector<BookMoves::Node*> bookmoves;
             if (current == NULL) {
@@ -46,7 +46,9 @@ public:
             else book = false;
 
         }
+
         MinMaxSearcher::Result result = MinMaxSearcher::search(state, searchDepth);
+        
         return result.bestMove;
     }
 

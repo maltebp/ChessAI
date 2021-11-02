@@ -6,7 +6,6 @@
 
 #include "DynamicAllocation.h"
 #include "MoveUtil.h"
-#include "PushableArray.h"
 #include "MoveSorter.h"
 
 
@@ -94,7 +93,7 @@ private:
 		bool isMaximizer = state.turn % 2 == 0;
 
 		//Get all possible moves
-		Util::SizedPushableArray<Move,100> moves;
+		MoveUtil::GenerationList moves;
 		MoveUtil::getAllMoves(state, moves);
 
 		if (moves.size() == 0) {

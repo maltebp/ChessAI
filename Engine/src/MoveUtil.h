@@ -3,14 +3,26 @@
 #include <vector>
 #include <array>
 
-#include "PushableArray.h"
+#include "FixedVector.h"
 #include "Move.h"
 #include "State.h" 
 
 
 namespace MoveUtil {
+
+	/**
+	 * @brief	Centralized definition of a compile-time sized array, used for the output
+	 * 			of the move generation. We estimate/assume that the move generation will
+	 * 			never compute more moves than what this array may hold.
+	 * 			Theoretically, it's not large enough to hold all moves for all states (see
+	 * 			link below), but covers 99.99% of all cases.
+	 * 
+	 * 			https://www.chess.com/forum/view/fun-with-chess/what-chess-position-has-the-most-number-of-possible-moves
+	 */
+	using GenerationList = Util::FixedVector<Move,100>;
+
 	
-	void getAllMoves(const State& state, Util::PushableArray<Move>& moves);
+	void getAllMoves(const State& state, GenerationList& moves);
 	
 	State executeMove(const State& oldState, Move move);
 

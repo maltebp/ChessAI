@@ -22,7 +22,7 @@ void TUIPlayer::start(std::ostream* outputStream, std::ostream* errorStream) {
 }
 
 
-std::tuple<Move, std::string> parseInput(const State& state, const std::vector<Move>& moves, const std::vector<std::string> inputTokens) {
+std::tuple<Move, std::string> parseInput(const State& state, const MoveUtil::GenerationList& moves, const std::vector<std::string> inputTokens) {
 	
 	std::string command = inputTokens[0];
 
@@ -43,7 +43,7 @@ std::tuple<Move, std::string> parseInput(const State& state, const std::vector<M
 
 		Move move = { fromPosition, toPosition };
 
-		if( std::find(moves.begin(), moves.end(), move) == moves.end() ) {
+		if( !moves.contains(move) ) {
 			return { {}, "Error: Invalid move" };
 		}
 
@@ -58,8 +58,8 @@ std::tuple<Move, std::string> parseInput(const State& state, const std::vector<M
 
 		std::stringstream ss;
 		ss << "Valid moves:\n";
-		for(auto move : moves) {
-			ss << "  " << move << "\n";
+		for( size_t i = 0; i < 100; i++ ) {
+			ss << "  " << moves[i] << "\n";
 		}
 
 		return { {}, ss.str() }; 
@@ -69,7 +69,7 @@ std::tuple<Move, std::string> parseInput(const State& state, const std::vector<M
 }
 
 
-Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves, const Move& lastMove) {
+Move TUIPlayer::getMove(const State& state, const MoveUtil::GenerationList& validMoves, const Move& lastMove) {
 
 	while( true ) {
 
@@ -81,7 +81,7 @@ Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves, cons
 
 		if( inputTokens.size() == 0 ) continue;
 
-		auto [move,parseOutput] = parseInput(state, moves, inputTokens);
+		auto [move,parseOutput] = parseInput(state, validMoves, inputTokens);
 		if( parseOutput.empty() || parseOutput == "" ) {
 			return move;
 		}

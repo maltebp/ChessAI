@@ -46,7 +46,7 @@ static class MoveSorter {
 
 public:
 
-	static void sortMoves(const State& state, Util::PushableArray<Move>& moves, Move& bestMoveFromPrevious) {
+	static void sortMoves(const State& state, MoveUtil::GenerationList& moves, Move& bestMoveFromPrevious) {
 
 		bool usingBestFromPrevious = bestMoveFromPrevious != Move();
 		//Move bestFromPrevious to front if it is there
