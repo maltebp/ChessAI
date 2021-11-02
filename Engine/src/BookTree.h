@@ -5,7 +5,7 @@
 namespace BookMoves {
 
 	struct Node {
-		static std::vector<Node*> roots;
+		static inline std::vector<Node*> roots;
 		Move move;
 		std::vector<Node*> children;
 		
@@ -40,7 +40,7 @@ namespace BookMoves {
 			return NULL;
 		}
 	};
-	void initTree() {
+	static void initTree() {
 		Node* root1 = Node::createRoot({ { 4, 1 }, { 4, 3 } }); //e4
 		root1->addChild({ { 2, 5 }, { 2, 4 } });//caro-kann
 		root1->children[0]->addChildren({ { { 1, 0 }, { 2, 2 } }, { { 3, 1 }, { 3, 3 } } });

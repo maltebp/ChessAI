@@ -9,7 +9,6 @@
 #include <cstdlib>
 
 class AIPlayerController : public IPlayerController {
-    int searchDepth = 4;
     bool book = false;
     BookMoves::Node* current;
 public:
@@ -55,5 +54,4 @@ public:
 private:
 
     int searchDepth;
-
 };
