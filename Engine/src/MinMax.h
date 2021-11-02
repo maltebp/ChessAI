@@ -44,13 +44,19 @@ public:
 		Result result;
 		
 	    auto startTime = std::chrono::system_clock::now();
-
-		auto [move, score] = searchInternal(state, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), result);
+		Move bestMove;
+		for (int i = 1; i <= depth; i++) {
+			bool useMoveSequence = i > 1;
+			auto [move, score] = searchInternal(state, i, 0, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), result, useMoveSequence);
+			bestMove = move;
+			previousBestMoves = moveList;
+			moveList.clear();
+		}
 
     	auto endTime = std::chrono::system_clock::now();
     	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
 
-		result.bestMove = move;		
+		result.bestMove = bestMove;		
 		result.searchTime = elapsed.count() / 1000.0;
 
 		return result;
@@ -66,14 +72,14 @@ private:
 
 	
 	
-	static std::tuple<Move, int> searchInternal(const State& state, int depth, int alpha, int beta, Result& result) {
+	static std::tuple<Move, int> searchInternal(const State& state, int remainingDepth, int currentDepth, int alpha, int beta, Result& result, bool useMoveSequence) {
 
 		size_t startIndex = moveList.size();
 
 		result.nodesVisited++;
 
 		//Base case: Leaf node
-		if (depth == 0) {
+		if (remainingDepth == 0) {
 			result.staticEvaluations++;
 			int score = danielsenHeuristic(state);
 			return { Move(), score };
@@ -94,7 +100,7 @@ private:
 				//If king is threathened - it is check mate
 
 				//Adjust score with depth, so quick mate is preferred no matter the other factors
-				int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (depth *VERY_LARGE_POINT_BONUS);
+				int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (remainingDepth *VERY_LARGE_POINT_BONUS);
 				int score = isMaximizer ? -scoreValue : scoreValue;
 
 				result.checkmates++;
@@ -113,9 +119,13 @@ private:
 		result.branchingFactor =
 			currentBranchingFactor + (moves.size() - currentBranchingFactor) / result.nodesVisited;
 
+		Move bestMoveFromPrevious = Move();
+		if (useMoveSequence) {
+			bestMoveFromPrevious = previousBestMoves[currentDepth];
+		}
 
 		//Sort the list of moves according to moveorder heuristic
-		MoveSorter::sortMoves(state, moves);
+		MoveSorter::sortMoves(state, moves,bestMoveFromPrevious);
 
 		Move bestMove;
 		for(int i=0; i<moves.size(); i++) {
@@ -135,7 +145,8 @@ private:
 
 			State resultState = MoveUtil::executeMove(state, move);
 
-			auto [resultMove, resultScore] = searchInternal(resultState, depth - 1, alpha, beta, result);
+			bool useMoveSequenceAgain = useMoveSequence && move == bestMoveFromPrevious && remainingDepth -1 > 1;
+			auto [resultMove, resultScore] = searchInternal(resultState, remainingDepth - 1, currentDepth+1, alpha, beta, result, useMoveSequenceAgain);
 			if (isMaximizer && resultScore > alpha) 
 			{
 				alpha = resultScore;

@@ -52,11 +52,31 @@ static class MoveSorter {
 
 public:
 
-	static void sortMoves(const State& state, std::vector<Move>& moves) {
-		int lastCaptureIndex = 0;
+	static void sortMoves(const State& state, std::vector<Move>& moves, Move& bestMoveFromPrevious) {
+
+		bool usingBestFromPrevious = bestMoveFromPrevious != Move();
+		//Move bestFromPrevious to front if it is there
+		if (usingBestFromPrevious) {
+			bool foundIt = false;
+			for (int i = 0; i < moves.size(); i++) {
+				if (moves[i] == bestMoveFromPrevious) {
+					foundIt = true;
+					Move tmp = moves[0];
+					moves[0] = bestMoveFromPrevious;
+					moves[i] = tmp;
+					break;
+				}
+			}
+			if (!foundIt) {
+				std::cout << "ERROR in sortMoves() - sought move was not present." << std::endl;
+			}
+		}
+		
+		int lastCaptureIndex = usingBestFromPrevious ? 1 : 0;
+		int sortingStartIndex = lastCaptureIndex;
 		std::array<element, 100> moveElements;
 		//Move capture- moves to front
-		for (int i = 0; i < moves.size(); i++) {
+		for (int i = sortingStartIndex; i < moves.size(); i++) {
 			Move move = moves[i];
 			auto [isCaptureMove, benefit] = getMoveCaptureBenfit(state, move);
 			moveElements[i] = { move, benefit };
@@ -69,7 +89,7 @@ public:
 		}
 
 		//The first lastCaptureIndex elements should be sorted according to benefit
-		auto start = moveElements.begin();
+		auto start = moveElements.begin() + sortingStartIndex;
 		auto end = moveElements.begin() + lastCaptureIndex;
 		auto sortValue = [](const element& e1, const element& e2) {
 			return e1.benefit > e2.benefit;
@@ -78,7 +98,7 @@ public:
 		std::sort(start, end, sortValue);
 
 		//overwrite moves with sorted list
-		for (int i = 0; i < lastCaptureIndex; i++) {
+		for (int i = sortingStartIndex; i < moves.size(); i++) {
 			moves[i] = moveElements[i].move;
 		}
 	}
