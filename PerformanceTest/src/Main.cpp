@@ -35,9 +35,10 @@ const std::vector<TestCase> TEST_CASES =
         { 6, "Late game 2",     {"8/4Rp2/4P1pk/3R3p/5P2/1P6/P4BPP/7K w - - 1 44"} }, // Source: engine arena
     };
 
-const unsigned int SAMPLES = 2;
+const unsigned int SAMPLES = 3;
 
-const unsigned int DEPTH = 3;
+// Our analysis assumes that we use depth 6
+const unsigned int DEPTH = 6;
 
 std::ostream& out = std::cout;
 
@@ -115,10 +116,7 @@ void runTestCase(TestCase testCase) {
 
         out << "Done" << std::endl;
     }
-
-
     
-
     out << "\n  Results:" << std::endl;
 
     double averageBranchFactor = 0;
@@ -153,7 +151,8 @@ void runTestCase(TestCase testCase) {
             << depthResult.branchingFactor << ','
             << depthResult.cutOffFactor << ','
             << depthResult.checkmates << ','
-            << depthResult.draws 
+            << depthResult.draws << ','
+            << depthResult.dynamicAllocations 
             << std::endl;
 
         averageBranchFactor += depthResult.branchingFactor;
@@ -209,7 +208,8 @@ int main(int argc, char* argv[]) {
         << "branching,"
         << "cutoffs,"
         << "checkmates,"
-        << "draws"
+        << "draws,"
+        << "dynamic_allocs"
         << std::endl;
 
     auto startTime = std::chrono::system_clock::now();
