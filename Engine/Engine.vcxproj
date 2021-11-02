@@ -88,6 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\MoveSorter.h" />
     <ClInclude Include="src\AIPlayerController.h" />
     <ClInclude Include="src\EngineArena\EngineArenaController.h" />
     <ClInclude Include="src\EngineArena\IEngine.h" />
