@@ -43,17 +43,31 @@ def win_ratio_chart(data):
 
     version_data = data.groupby('tag').agg(list)
 
+    version_data['overall_win_ratio'] = data.groupby('tag').agg(list).apply(calc_win_ratio, axis=1)
     version_data['white_win_ratio'] = data[data["white"] == 1].groupby('tag').agg(list).apply(calc_win_ratio, axis=1)
     version_data['white_draw_ratio'] = data[data["white"] == 1].groupby('tag').agg(list).apply(calc_draw_ratio, axis=1)
     version_data['black_win_ratio'] = data[data["white"] == 2].groupby('tag').agg(list).apply(calc_win_ratio, axis=1)
     version_data['black_draw_ratio'] = data[data["white"] == 2].groupby('tag').agg(list).apply(calc_draw_ratio, axis=1)
 
-    version_data = version_data[['white_win_ratio', 'white_draw_ratio', 'black_win_ratio', 'black_draw_ratio']].transpose()
+    version_data = version_data[[
+        'overall_win_ratio',
+        'white_win_ratio',
+        'white_draw_ratio',
+        'black_win_ratio',
+        'black_draw_ratio'
+    ]]
 
-    #win_ratios = version_data.pivot('version', )
+    table_data = version_data
+
+    version_data = version_data.transpose();
 
     ax = version_data.plot(kind='bar', figsize=(18,8) )
-    ax.set_xticklabels(["Win ratio as white", "Draw ratio as white", "Win ratio as black", "Draw ratio as black"])
-    plt.xticks(rotation = 0)
-    plt.xticks(fontsize=12)
-    plt.yticks(fontsize=12)
+    ax.set_xticklabels(["Win ratio","Win ratio as white", "Draw ratio as white", "Win ratio as black", "Draw ratio as black"])
+    ax.set_ylim([0, 1])
+    ax.set_axisbelow(True)
+    ax.yaxis.grid(color='lightgray', linestyle='-')
+    plt.xticks(rotation=0, fontsize=12)
+    plt.yticks(np.arange(0.0, 1, 0.1), fontsize=12)
+    plt.show()
+
+    display(table_data)   

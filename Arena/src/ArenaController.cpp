@@ -84,7 +84,7 @@ void ArenaController::start() {
             );
 
             std::cout << "\nresults.csv:\n" << content << std::endl; 
-            break;
+            continue;
         }
 
         std::cout << "Error: invalid command" << std::endl;

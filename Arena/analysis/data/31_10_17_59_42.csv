@@ -1,2 +1,0 @@
-version,game_id,winner,white,black,half_turns,engine1_pieces,engine2_pieces,engine1_time,engine2_time,end_state
-1,1,1,1,2,46,10,9,1.38,46.40,2b3k1/1p4p1/4pq1p/N1bpK3/8/2P4Q/P3N1PP/R6R w - - 1 24
