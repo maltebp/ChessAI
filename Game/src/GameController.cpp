@@ -22,8 +22,14 @@ void GameController::start(State state) {
 
         IPlayerController& currentPlayer = state.turn % 2 == 0 ? whitePlayer : blackPlayer;
 
-        // TODO: Either pass vector to getAllMoves or remove this line
-        std::vector<Move> availableMoves = MoveUtil::getAllMoves(state);
+        Util::SizedPushableArray<Move, 100> generatedMoves;
+        MoveUtil::getAllMoves(state, generatedMoves);
+
+        // TODO: This conversion should be removed!
+        std::vector<Move> availableMoves;
+        for( size_t i=0; i < generatedMoves.size(); i++ ) {
+            availableMoves.push_back(generatedMoves[i]);
+        }
 
         if( clearScreen ) {
             std::system("cls");

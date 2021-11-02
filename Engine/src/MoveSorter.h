@@ -15,22 +15,16 @@ static class MoveSorter {
 		switch (type) {
 		case PieceType::QUEEN:
 			return 900;
-			break;
 		case PieceType::KNIGHT:
 			return 300;
-			break;
 		case PieceType::BISHOP:
 			return 300;
-			break;
 		case PieceType::ROOK:
 			return 500;
-			break;
 		case PieceType::PAWN:
 			return 100;
-			break;
-		default:
-			break;
 		}
+		return 0;
 	}
 
 	/**

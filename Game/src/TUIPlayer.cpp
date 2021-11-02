@@ -22,15 +22,6 @@ void TUIPlayer::start(std::ostream* outputStream, std::ostream* errorStream) {
 }
 
 
-void printMoves(const State& state) {
-
-	std::vector<Move> moves = MoveUtil::getAllMoves(state);
-	for (Move move : moves) {
-		std::cout << move << std::endl;
-	}
-}
-
-
 std::tuple<Move, std::string> parseInput(const State& state, const std::vector<Move>& moves, const std::vector<std::string> inputTokens) {
 	
 	std::string command = inputTokens[0];
