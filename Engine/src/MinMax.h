@@ -4,6 +4,7 @@
 #include <limits>
 #include <chrono>
 
+#include "DynamicAllocation.h"
 #include "MoveUtil.h"
 
 
@@ -32,6 +33,7 @@ public:
 		unsigned long long checkmates = 0;
 		unsigned long long draws = 0;
 		unsigned long long staticEvaluations = 0;
+		unsigned long long dynamicAllocations = 0;
 
 	};
 	
@@ -42,6 +44,9 @@ public:
 	static Result search(const State& state, int depth) {
 		Result result;
 
+	    unsigned long long numAllocationsAtStart = DynamicAllocation::numAllocations;
+
+
 	    auto startTime = std::chrono::system_clock::now();
 
 		auto [move, score] = searchInternal(state, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), result);
@@ -51,6 +56,7 @@ public:
 
 		result.bestMove = move;		
 		result.searchTime = elapsed.count() / 1000.0;
+		result.dynamicAllocations = DynamicAllocation::numAllocations - numAllocationsAtStart;
 
 		return result;
 	}

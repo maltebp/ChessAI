@@ -115,6 +115,7 @@
     <ClInclude Include="src\VariableSignal.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\DynamicAllocation.cpp" />
     <ClCompile Include="src\MoveUtil.cpp" />
     <ClCompile Include="src\Process.cpp" />
     <ClCompile Include="src\State.cpp" />

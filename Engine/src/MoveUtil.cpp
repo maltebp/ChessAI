@@ -441,7 +441,7 @@ namespace MoveUtil {
 					if (!isFieldThreatened(state, { 4,0 }, true) &&
 						!isFieldThreatened(state, { 5,0 }, true) &&
 						!isFieldThreatened(state, { 6,0 }, true)
-						) {
+					) {
 						moves.push_back({ { 4,0 } , {6,0} });
 					}
 				}

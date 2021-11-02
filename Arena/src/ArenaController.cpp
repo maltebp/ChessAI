@@ -47,7 +47,7 @@ void ArenaController::start() {
     std::thread s([&]() { this->runSession(sessionPath); });
 
     // Start input parsing
-    
+        
     while(true) {
 
         // In case the test thread stops before we request it to
