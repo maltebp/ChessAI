@@ -90,7 +90,7 @@
     <ClInclude Include="src\VariableSignal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MoveSorter.h">
+    <ClInclude Include="src\MoveSorter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

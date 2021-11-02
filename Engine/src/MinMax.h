@@ -5,6 +5,7 @@
 #include <chrono>
 
 #include "MoveUtil.h"
+#include "MoveSorter.h"
 
 
 const static double pawnFieldValuesForWhite[8][8] = {
@@ -41,7 +42,7 @@ public:
 
 	static Result search(const State& state, int depth) {
 		Result result;
-
+		
 	    auto startTime = std::chrono::system_clock::now();
 
 		auto [move, score] = searchInternal(state, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), result);
@@ -103,6 +104,10 @@ private:
 		double currentBranchingFactor = result.branchingFactor;
 		result.branchingFactor =
 			currentBranchingFactor + (moves.size() - currentBranchingFactor) / result.nodesVisited;
+
+
+		//Sort the list of moves according to moveorder heuristic
+		MoveSorter::sortMoves(state, moves);
 
 		Move bestMove;
 		for(int i=0; i<moves.size(); i++) {

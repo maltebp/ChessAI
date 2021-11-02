@@ -40,6 +40,4 @@ namespace MoveUtil {
 	bool isFieldThreatened(const State& state, const Position position, bool threatenedByBlack);
 
 	int manhattanDistFromMiddle(const Position pos);
-
-	std::tuple<bool, int> getMoveCaptureBenfit(const State& state, const Move& move);
 }

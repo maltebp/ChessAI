@@ -4,16 +4,14 @@
 #include <algorithm>
 #include <array>
 
-class MoveSorter {
+
+static class MoveSorter {
 	struct element {
 		Move move;
 		int benefit;
 	};
 
-public:
-
-
-	int getStaticPieceValue(PieceType type) {
+	static int getStaticPieceValue(PieceType type) {
 		switch (type) {
 		case PieceType::QUEEN:
 			return 900;
@@ -40,7 +38,7 @@ public:
 	int: indicates relative "gain" calculated as agressor_value - victim_value
 	DOES NOT TAKE CARE OF EN PASSANT AND CASTLING MOVES
 	*/
-	std::tuple<bool, int> getMoveCaptureBenfit(const State& state, const Move& move) {
+	static std::tuple<bool, int> getMoveCaptureBenfit(const State& state, const Move& move) {
 		Piece agressor = state[move.fromField];
 		Piece victim = state[move.toField];
 		int benefit = 0;
@@ -52,14 +50,16 @@ public:
 		return { isCapture, benefit };
 	}
 
-	void sortMoves(const State& state, std::vector<Move>& moves) {
+public:
+
+	static void sortMoves(const State& state, std::vector<Move>& moves) {
 		int lastCaptureIndex = 0;
 		std::array<element, 100> moveElements;
 		//Move capture- moves to front
 		for (int i = 0; i < moves.size(); i++) {
 			Move move = moves[i];
 			auto [isCaptureMove, benefit] = getMoveCaptureBenfit(state, move);
-			moveElements[i] = { move, benefit};
+			moveElements[i] = { move, benefit };
 			if (isCaptureMove) {
 				struct element tmp = moveElements[lastCaptureIndex];
 				moveElements[lastCaptureIndex] = moveElements[i];
