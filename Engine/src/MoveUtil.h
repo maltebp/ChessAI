@@ -1,12 +1,16 @@
 #pragma once
+
+#include <vector>
+#include <array>
+
+#include "PushableArray.h"
 #include "Move.h"
 #include "State.h" 
-#include <vector>
 
 
 namespace MoveUtil {
 	
-	std::vector<Move> getAllMoves(const State& state);
+	void getAllMoves(const State& state, Util::PushableArray<Move>& moves);
 	
 	State executeMove(const State& oldState, Move move);
 
@@ -15,11 +19,11 @@ namespace MoveUtil {
 	bool isKingThreatened(const State& state);
 
 	//Gets the reachable fields for sliding piece without considering if king will be checked
-	std::vector<Position> getAllSliderPositionsForPiece(const State& state, Position oldPos, Piece piece);
+	void getAllSliderPositionsForPiece(const State& state, Position oldPos, Piece piece, std::vector<Position>& positions);
 
 	/**
 	How many rooks are threathening this position?
-	*/
+	*/	
 	bool isRooksThreathening(const State& state, Position pos, bool whitesPerspective);
 
 	/**

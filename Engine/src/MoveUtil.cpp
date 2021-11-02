@@ -3,6 +3,7 @@
 
 namespace MoveUtil {
 
+
 	int manhattanDistFromMiddle(const Position pos) {
 		int xDist = pos.x < 4 ? 3 - pos.x : 4 - pos.x;
 		xDist = xDist < 0 ? -xDist : xDist;
@@ -151,7 +152,7 @@ namespace MoveUtil {
 		return isFieldThreatened(state, kingPosition, !whitesTurn);
 	}
 
-	void getPawnPromotionMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
+	void getPawnPromotionMoves(const State& state, Position oldPos, Piece piece, Util::PushableArray<Move>& moves) {
 		PieceType possiblePieces[] = { PieceType::BISHOP, PieceType::KNIGHT, PieceType::QUEEN, PieceType::ROOK };
 		unsigned int yval = piece.getColor() == PieceColor::WHITE ? 7 : 0;
 		Position newPos = Position{ oldPos.x, yval };
@@ -171,8 +172,9 @@ namespace MoveUtil {
 		}
 	}
 	
-	void getAllPawnMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
-		std::vector<Position> positions;
+	void getAllPawnMoves(const State& state, Position oldPos, Piece piece, Util::PushableArray<Move>& moves) {
+		static std::vector<Position> positions;
+		positions.clear();
 		
 		int y_initial = 6;
 		int y_direction = -1;
@@ -262,7 +264,7 @@ namespace MoveUtil {
 
 	
 
-	void getAllKingMoves(const State& state,Position oldPos, Piece piece, std::vector<Move>& moves) {
+	void getAllKingMoves(const State& state,Position oldPos, Piece piece, Util::PushableArray<Move>& moves) {
 		Position positions[] = {
 			oldPos.getNeighbourN(),
 			oldPos.getNeighbourS(),
@@ -300,7 +302,7 @@ namespace MoveUtil {
 		}
 	}
 
-	void getAllKnightMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
+	void getAllKnightMoves(const State& state, Position oldPos, Piece piece, Util::PushableArray<Move>& moves) {
 		Position positions[] = {
 			oldPos.getNeighbourN().getNeighbourNW(),
 			oldPos.getNeighbourN().getNeighbourNE(),
@@ -341,8 +343,7 @@ namespace MoveUtil {
 	Gets the reachable sliding positions for a sliding piece
 	This does not check if the king is checked, if the piece moves there (which is more computationally expensive)
 	*/
-	std::vector<Position> getAllSliderPositionsForPiece(const State& state, Position oldPos, Piece piece) {
-		std::vector<Position> positions;
+	void getAllSliderPositionsForPiece(const State& state, Position oldPos, Piece piece, std::vector<Position>& positions) {
 		//NSEW
 		if (piece.getType() != PieceType::BISHOP) {
 			addSlidingPositions(1, 0, state, oldPos, piece, positions);
@@ -358,15 +359,17 @@ namespace MoveUtil {
 			addSlidingPositions(-1, 1, state, oldPos, piece, positions);
 			addSlidingPositions(1, -1, state, oldPos, piece, positions);
 		}
-		return positions;
 	}
 
 	/*
 	Gets the possible moves for a sliding piece
 	DOES check if the king is checked, if the piece moves there
 	*/
-	void getAllSliderMoves(const State& state, Position oldPos, Piece piece, std::vector<Move>& moves) {
-		std::vector<Position> positions =  getAllSliderPositionsForPiece(state, oldPos, piece);
+	void getAllSliderMoves(const State& state, Position oldPos, Piece piece, Util::PushableArray<Move>& moves) {
+		static std::vector<Position> positions;
+		positions.clear();
+
+		getAllSliderPositionsForPiece(state, oldPos, piece, positions);
 
 		for (Position newPos : positions)
 		{
@@ -383,8 +386,7 @@ namespace MoveUtil {
 	}
 
 
-	void getMovesForPiece(const State& state, const Piece piece, Position position, std::vector<Move>& moves) {
-
+	void getMovesForPiece(const State& state, const Piece piece, Position position, Util::PushableArray<Move>& moves) {
 
 		switch (piece.getType())
 		{
@@ -410,7 +412,7 @@ namespace MoveUtil {
 
 	}
 
-	void getCastlingMoves(State state, std::vector<Move>& moves) {
+	void getCastlingMoves(State state, Util::PushableArray<Move>& moves) {
 		bool isWhite = state.getTurnColor() == PieceColor::WHITE;
 		bool whiteKingInPlace = state.board[4][0].getType() == PieceType::KING 
 			&& state.board[4][0].getColor()==PieceColor::WHITE;
@@ -481,11 +483,10 @@ namespace MoveUtil {
 	}
 
 	
-	std::vector<Move> getAllMoves(const State& state) {
+	void getAllMoves(const State& state, Util::PushableArray<Move>& moves) {
+
 		auto colorToMove = state.getTurnColor();
 
-		//Generate ordinary moves
-		std::vector<Move> moves;
 		for (unsigned int y = 0; y < 8; y++) {
 			for (unsigned int x = 0; x < 8; x++) {
 				Piece piece = state.board[x][y];
@@ -506,12 +507,8 @@ namespace MoveUtil {
 		if (playerCanCastle) {
 			getCastlingMoves(state, moves);
 		}
-
-		//Promotion?
-
-
-		return moves;
 	}
+
 
 	void updateCastlingBools(const State& oldState, Move move, State& newState) {
 		bool isWhitesMove = oldState.turn % 2 == 0;

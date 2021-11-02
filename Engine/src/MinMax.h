@@ -6,6 +6,7 @@
 
 #include "DynamicAllocation.h"
 #include "MoveUtil.h"
+#include "PushableArray.h"
 
 
 const static double pawnFieldValuesForWhite[8][8] = {
@@ -79,7 +80,8 @@ private:
 		bool isMaximizer = state.turn % 2 == 0;
 
 		//Get all possible moves
-		std::vector<Move> moves = MoveUtil::getAllMoves(state);
+		Util::SizedPushableArray<Move,100> moves;
+		MoveUtil::getAllMoves(state, moves);
 
 		if (moves.size() == 0) {
 			//In this case it is either a draw of a loss or current player
@@ -186,6 +188,9 @@ private:
 	}
 
 	static int danielsenHeuristic(const State& state) {
+		static std::vector<Position> slidingPositions;
+		
+
 		int sum = 0;
 		int piecesLeft = 0;
 		Position blackKingPos, whiteKingPos;
@@ -197,6 +202,7 @@ private:
 		int current;
 		for (unsigned int i = 0; i < 8; i++) {
 			for (unsigned int j = 0; j < 8; j++) {
+				slidingPositions.clear();
 				current = 0;
 				Piece piece = state.board[i][j];
 				int sign = piece.getColor() == PieceColor::WHITE ? 1 : -1;
@@ -219,7 +225,8 @@ private:
 				}
 				case PieceType::QUEEN:
 				{
-					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
+					int controlledSquares = slidingPositions.size();
 					current = 900 + 1 * controlledSquares;
 					minorPieceThreathening = MoveUtil::isRooksThreathening(state, pos, whitePiece)
 						|| MoveUtil::isBishopThreathening(state, pos, whitePiece)
@@ -231,7 +238,8 @@ private:
 				}
 				case PieceType::ROOK:
 				{
-					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
+					int controlledSquares = slidingPositions.size();
 					current = (int)(500 + 1.5 * controlledSquares);
 					minorPieceThreathening = MoveUtil::isBishopThreathening(state, pos, whitePiece)
 						|| MoveUtil::isKnightThreathening(state, pos, whitePiece)
@@ -241,7 +249,8 @@ private:
 				}
 				case PieceType::BISHOP:
 				{
-					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
+					int controlledSquares = slidingPositions.size();
 					current = 300 + 2 * controlledSquares;
 					minorPieceThreathening = MoveUtil::isPawnThreathening(state, pos, whitePiece);
 					piecesLeft++;

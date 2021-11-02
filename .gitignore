@@ -7,6 +7,6 @@ engine_arena_test/
 build/
 *.user
 arena_results/
-performance_test_results/
+performance_tests_results/
 __pycache__/
 .ipynb_checkpoints/
