@@ -59,8 +59,16 @@ public:
 
 private:
 
+	static void deleteElementsBetween(std::vector<Move>& v, size_t startIndex, size_t endIndex) {
+		if( startIndex >= endIndex ) return;
+		v.erase(v.begin() + startIndex, v.begin() + endIndex ); 
+	}
+
+	
 	
 	static std::tuple<Move, int> searchInternal(const State& state, int depth, int alpha, int beta, Result& result) {
+
+		size_t startIndex = moveList.size();
 
 		result.nodesVisited++;
 
@@ -122,6 +130,9 @@ private:
 				break;
 			}
 
+			size_t currentIndex = moveList.size();
+			moveList.push_back(move);
+
 			State resultState = MoveUtil::executeMove(state, move);
 
 			auto [resultMove, resultScore] = searchInternal(resultState, depth - 1, alpha, beta, result);
@@ -129,10 +140,16 @@ private:
 			{
 				alpha = resultScore;
 				bestMove = move;
+
+				deleteElementsBetween(moveList, startIndex, currentIndex);
 			} else if (!isMaximizer && resultScore < beta) 
 			{
 				beta = resultScore;
 				bestMove = move;
+
+				deleteElementsBetween(moveList, startIndex, currentIndex);
+			} else {
+				deleteElementsBetween(moveList, currentIndex, moveList.size());
 			}
 
 		}
@@ -323,6 +340,10 @@ private:
 	}
 
 private:
+
+	static inline std::vector<Move> moveList;
+
+	static inline std::vector<Move> previousBestMoves;
 
 	constexpr static int ENDGAME_WINNER_SCORE_THRESHOLD  = 500;
 
