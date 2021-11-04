@@ -38,7 +38,7 @@ const std::vector<TestCase> TEST_CASES =
 const unsigned int SAMPLES = 3;
 
 // Our analysis assumes that we use depth 6
-const unsigned int DEPTH = 4;
+const unsigned int DEPTH = 7;
 
 std::ostream& out = std::cout;
 
