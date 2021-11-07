@@ -75,7 +75,30 @@ private:
 		v.erase(v.begin() + startIndex, v.begin() + endIndex ); 
 	}
 
-	
+	static std::tuple<Move, int> noMovesPossibleScore(const State& state, int remainingDepth, Result& result) {
+		//In this case it is either a draw of a loss or current player
+		bool isMaximizer = state.turn % 2 == 0;
+		PieceColor colorToMove = state.turn % 2 == 0 ? PieceColor::WHITE : PieceColor::BLACK;
+		Position kingPosition = state.getPiecePosition({ colorToMove, PieceType::KING });
+		bool kingIsThreathened = MoveUtil::isFieldThreatened(state, kingPosition, isMaximizer);
+
+		if (kingIsThreathened) {
+			//If king is threathened - it is check mate
+
+			//Adjust score with depth, so quick mate is preferred no matter the other factors
+			int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (remainingDepth * VERY_LARGE_POINT_BONUS);
+			int score = isMaximizer ? -scoreValue : scoreValue;
+
+			result.checkmates++;
+
+			return { Move(), score };
+		}
+		else {
+			//Else it is a draw
+			result.draws++;
+			return { Move(), DRAW_SCORE };
+		}
+	}
 	
 	static std::tuple<Move, int> searchInternal(const State& state, int remainingDepth, int currentDepth, int alpha, int beta, Result& result, bool useMoveSequence) {
 
@@ -85,6 +108,11 @@ private:
 
 		//Base case: Leaf node
 		if (remainingDepth == 0) {
+			bool mateOrStalemate = MoveUtil::anyMovePossible(state);
+			if (mateOrStalemate) {
+				return noMovesPossibleScore(state, remainingDepth, result);
+			}
+
 			result.staticEvaluations++;
 			int score = danielsenHeuristic(state);
 			return { Move(), score };
@@ -97,27 +125,7 @@ private:
 		MoveUtil::getAllMoves(state, moves);
 
 		if (moves.size() == 0) {
-			//In this case it is either a draw of a loss or current player
-			PieceColor colorToMove = isMaximizer ? PieceColor::WHITE : PieceColor::BLACK;
-			Position kingPosition = state.getPiecePosition({ colorToMove, PieceType::KING });
-			bool kingIsThreathened = MoveUtil::isFieldThreatened(state, kingPosition, isMaximizer);
-
-			if (kingIsThreathened) {
-				//If king is threathened - it is check mate
-
-				//Adjust score with depth, so quick mate is preferred no matter the other factors
-				int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (remainingDepth *VERY_LARGE_POINT_BONUS);
-				int score = isMaximizer ? -scoreValue : scoreValue;
-
-				result.checkmates++;
-				
-				return { Move(), score };
-			}
-			else {
-				//Else it is a draw
-				result.draws++;
-				return { Move(), DRAW_SCORE };
-			}
+			return noMovesPossibleScore(state, remainingDepth, result);
 		}
 
 		// Branching factor is average of all nodes

@@ -23,6 +23,8 @@ namespace MoveUtil {
 
 	
 	void getAllMoves(const State& state, GenerationList& moves);
+
+	bool anyMovePossible(const State& state);
 	
 	State executeMove(const State& oldState, Move move);
 
