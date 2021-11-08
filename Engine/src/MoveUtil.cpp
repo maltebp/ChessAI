@@ -482,6 +482,28 @@ namespace MoveUtil {
 		}
 	}
 
+	bool anyMovePossible(const State& state) {
+		GenerationList moves;
+		auto colorToMove = state.getTurnColor();
+
+		for (unsigned int y = 0; y < 8; y++) {
+			for (unsigned int x = 0; x < 8; x++) {
+				Piece piece = state.board[x][y];
+				if (piece.getType() != PieceType::NONE) {
+					continue;
+				}
+				if (piece.getColor() == colorToMove) {
+					getMovesForPiece(state, piece, { x,y }, moves);
+					if (moves.size() > 0) {
+						return true;
+					}
+				}
+			}
+		}
+
+		//Ignore castling - if castling is possible, a move with king will also be possible
+		return false;
+	}
 	
 	void getAllMoves(const State& state, GenerationList& moves) {
 
