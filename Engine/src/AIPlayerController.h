@@ -13,8 +13,8 @@ class AIPlayerController : public IPlayerController {
     BookMoves::Node* current;
 public:
 
-    AIPlayerController(int searchDepth)
-        :   searchDepth(searchDepth)
+    AIPlayerController(int searchTime)
+        :   searchTime(searchTime)
     { }
 
 
@@ -25,7 +25,7 @@ public:
 
     void start(std::ostream* outputStream, std::ostream* errorStream) override {
         *outputStream << "Starting Our Engine" << std::endl;
-        *outputStream << "Search depth: " << searchDepth << std::endl;
+        *outputStream << "Search depth: " << searchTime << std::endl;
     }
     
 
@@ -47,7 +47,7 @@ public:
 
         }
 
-        MinMaxSearcher::Result result = MinMaxSearcher::search(state, searchDepth);
+        MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(state, searchTime);
         
         return result.bestMove;
     }
@@ -55,5 +55,6 @@ public:
 
 private:
 
-    int searchDepth;
+    int searchTime;
+
 };

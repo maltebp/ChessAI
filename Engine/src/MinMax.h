@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <limits>
 #include <chrono>
+#include <thread>
 
 #include "DynamicAllocation.h"
 #include "MoveUtil.h"
@@ -42,27 +43,22 @@ public:
 public:
 
 
-	static Result search(const State& state, int depth) {
+	static Result searchToDepth(const State& state, int depth) {
+		assert(depth > 0);
+		return iterativeSearch(state, false, depth);
+	}
+
+
+	static Result searchTimed(const State& state, long long searchTime, bool useInterrupted = true) {
+		stopSearch = false;
 		Result result;
+		std::thread thread([&](){
+			result = iterativeSearch(state, useInterrupted);
+		});
 
-	    unsigned long long numAllocationsAtStart = DynamicAllocation::numAllocations;
-
-	    auto startTime = std::chrono::system_clock::now();
-		Move bestMove;
-		for (int i = 1; i <= depth; i++) {
-			bool useMoveSequence = i > 1;
-			auto [move, score] = searchInternal(state, i, 0, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), result, useMoveSequence);
-			bestMove = move;
-			previousBestMoves = moveList;
-			moveList.clear();
-		}
-
-    	auto endTime = std::chrono::system_clock::now();
-    	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-
-		result.bestMove = bestMove;		
-		result.searchTime = elapsed.count() / 1000.0;
-		result.dynamicAllocations = DynamicAllocation::numAllocations - numAllocationsAtStart;
+		std::this_thread::sleep_for(std::chrono::milliseconds(searchTime));
+		stopSearch = true;
+		thread.join();
 
 		return result;
 	}
@@ -70,10 +66,62 @@ public:
 
 private:
 
+
 	static void deleteElementsBetween(std::vector<Move>& v, size_t startIndex, size_t endIndex) {
 		if( startIndex >= endIndex ) return;
 		v.erase(v.begin() + startIndex, v.begin() + endIndex ); 
 	}
+
+
+	static Result iterativeSearch(const State& state, bool useInterrupted, int depth = std::numeric_limits<int>::max()) {
+		
+		// Safety not to ensure we don't call this function recursively, or
+		// in a multithreaded environment
+		assert(!searching);
+		searching = true;
+
+	    unsigned long long numAllocationsAtStart = DynamicAllocation::numAllocations;
+
+	    auto startTime = std::chrono::system_clock::now();
+
+		Result finishedResult;
+
+		for (int i = 1; i <= depth; i++) {
+			if( stopSearch ) break;
+
+			Result currentResult = finishedResult;
+			
+			bool useMoveSequence = i > 1;
+
+			auto [move, score] = searchInternal(
+				state, 
+				i,
+				0,
+				std::numeric_limits<int>::min(), std::numeric_limits<int>::max(),
+				currentResult,
+				useMoveSequence
+			);
+
+			if( (useInterrupted || !stopSearch) && move != Move() ){
+				currentResult.bestMove = move;
+				finishedResult = currentResult;
+			}
+
+			previousBestMoves = moveList;
+			moveList.clear();
+		}
+
+    	auto endTime = std::chrono::system_clock::now();
+    	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+
+		finishedResult.searchTime = elapsed.count() / 1000.0;
+		finishedResult.dynamicAllocations = DynamicAllocation::numAllocations - numAllocationsAtStart;
+
+		searching = false;
+
+		return finishedResult;
+	}
+
 
 	static std::tuple<Move, int> noMovesPossibleScore(const State& state, int remainingDepth, Result& result) {
 		//In this case it is either a draw of a loss or current player
@@ -99,6 +147,7 @@ private:
 			return { Move(), DRAW_SCORE };
 		}
 	}
+
 	
 	static std::tuple<Move, int> searchInternal(const State& state, int remainingDepth, int currentDepth, int alpha, int beta, Result& result, bool useMoveSequence) {
 
@@ -143,6 +192,9 @@ private:
 
 		Move bestMove;
 		for(int i=0; i<moves.size(); i++) {
+
+			if( stopSearch ) break;
+
             Move move = moves[i];
 
 			if (alpha >= beta) {
@@ -161,6 +213,14 @@ private:
 
 			bool useMoveSequenceAgain = useMoveSequence && move == bestMoveFromPrevious && remainingDepth -1 > 1;
 			auto [resultMove, resultScore] = searchInternal(resultState, remainingDepth - 1, currentDepth+1, alpha, beta, result, useMoveSequenceAgain);
+			
+			// Considering a move from an interrupted branch may result in
+			// not choosing the optimal move.
+			if( stopSearch ) {
+				deleteElementsBetween(moveList, currentIndex, moveList.size());
+				break;
+			}
+
 			if (isMaximizer && resultScore > alpha) 
 			{
 				alpha = resultScore;
@@ -376,6 +436,10 @@ private:
 	static inline std::vector<Move> moveList;
 
 	static inline std::vector<Move> previousBestMoves;
+
+	static inline bool searching = false;
+
+	static inline bool stopSearch = false;
 
 	constexpr static int ENDGAME_WINNER_SCORE_THRESHOLD  = 500;
 

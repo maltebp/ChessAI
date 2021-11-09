@@ -7,8 +7,8 @@ int main(int argc, char** argv) {
 
     TUIPlayer localPlayer1;
     TUIPlayer localPlayer2;
-    AIPlayerController ourEngine1(4);
-    AIPlayerController ourEngine2(4);
+    AIPlayerController ourEngine1(5000);
+    AIPlayerController ourEngine2(5000);
     
     State startState = State::createDefault();
 
