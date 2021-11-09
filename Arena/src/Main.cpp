@@ -10,7 +10,7 @@
 
 // Remember to update .gitignore if this is changed
 const char* OUTPUT_PATH = "arena_results";
-
+    
 // This relative path will only work when Arena is being run from Visual Studio
 const char* STOCKFISH_PATH = "resources\\stockfish\\stockfish_14_x64_popcnt.exe";
 
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
         outputPath,
         ourEngine,
         stockfish1,
-        "turbo_1_7_8000"
+        "turbo_2_6_8000"
     };
 
     controller.start();

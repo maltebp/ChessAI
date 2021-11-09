@@ -1,0 +1,6 @@
+tag,game_id,winner,white,black,half_turns,engine1_pieces,engine2_pieces,engine1_time,engine2_time,end_state
+turbo2_6_8000,1,1,1,2,55,14,6,262.11,216.46,r6k/p1N4P/np6/2pPQ3/8/1P2P3/P2P1PP1/R3K1NR b KQ - 0 28
+turbo2_6_8000,2,0,2,1,167,6,5,250.08,673.05,8/5k2/8/3b1p1p/5Pp1/3K2P1/p6P/B7 b - - 49 84
+turbo2_6_8000,3,1,1,2,53,11,8,91.21,208.44,N5R1/p2b1p1r/5R1k/1p1P3p/4p3/2B1P3/PPP4P/2K5 b - - 1 27
+turbo2_6_8000,4,1,2,1,84,10,2,152.57,336.53,2k5/ppp5/6pp/2n1p3/3q3P/2K5/7r/8 w - - 4 43
+turbo2_6_8000,5,1,1,2,81,13,2,178.52,320.48,8/8/5P2/p6Q/4kR2/1P2P3/P1PPN1PP/R5K1 b - - 2 41
