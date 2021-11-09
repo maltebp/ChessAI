@@ -118,6 +118,13 @@ private:
 			return { Move(), score };
 		}
 
+		//Look at 50 moves draw rule
+		if (state.drawCounter > 49) {
+			return { Move(), DRAW_SCORE };
+		}
+
+		//TODO look at 3-fold-repetition rule
+
 		bool isMaximizer = state.turn % 2 == 0;
 
 		//Get all possible moves
