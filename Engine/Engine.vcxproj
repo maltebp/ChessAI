@@ -113,6 +113,7 @@
     <ClInclude Include="src\UCIEngine.h" />
     <ClInclude Include="src\Util.h" />
     <ClInclude Include="src\VariableSignal.h" />
+    <ClInclude Include="src\Zobrist.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MoveUtil.cpp" />
