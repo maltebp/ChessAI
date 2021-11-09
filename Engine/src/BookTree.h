@@ -58,9 +58,9 @@ namespace BookMoves {
 		root2->children[0]->children[0]->children[1]->addChild({ {6,0},{5,2} });
 
 		root2->addChild({{6,6},{6,5}}); //king's indian
-		root2->children[0]->addChildren({ {{2,1},{2,3}},{{6,0},{5,2}} });
-		root2->children[0]->children[0]->addChildren({ { {5,7},{6,6} } });
-		root2->children[0]->children[1]->addChildren({ { {5,7},{6,6} } });
+		root2->children[1]->addChildren({ {{2,1},{2,3}},{{6,0},{5,2}} });
+		root2->children[1]->children[0]->addChildren({ { {5,7},{6,6} } });
+		root2->children[1]->children[1]->addChildren({ { {5,7},{6,6} } });
 	}
 
 }
