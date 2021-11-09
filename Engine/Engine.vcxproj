@@ -88,6 +88,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\DynamicAllocation.h" />
+    <ClInclude Include="src\FixedVector.h" />
     <ClInclude Include="src\MoveSorter.h" />
     <ClInclude Include="src\AIPlayerController.h" />
     <ClInclude Include="src\EngineArena\EngineArenaController.h" />
@@ -114,6 +116,7 @@
     <ClInclude Include="src\UCIEngine.h" />
     <ClInclude Include="src\Util.h" />
     <ClInclude Include="src\VariableSignal.h" />
+    <ClInclude Include="src\Zobrist.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\DynamicAllocation.cpp" />

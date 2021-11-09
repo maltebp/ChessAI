@@ -7,6 +7,8 @@
 #include "DynamicAllocation.h"
 #include "MoveUtil.h"
 #include "MoveSorter.h"
+#include "Zobrist.h"
+
 
 
 const static double pawnFieldValuesForWhite[8][8] = {
@@ -42,16 +44,24 @@ public:
 public:
 
 
-	static Result search(const State& state, int depth) {
+	static Result search(const State& state, int depth, std::vector<unsigned long long> prevStates) {
 		Result result;
 
 	    unsigned long long numAllocationsAtStart = DynamicAllocation::numAllocations;
-
+		previousStateHashes = prevStates;
 	    auto startTime = std::chrono::system_clock::now();
 		Move bestMove;
 		for (int i = 1; i <= depth; i++) {
 			bool useMoveSequence = i > 1;
-			auto [move, score] = searchInternal(state, i, 0, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), result, useMoveSequence);
+			auto [move, score] = searchInternal(
+				state, 
+				i, 
+				0, 
+				std::numeric_limits<int>::min(), 
+				std::numeric_limits<int>::max(), 
+				result, 
+				useMoveSequence
+			);
 			bestMove = move;
 			previousBestMoves = moveList;
 			moveList.clear();
@@ -100,13 +110,22 @@ private:
 		}
 	}
 	
-	static std::tuple<Move, int> searchInternal(const State& state, int remainingDepth, int currentDepth, int alpha, int beta, Result& result, bool useMoveSequence) {
-
+	static std::tuple<Move, int> searchInternal(
+		const State& state, 
+		int remainingDepth, 
+		int currentDepth, 
+		int alpha, 
+		int beta, 
+		Result& result, 
+		bool useMoveSequence
+	) {
+		//Bookkeeping
 		size_t startIndex = moveList.size();
-
 		result.nodesVisited++;
+		bool isMaximizer = state.turn % 2 == 0;
 
-		//Base case: Leaf node
+		//--------------------------------BASE CASES---------------------------------------------------------------
+		//Leaf node
 		if (remainingDepth == 0) {
 			bool mateOrStalemate = MoveUtil::anyMovePossible(state);
 			if (mateOrStalemate) {
@@ -118,14 +137,17 @@ private:
 			return { Move(), score };
 		}
 
-		//Look at 50 moves draw rule
-		if (state.drawCounter > 49) {
+		//Draw rules
+		bool drawBy50Moves = state.drawCounter > 49;
+		unsigned long long hash = Zobrist::calcHashValue(state.board);
+		bool drawBy3FoldRep = getNumOfTimesContained(hash, previousStateHashes, isMaximizer) == 2;
+		if (drawBy3FoldRep ||drawBy50Moves) {
 			return { Move(), DRAW_SCORE };
 		}
+		
 
-		//TODO look at 3-fold-repetition rule
-
-		bool isMaximizer = state.turn % 2 == 0;
+		//----------------------------------SEARCH SUBTREE-------------------------------------------------------------
+		previousStateHashes.push_back(hash);
 
 		//Get all possible moves
 		MoveUtil::GenerationList moves;
@@ -167,7 +189,13 @@ private:
 			State resultState = MoveUtil::executeMove(state, move);
 
 			bool useMoveSequenceAgain = useMoveSequence && move == bestMoveFromPrevious && remainingDepth -1 > 1;
-			auto [resultMove, resultScore] = searchInternal(resultState, remainingDepth - 1, currentDepth+1, alpha, beta, result, useMoveSequenceAgain);
+			auto [resultMove, resultScore] = searchInternal(
+				resultState, 
+				remainingDepth - 1, currentDepth+1, 
+				alpha, 
+				beta, 
+				result, 
+				useMoveSequenceAgain);
 			if (isMaximizer && resultScore > alpha) 
 			{
 				alpha = resultScore;
@@ -186,8 +214,9 @@ private:
 
 		}
 
+		//Pop this state from previousStateHashes
+		previousStateHashes.pop_back();
 		int score = isMaximizer ? alpha : beta;
-
 		return { bestMove,score };
 	}
 
@@ -378,7 +407,22 @@ private:
 		return num == 0 ? 2 : num == 1 ? -10 : -50;
 	}
 
+	static int getNumOfTimesContained(unsigned long long hash, std::vector<unsigned long long> hashes, bool whitesTurn) {
+		//White only looks at even indices. Black only looks at uneven indices
+		int startIndex = whitesTurn ? 0 : 1;
+		int count = 0;
+		for (int i = startIndex; i < hashes.size(); i = i+2) {
+			if (hashes[i] == hash) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 private:
+
+
+	static inline std::vector<unsigned long long> previousStateHashes;
 
 	static inline std::vector<Move> moveList;
 

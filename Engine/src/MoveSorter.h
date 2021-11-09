@@ -5,7 +5,7 @@
 #include <array>
 
 
-static class MoveSorter {
+class MoveSorter {
 	struct element {
 		Move move;
 		int benefit;

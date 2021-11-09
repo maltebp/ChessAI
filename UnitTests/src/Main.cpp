@@ -9,6 +9,7 @@
 #include "PromotionMoves.h"
 #include "FEN.h"
 #include "CheckMate.h"
+#include "Zobrist.h"
 
 // -------------------
 
