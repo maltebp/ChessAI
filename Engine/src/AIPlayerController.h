@@ -15,7 +15,9 @@ public:
 
     AIPlayerController(int searchDepth)
         :   searchDepth(searchDepth)
-    { }
+    { 
+        Zobrist::initZobristTable();
+    }
 
 
     std::string getName() override {
@@ -47,13 +49,17 @@ public:
 
         }
 
-        MinMaxSearcher::Result result = MinMaxSearcher::search(state, searchDepth);
-        
+        MinMaxSearcher::Result result = MinMaxSearcher::search(state, searchDepth, prevStatesHashes);
+        auto hash = Zobrist::calcHashValue(state.board);
+        prevStatesHashes.push_back(hash);
+
         return result.bestMove;
     }
 
 
 private:
+
+    std::vector<unsigned long long> prevStatesHashes;
 
     int searchDepth;
 };

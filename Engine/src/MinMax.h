@@ -74,6 +74,8 @@ public:
 		result.searchTime = elapsed.count() / 1000.0;
 		result.dynamicAllocations = DynamicAllocation::numAllocations - numAllocationsAtStart;
 
+		prevStates = previousStateHashes;
+
 		return result;
 	}
 
