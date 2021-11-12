@@ -46,10 +46,11 @@ namespace Zobrist {
 		case PieceType::BISHOP: 
 			if (piece.getColor() == PieceColor::WHITE) return 10;
 			else return 11;
-			
+		default:
+			return -1;
 		}
-
 	}
+
 	static unsigned long long calcHashValue(const Piece board[8][8]) {
 		unsigned long long tempHash = 0;
 		for (int x = 0; x < 8; x++) {

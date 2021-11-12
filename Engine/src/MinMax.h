@@ -177,7 +177,7 @@ private:
             Move move = moves[i];
 
 			if (alpha >= beta) {
-				unsigned int numCutOffs = moves.size() - i;
+				size_t numCutOffs = moves.size() - i;
 				double currentCutOffFactor = result.cutOffFactor;
 				result.cutOffFactor =
 					currentCutOffFactor + (numCutOffs - currentCutOffFactor) / result.nodesVisited;
@@ -303,7 +303,7 @@ private:
 				case PieceType::QUEEN:
 				{
 					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
-					int controlledSquares = slidingPositions.size();
+					int controlledSquares = (int) slidingPositions.size();
 					current = 900 + 1 * controlledSquares;
 					minorPieceThreathening = MoveUtil::isRooksThreathening(state, pos, whitePiece)
 						|| MoveUtil::isBishopThreathening(state, pos, whitePiece)
@@ -316,7 +316,7 @@ private:
 				case PieceType::ROOK:
 				{
 					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
-					int controlledSquares = slidingPositions.size();
+					int controlledSquares = (int) slidingPositions.size();
 					current = (int)(500 + 1.5 * controlledSquares);
 					minorPieceThreathening = MoveUtil::isBishopThreathening(state, pos, whitePiece)
 						|| MoveUtil::isKnightThreathening(state, pos, whitePiece)
@@ -327,7 +327,7 @@ private:
 				case PieceType::BISHOP:
 				{
 					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
-					int controlledSquares = slidingPositions.size();
+					int controlledSquares = (int) slidingPositions.size();
 					current = 300 + 2 * controlledSquares;
 					minorPieceThreathening = MoveUtil::isPawnThreathening(state, pos, whitePiece);
 					piecesLeft++;
@@ -346,7 +346,7 @@ private:
 				{
 					//This conversion mirrors the field-positions-board, if piece is black
 					int yvalue = piece.getColor() == PieceColor::WHITE ? pos.y : 7 - pos.y;
-					current = 100 + pawnFieldValuesForWhite[pos.x][yvalue];
+					current = 100 + (int) pawnFieldValuesForWhite[pos.x][yvalue];
 
 					//Double pawns - check if there is a pawn of my own color in front of me
 					//(It doesn't matter that we look in the same way for black and white, and we cannot go out of the board this way)

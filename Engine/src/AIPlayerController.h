@@ -35,7 +35,7 @@ public:
         if (book) {
             std::vector<BookMoves::Node*> bookmoves;
             if (current == NULL) {
-                BookMoves::initTree;
+                BookMoves::initTree();
                 bookmoves = BookMoves::Node::getRoots();
                 current = bookmoves[rand() % bookmoves.size()];
                 return current->move;
