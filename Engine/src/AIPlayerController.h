@@ -2,19 +2,20 @@
 
 #include <vector>
 #include <climits>
+#include <cstdlib>
 
 #include "IPlayerController.h"
 #include "MinMax.h"
 #include "BookTree.h"
-#include <cstdlib>
+
 
 class AIPlayerController : public IPlayerController {
-    bool book =true;
-    BookMoves::Node* current;
 public:
 
-    AIPlayerController(int searchTime)
-        :   searchTime(searchTime)
+
+    AIPlayerController(int searchTime, bool useOpeningBook)
+        :   searchTime(searchTime),
+            useOpeningBook(useOpeningBook)
     { }
 
 
@@ -30,39 +31,39 @@ public:
     
 
     Move getMove(const State& state, const MoveUtil::GenerationList& validMoves, const Move& lastMove) {
-        if (book) {
+        if (useOpeningBook) {
             srand(time(NULL));
             std::vector<BookMoves::Node*> bookmoves;
-            if (current == NULL) {
+            if (currentBookMove == NULL) {
                 BookMoves::initTree();
                 bookmoves = BookMoves::Node::getRoots();
                 if (state.turn % 2 == 0) {//white
-                    current = bookmoves[rand() % bookmoves.size()];
-                    return current->move;
+                    currentBookMove = bookmoves[rand() % bookmoves.size()];
+                    return currentBookMove->move;
                 }
                 else { // black
                     for (int i = 0; i < bookmoves.size(); i++) {
                         if ((bookmoves[i]->move) == lastMove) {
-                            current = bookmoves[i];
+                            currentBookMove = bookmoves[i];
                         }
                     }
                     
-                    if (current!= NULL) {
-                        current = current->children[rand() % current->children.size()];
-                        return current->move;
+                    if (currentBookMove!= NULL) {
+                        currentBookMove = currentBookMove->children[rand() % currentBookMove->children.size()];
+                        return currentBookMove->move;
                     }
-                    else book = false;
+                    else useOpeningBook = false;
                     MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(state, searchTime);
                     return result.bestMove;
                 }
                 
             }
-            BookMoves::Node* last = current->findChild(lastMove);
+            BookMoves::Node* last = currentBookMove->findChild(lastMove);
             if (last != NULL && last->children.size() > 0) {
-                current = last->children[rand() % last->children.size()];
-                return current->move;
+                currentBookMove = last->children[rand() % last->children.size()];
+                return currentBookMove->move;
             }
-            else book = false;
+            else useOpeningBook = false;
 
         }
 
@@ -75,5 +76,9 @@ public:
 private:
 
     int searchTime;
+
+    bool useOpeningBook;
+    
+    BookMoves::Node* currentBookMove = nullptr;
 
 };
