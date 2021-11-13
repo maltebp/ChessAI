@@ -44,11 +44,11 @@ public:
 public:
 
 
-	static Result search(const State& state, int depth, std::vector<unsigned long long> prevStates) {
+	static Result search(const State& state, int depth, std::vector<unsigned long long>& previousStateHashes) {
 		Result result;
 
 	    unsigned long long numAllocationsAtStart = DynamicAllocation::numAllocations;
-		previousStateHashes = prevStates;
+		MinMaxSearcher::previousStateHashes = previousStateHashes;
 	    auto startTime = std::chrono::system_clock::now();
 		Move bestMove;
 		for (int i = 1; i <= depth; i++) {
@@ -74,7 +74,7 @@ public:
 		result.searchTime = elapsed.count() / 1000.0;
 		result.dynamicAllocations = DynamicAllocation::numAllocations - numAllocationsAtStart;
 
-		prevStates = previousStateHashes;
+		previousStateHashes = MinMaxSearcher::previousStateHashes;
 
 		return result;
 	}

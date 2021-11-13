@@ -81,6 +81,7 @@ void runTestCase(TestCase testCase) {
 
     std::vector<MinMaxSearcher::Result> results;
     std::vector<MinMaxSearcher::Result> averageResults;
+    std::vector<unsigned long long> previousStateHashes;
 
     for( int depth=1; depth <= DEPTH; depth++ ) {
 
@@ -91,7 +92,8 @@ void runTestCase(TestCase testCase) {
 
         for( int i=0; i < SAMPLES; i++ ) {
             out << " Sample " << (i+1) << ".. " << std::flush;
-            samples[i] = MinMaxSearcher::search(testCase.state, depth);
+            previousStateHashes.clear();
+            samples[i] = MinMaxSearcher::search(testCase.state, depth, previousStateHashes);
 
             averageSample.searchTime += samples[i].searchTime;
             averageSample.staticEvaluations += samples[i].staticEvaluations;
