@@ -81,6 +81,7 @@ void runTestCase(TestCase testCase) {
 
     std::vector<MinMaxSearcher::Result> results;
     std::vector<MinMaxSearcher::Result> averageResults;
+    std::vector<unsigned long long> previousStateHashes;
 
     for( int depth=1; depth <= DEPTH; depth++ ) {
 
@@ -91,7 +92,9 @@ void runTestCase(TestCase testCase) {
 
         for( int i=0; i < SAMPLES; i++ ) {
             out << " Sample " << (i+1) << ".. " << std::flush;
-            samples[i] = MinMaxSearcher::searchToDepth(testCase.state, depth);
+
+            previousStateHashes.clear();
+            samples[i] = MinMaxSearcher::searchToDepth(testCase.state, depth, previousStateHashes);
 
             averageSample.searchTime += samples[i].searchTime;
             averageSample.staticEvaluations += samples[i].staticEvaluations;
@@ -120,16 +123,10 @@ void runTestCase(TestCase testCase) {
     out << "\n  Results:" << std::endl;
 
     double averageBranchFactor = 0;
-    unsigned long long totalNodesVisited = 0;
-    unsigned long long totalCutOffs = 0;
-    unsigned long long totalCheckMates = 0;
-    unsigned long long totalDraws = 0;
 
     for( int i=0; i < DEPTH; i++ ) {
 
         MinMaxSearcher::Result depthResult = results[i];
-        int cutOffFactor = (double)totalCutOffs / totalNodesVisited;
-
 
         out << '\n';
         out << "    Depth " << (i+1) << ":" << std::endl;
@@ -155,11 +152,6 @@ void runTestCase(TestCase testCase) {
             << depthResult.dynamicAllocations 
             << std::endl;
 
-        averageBranchFactor += depthResult.branchingFactor;
-        totalNodesVisited += depthResult.nodesVisited;
-        totalCutOffs += depthResult.cutOffFactor;
-        totalCheckMates += depthResult.checkmates;
-        totalDraws += depthResult.draws;
     }
 }
 

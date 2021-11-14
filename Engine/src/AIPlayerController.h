@@ -16,7 +16,9 @@ public:
     AIPlayerController(int searchTime, bool useOpeningBook)
         :   searchTime(searchTime),
             useOpeningBook(useOpeningBook)
-    { }
+    {
+        Zobrist::initZobristTable();
+    }
 
 
     std::string getName() override {
@@ -53,7 +55,9 @@ public:
                         return currentBookMove->move;
                     }
                     else useOpeningBook = false;
-                    MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(state, searchTime);
+                    MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(state, searchTime, prevStatesHashes);
+                    auto hash = Zobrist::calcHashValue(state.board);
+                    prevStatesHashes.push_back(hash);        
                     return result.bestMove;
                 }
                 
@@ -67,8 +71,10 @@ public:
 
         }
 
-        MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(state, searchTime);
-        
+        MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(state, searchTime, prevStatesHashes);
+        auto hash = Zobrist::calcHashValue(state.board);
+        prevStatesHashes.push_back(hash);        
+
         return result.bestMove;
     }
 
@@ -81,4 +87,6 @@ private:
     
     BookMoves::Node* currentBookMove = nullptr;
 
+    std::vector<unsigned long long> prevStatesHashes;
+    
 };

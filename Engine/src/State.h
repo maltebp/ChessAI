@@ -31,6 +31,12 @@ public:
 	// Get the color of the Player whos turn it is
 	PieceColor getTurnColor() const;
 
+	bool isWhitesTurn() const;
+
+	bool isBlacksTurn() const;
+
+	std::string toFEN() const;
+
 	/**
 	 * @brief	Creates a multi-string visualizing the board using ASCII characters,
 	 *  		and terminal colors.
@@ -51,7 +57,6 @@ public:
 
 	Piece& operator[](const Position& position);
 
-	std::string toFEN() const;
 
 	// Creates the starting state of a normal game
     static State createDefault();
