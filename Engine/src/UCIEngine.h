@@ -21,7 +21,7 @@ public:
 
     void start(std::ostream* outputStream, std::ostream* errorStream) override;
     
-    Move getMove(const State& state, const MoveUtil::GenerationList& validMoves, const Move& lastMove) override;
+    TurnResult giveTurn(const GameInfo& gameInfo) override;
 
 private:
 

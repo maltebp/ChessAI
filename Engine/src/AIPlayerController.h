@@ -29,9 +29,17 @@ public:
         *outputStream << "Starting Our Engine" << std::endl;
         *outputStream << "Search depth: " << searchDepth << std::endl;
     }
+
+
+    TurnResult giveTurn(const GameInfo& gameInfo) {
+        TurnResult result;
+        result.chosenMove = getMove(gameInfo);
+        return result;
+    }
     
 
-    Move getMove(const State& state, const MoveUtil::GenerationList& validMoves, const Move& lastMove) {
+    Move getMove(const GameInfo& gameInfo) {
+
         if (book) {
             std::vector<BookMoves::Node*> bookmoves;
             if (current == NULL) {
@@ -40,7 +48,7 @@ public:
                 current = bookmoves[rand() % bookmoves.size()];
                 return current->move;
             }
-            BookMoves::Node* last = current->findChild(lastMove);
+            BookMoves::Node* last = current->findChild(gameInfo.previousMoves.back());
             if (last != NULL && last->children.size() > 0) {
                 current = last->children[rand() % last->children.size()];
                 return current->move;
@@ -49,9 +57,13 @@ public:
 
         }
 
-            MinMaxSearcher::Result result = MinMaxSearcher::search(state, searchDepth, prevStatesHashes);
-        unsigned long long hash = Zobrist::calcHashValue(state.board);
-        prevStatesHashes.push_back(hash);
+        prevStatesHashes.clear();
+        for( auto& previousState : gameInfo.previousStates ) {
+            unsigned long long hash = Zobrist::calcHashValue(previousState.board);
+            prevStatesHashes.push_back(hash);
+        }
+
+        MinMaxSearcher::Result result = MinMaxSearcher::search(gameInfo.currentState, searchDepth, prevStatesHashes);
 
         return result.bestMove;
     }
