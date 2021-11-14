@@ -13,8 +13,7 @@ int main(int argc, char** argv) {
     
     State startState = State::createDefault();
 
-    GameController game = GameController(ourEngine1, ourEngine2);
-    game.printValidMoves = false;
+    GameController game = GameController(localPlayer1, ourEngine2);
     game.start(startState);
 
     return 0;

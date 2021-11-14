@@ -11,6 +11,9 @@
 
 namespace fs = std::filesystem;
 
+using TurnResult = IPlayerController::TurnResult;
+using GameInfo = IPlayerController::GameInfo;
+
 
 // It's uncertain whether printing debug info will slow down Engine
 // (it's untested).
@@ -100,11 +103,11 @@ void UCIEngine::startProcess() {
 }
 
 
-Move UCIEngine::getMove(const State& state, const MoveUtil::GenerationList& validMoves, const Move& lastMove) {
+TurnResult UCIEngine::giveTurn(const GameInfo& gameInfo) {
 
     *outputStream << "\nStarting engine search" << std::endl;
     std::stringstream ss;
-    ss << "position fen " << state.toFEN();
+    ss << "position fen " << gameInfo.currentState.toFEN();
     writeToEngine(ss.str());
     
     engineReadySignal.reset();

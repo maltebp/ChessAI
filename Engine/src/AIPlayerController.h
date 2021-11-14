@@ -30,22 +30,30 @@ public:
         *outputStream << "Starting Our Engine" << std::endl;
         *outputStream << "Search depth: " << searchTime << std::endl;
     }
+
+
+    TurnResult giveTurn(const GameInfo& gameInfo) {
+        TurnResult result;
+        result.chosenMove = getMove(gameInfo);
+        return result;
+    }
     
 
-    Move getMove(const State& state, const MoveUtil::GenerationList& validMoves, const Move& lastMove) {
+    Move getMove(const GameInfo& gameInfo) {
+
         if (useOpeningBook) {
             srand(time(NULL));
             std::vector<BookMoves::Node*> bookmoves;
             if (currentBookMove == NULL) {
                 BookMoves::initTree();
                 bookmoves = BookMoves::Node::getRoots();
-                if (state.turn % 2 == 0) {//white
+                if (gameInfo.currentState.isWhitesTurn()) { //white
                     currentBookMove = bookmoves[rand() % bookmoves.size()];
                     return currentBookMove->move;
                 }
                 else { // black
                     for (int i = 0; i < bookmoves.size(); i++) {
-                        if ((bookmoves[i]->move) == lastMove) {
+                        if ((bookmoves[i]->move) == gameInfo.previousMoves.back()) {
                             currentBookMove = bookmoves[i];
                         }
                     }
@@ -55,14 +63,14 @@ public:
                         return currentBookMove->move;
                     }
                     else useOpeningBook = false;
-                    MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(state, searchTime, prevStatesHashes);
-                    auto hash = Zobrist::calcHashValue(state.board);
+                    MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(gameInfo.currentState, searchTime, prevStatesHashes);
+                    auto hash = Zobrist::calcHashValue(gameInfo.currentState.board);
                     prevStatesHashes.push_back(hash);        
                     return result.bestMove;
                 }
                 
             }
-            BookMoves::Node* last = currentBookMove->findChild(lastMove);
+            BookMoves::Node* last = currentBookMove->findChild(gameInfo.previousMoves.back());
             if (last != NULL && last->children.size() > 0) {
                 currentBookMove = last->children[rand() % last->children.size()];
                 return currentBookMove->move;
@@ -71,9 +79,13 @@ public:
 
         }
 
-        MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(state, searchTime, prevStatesHashes);
-        auto hash = Zobrist::calcHashValue(state.board);
-        prevStatesHashes.push_back(hash);        
+        prevStatesHashes.clear();
+        for( auto& previousState : gameInfo.previousStates ) {
+            unsigned long long hash = Zobrist::calcHashValue(previousState.board);
+            prevStatesHashes.push_back(hash);
+        }
+
+        MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(gameInfo.currentState, searchTime, prevStatesHashes);
 
         return result.bestMove;
     }

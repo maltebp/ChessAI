@@ -11,6 +11,10 @@
 #include "MoveUtil.h"
 
 
+using GameInfo = IPlayerController::GameInfo;
+using TurnResult = IPlayerController::TurnResult;
+
+
 ArenaController::ArenaController(
     const fs::path& outputPath,
     IPlayerController& engine1,
@@ -201,30 +205,29 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
     gameLog << "White player: " << whitePlayer.getName() << " (Engine " << whitePlayerId << ")" << std::endl;
     gameLog << "Black player: " << blackPlayer.getName() << " (Engine " << blackPlayerId << ")" << std::endl;
 
-    State state = State::createDefault();
-    Move lastMove;
+    GameInfo gameInfo;
+    gameInfo.currentState = State::createDefault();
     std::stringstream ss;   
 
     while(true) {
 
-        bool whitesTurn = state.turn % 2 == 0;
+        bool whitesTurn = gameInfo.currentState.isWhitesTurn();
         unsigned currentPlayerId = whitesTurn ? whitePlayerId : blackPlayerId;
         IPlayerController& currentEngine = whitesTurn ? whitePlayer : blackPlayer;
 
-        std::string boardString = state.toPrettyString("  ");
+        std::string boardString = gameInfo.currentState.toPrettyString("  ");
         gameLog << '\n' << boardString << std::endl;
-        gameLog << '\n' << state.toFEN() << std::endl;
+        gameLog << '\n' << gameInfo.currentState.toFEN() << std::endl;
         gameLog << "Turn: " << currentEngine.getName() << std::endl;
 
-        if( state.drawCounter >= 49 ) {
+        if( gameInfo.currentState.drawCounter >= 49 ) {
             gameLog << "Winner: Draw" << std::endl;
             result.winner = 0;
             break;
         }
 
-        MoveUtil::GenerationList availableMoves;
-        MoveUtil::getAllMoves(state, availableMoves);
-        if( availableMoves.size() == 0 ) {
+        MoveUtil::getAllMoves(gameInfo.currentState, gameInfo.validMoves);
+        if( gameInfo.validMoves.size() == 0 ) {
             bool whiteWins = !whitesTurn;
             std::string winnerName = whiteWins ? whitePlayer.getName() : blackPlayer.getName();
             gameLog << "\nWinner: " << winnerName << std::endl;
@@ -234,7 +237,9 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
 
         auto searchStartClock = std::chrono::system_clock::now();
         
-        Move move = currentEngine.getMove(state, availableMoves, lastMove);
+        TurnResult turnResult = currentEngine.giveTurn(gameInfo);
+        
+        assert(turnResult.numStatesToRevert == 0 && "Reverting states is not supported in Arena");
 
         auto searchEndClock = std::chrono::system_clock::now();
         auto searchTime = std::chrono::duration_cast<std::chrono::milliseconds>(searchEndClock - searchStartClock);    
@@ -248,35 +253,30 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
 
         gameLog << "Search time: " << searchTime.count() << "ms" << std::endl;
         
-        if( move == Move() ) {  
+        if( turnResult.chosenMove == Move() ) {  
             std::stringstream ss;
             ss << currentEngine.getName() << " did INVALID MOVE!" << std::endl;
             ss << "Available moves were:" << std::endl;
-            for( size_t i = 0; i < availableMoves.size(); i++ ) {
-                ss << "  " << availableMoves[i] << std::endl;
+            for( size_t i = 0; i < gameInfo.validMoves.size(); i++ ) {
+                ss << "  " << gameInfo.validMoves[i] << std::endl;
             }
 
-            gameLog << ss.str();
-            std::cout << ss.str();
-
-            state.turn++;
-            state.drawCounter++;
-            continue;
+            assert(false && "Engine did invalid move");
         }
 
-        gameLog << "Move: " << move << std::endl;
-        state = MoveUtil::executeMove(state, move);
-        lastMove = move;
+        gameLog << "Move: " << turnResult.chosenMove << std::endl;
+        gameInfo.previousStates.push_back(gameInfo.currentState);
+        gameInfo.currentState = MoveUtil::executeMove(gameInfo.currentState, turnResult.chosenMove);
     }    
 
     result.whitePlayerId = whitePlayerId;
     result.blackPlayerId = blackPlayerId;
-    result.halfTurns = state.turn;
-    result.endState = state.toFEN();
+    result.halfTurns = gameInfo.currentState.turn;
+    result.endState = gameInfo.currentState.toFEN();
 
     for( int x = 0; x < 8; x++ ) {
         for( int y = 0; y < 8; y++ ) {
-            Piece piece = state.board[x][y];
+            Piece piece = gameInfo.currentState.board[x][y];
             if( piece.getType() == PieceType::NONE ) {
                 continue;
             }

@@ -54,6 +54,7 @@ public:
 
 	static Result searchTimed(const State& state, long long searchTime, std::vector<unsigned long long>& previousStateHashes, bool useInterrupted = true) {
 		stopSearch = false;
+		
 		Result result;
 		std::thread thread([&](){
 			result = iterativeSearch(state, useInterrupted, previousStateHashes);
