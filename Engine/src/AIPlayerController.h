@@ -41,6 +41,12 @@ public:
 
     Move getMove(const GameInfo& gameInfo) {
 
+        prevStatesHashes.clear();
+        for( auto& previousState : gameInfo.previousStates ) {
+            unsigned long long hash = Zobrist::calcHashValue(previousState.board);
+            prevStatesHashes.push_back(hash);
+        }
+
         if (useOpeningBook) {
             srand(time(NULL));
             std::vector<BookMoves::Node*> bookmoves;
@@ -64,8 +70,6 @@ public:
                     }
                     else useOpeningBook = false;
                     MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(gameInfo.currentState, searchTime, prevStatesHashes);
-                    auto hash = Zobrist::calcHashValue(gameInfo.currentState.board);
-                    prevStatesHashes.push_back(hash);        
                     return result.bestMove;
                 }
                 
@@ -77,12 +81,6 @@ public:
             }
             else useOpeningBook = false;
 
-        }
-
-        prevStatesHashes.clear();
-        for( auto& previousState : gameInfo.previousStates ) {
-            unsigned long long hash = Zobrist::calcHashValue(previousState.board);
-            prevStatesHashes.push_back(hash);
         }
 
         MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(gameInfo.currentState, searchTime, prevStatesHashes);
