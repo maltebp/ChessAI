@@ -49,8 +49,8 @@ public:
 
         }
 
-        MinMaxSearcher::Result result = MinMaxSearcher::search(state, searchDepth, prevStatesHashes);
-        auto hash = Zobrist::calcHashValue(state.board);
+            MinMaxSearcher::Result result = MinMaxSearcher::search(state, searchDepth, prevStatesHashes);
+        unsigned long long hash = Zobrist::calcHashValue(state.board);
         prevStatesHashes.push_back(hash);
 
         return result.bestMove;
