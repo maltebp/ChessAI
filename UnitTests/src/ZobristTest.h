@@ -8,11 +8,10 @@
 
 
 TEST_CASE("HashValue", "[Zobrist]") {
-
+    
     Zobrist::initZobristTable();
     State state = State::createDefault();
     unsigned long long start = Zobrist::calcHashValue(state.board);
-    
     state = MoveUtil::executeMove(state, { {1,0}, {2,2} });
     unsigned long long move = Zobrist::calcHashValue(state.board);
     state = MoveUtil::executeMove(state, { {1,7}, {2,5} });
