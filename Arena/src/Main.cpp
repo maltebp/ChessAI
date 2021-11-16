@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
         outputPath,
         ourEngine,
         stockfish1,
-        "turbo3_timed_10000"
+        "turbo4_timed_10000"
     };
 
     controller.start();
