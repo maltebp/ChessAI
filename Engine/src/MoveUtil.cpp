@@ -585,6 +585,7 @@ namespace MoveUtil {
 		
 		//"Put on" new field
 		newState[move.toField] = piece;
+		newState.lastMovedPiecePosition = move.toField;
 
 		// Check if double pawn move
  		if(piece.getType() == PieceType::PAWN && move.getYDistance() == 2) {

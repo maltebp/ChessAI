@@ -84,6 +84,8 @@ public:
 
 	bool whiteHasCastled = false;
 
+	Position lastMovedPiecePosition = Position();
+
 	// Number of turns since last capture or pawn move
 	unsigned int drawCounter = 0;
 
