@@ -22,7 +22,8 @@ TEST_CASE("Simple checkmate", "[checkmate]") {
     state.board[7][6] = { PieceColor::BLACK, PieceType::KING };
     state.board[6][6] = { PieceColor::BLACK, PieceType::PAWN };
 
-    std::vector<Move> moves = MoveUtil::getAllMoves(state);
+    MoveUtil::GenerationList moves;
+    MoveUtil::getAllMoves(state, moves);
     
     REQUIRE(moves.size() == 0);
 }
@@ -51,9 +52,10 @@ TEST_CASE("Check", "[checkmate]") {
 
     state.board[2][7] = { PieceColor::BLACK, PieceType::KING };
 
-    std::vector<Move> moves = MoveUtil::getAllMoves(state);
+    MoveUtil::GenerationList moves;
+    MoveUtil::getAllMoves(state, moves);
 
-    REQUIRE( Util::contains(moves, Move{{7,3}, {7,4}}) );
+    REQUIRE( moves.contains(Move{{7,3}, {7,4}}) );
 
     REQUIRE( moves.size() == 1 );
 }

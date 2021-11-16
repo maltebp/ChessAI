@@ -35,6 +35,26 @@ PieceColor State::getTurnColor() const {
 }
 
 
+bool State::isWhitesTurn() const {
+    return turn % 2 == 0;
+}
+
+
+bool State::isBlacksTurn() const {
+    return turn % 2 == 1;
+}
+
+
+std::string State::toFEN() const {
+    return FENUtil::generateFEN(*this);
+}
+
+
+std::string State::toPrettyString(const std::string& prefix, Move lastWhiteMove, Move lastBlackMove) const {
+    return TUIUtil::getPrettyBoard(*this, prefix, lastWhiteMove, lastBlackMove);
+}
+
+
 bool State::operator==(const State& other) const {		
     if( turn != other.turn ) return false;
     if( enPassantTarget != other.enPassantTarget ) return false;
@@ -72,16 +92,6 @@ Piece& State::operator[](const Position& position) {
     assert(position.x < 8);
     assert(position.y < 8);
     return board[position.x][position.y];
-}
-
-
-std::string State::toFEN() const {
-    return FENUtil::generateFEN(*this);
-}
-
-
-std::string State::toPrettyString(const std::string& prefix, Move lastWhiteMove, Move lastBlackMove) const {
-    return TUIUtil::getPrettyBoard(*this, prefix, lastWhiteMove, lastBlackMove);
 }
 
 

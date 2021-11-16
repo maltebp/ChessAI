@@ -8,7 +8,7 @@
 #include "Util.h"
 #include "State.h"
 #include "../src/MinMax.h" // Have to do this to avoid ambiguity with "minmax.h" (windows header file)
-
+#include "DynamicAllocation.h"
 
 namespace fs = std::filesystem;
 
@@ -35,8 +35,9 @@ const std::vector<TestCase> TEST_CASES =
         { 6, "Late game 2",     {"8/4Rp2/4P1pk/3R3p/5P2/1P6/P4BPP/7K w - - 1 44"} }, // Source: engine arena
     };
 
-const unsigned int SAMPLES = 2;
+const unsigned int SAMPLES = 6;
 
+// Our analysis assumes that we use depth 6
 const unsigned int DEPTH = 6;
 
 std::ostream& out = std::cout;
@@ -80,6 +81,7 @@ void runTestCase(TestCase testCase) {
 
     std::vector<MinMaxSearcher::Result> results;
     std::vector<MinMaxSearcher::Result> averageResults;
+    std::vector<unsigned long long> previousStateHashes;
 
     for( int depth=1; depth <= DEPTH; depth++ ) {
 
@@ -90,7 +92,8 @@ void runTestCase(TestCase testCase) {
 
         for( int i=0; i < SAMPLES; i++ ) {
             out << " Sample " << (i+1) << ".. " << std::flush;
-            samples[i] = MinMaxSearcher::search(testCase.state, depth);
+            previousStateHashes.clear();
+            samples[i] = MinMaxSearcher::search(testCase.state, depth, previousStateHashes);
 
             averageSample.searchTime += samples[i].searchTime;
             averageSample.staticEvaluations += samples[i].staticEvaluations;
@@ -99,6 +102,7 @@ void runTestCase(TestCase testCase) {
             averageSample.nodesVisited += samples[i].nodesVisited;
             averageSample.checkmates += samples[i].checkmates;
             averageSample.draws += samples[i].draws;
+            averageSample.dynamicAllocations += samples[i].dynamicAllocations;
         }
 
         averageSample.searchTime /= SAMPLES;
@@ -108,26 +112,20 @@ void runTestCase(TestCase testCase) {
         averageSample.nodesVisited /= SAMPLES;
         averageSample.checkmates /= SAMPLES;
         averageSample.draws /= SAMPLES;
+        averageSample.dynamicAllocations /= SAMPLES;
 
         results.push_back(averageSample);
 
         out << "Done" << std::endl;
     }
     
-
     out << "\n  Results:" << std::endl;
 
     double averageBranchFactor = 0;
-    unsigned long long totalNodesVisited = 0;
-    unsigned long long totalCutOffs = 0;
-    unsigned long long totalCheckMates = 0;
-    unsigned long long totalDraws = 0;
 
     for( int i=0; i < DEPTH; i++ ) {
 
         MinMaxSearcher::Result depthResult = results[i];
-        int cutOffFactor = (double)totalCutOffs / totalNodesVisited;
-
 
         out << '\n';
         out << "    Depth " << (i+1) << ":" << std::endl;
@@ -138,6 +136,7 @@ void runTestCase(TestCase testCase) {
         out << "      Evaluations:    " << depthResult.staticEvaluations << std::endl;
         out << "      Checkmates:     " << depthResult.checkmates << std::endl;
         out << "      Draws:          " << depthResult.draws << std::endl;
+        out << "      Num. allocs:    " << depthResult.dynamicAllocations << std::endl;
 
         csvDepths 
             << testCase.id << ','
@@ -148,14 +147,10 @@ void runTestCase(TestCase testCase) {
             << depthResult.branchingFactor << ','
             << depthResult.cutOffFactor << ','
             << depthResult.checkmates << ','
-            << depthResult.draws 
+            << depthResult.draws << ','
+            << depthResult.dynamicAllocations 
             << std::endl;
 
-        averageBranchFactor += depthResult.branchingFactor;
-        totalNodesVisited += depthResult.nodesVisited;
-        totalCutOffs += depthResult.cutOffFactor;
-        totalCheckMates += depthResult.checkmates;
-        totalDraws += depthResult.draws;
     }
 }
 
@@ -172,8 +167,8 @@ void runTests(std::vector<TestCase> testCases) {
     }
 
     out << '\n';
-    out << "Samples: " << SAMPLES << std::endl;;
-    out << "Depth:   " << DEPTH << std::endl;;
+    out << "Samples: " << SAMPLES << std::endl;
+    out << "Depth:   " << DEPTH << std::endl;
 
     for( auto& testCase : testCases ) {
         runTestCase(testCase);
@@ -204,7 +199,8 @@ int main(int argc, char* argv[]) {
         << "branching,"
         << "cutoffs,"
         << "checkmates,"
-        << "draws"
+        << "draws,"
+        << "dynamic_allocs"
         << std::endl;
 
     auto startTime = std::chrono::system_clock::now();

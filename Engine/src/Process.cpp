@@ -43,7 +43,7 @@ namespace Util {
 
         started = true;
 
-        processWatcherThread = new std::thread([&](){
+        processWatcherThread = new std::thread([=](){
             std::chrono::milliseconds aliveCheckFrequency(100);
             while( subprocess_alive(&process) ) {
                 std::this_thread::sleep_for(aliveCheckFrequency);    

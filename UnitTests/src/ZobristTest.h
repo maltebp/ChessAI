@@ -8,7 +8,7 @@
 
 
 TEST_CASE("HashValue", "[Zobrist]") {
-    
+
     Zobrist::initZobristTable();
     State state = State::createDefault();
     unsigned long long start = Zobrist::calcHashValue(state.board);

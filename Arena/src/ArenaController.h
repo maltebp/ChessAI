@@ -15,9 +15,9 @@ public:
 
     ArenaController(
         const fs::path& path,
-        unsigned int numGames,
         IPlayerController& engine1,
-        IPlayerController& engine2
+        IPlayerController& engine2,
+        std::string tag
     ); 
 
     void start(); 
@@ -29,6 +29,10 @@ private:
         int winner = -1; // 0 = draw, 1 = engine1, 2 = engine2;
 
         unsigned int halfTurns = 0; 
+
+        unsigned int whitePlayerId = 0;
+        
+        unsigned int blackPlayerId = 0;
 
         unsigned int engine1PiecesLeft = 0;
 
@@ -63,7 +67,7 @@ private:
     bool stopTestThread = false;
 
     bool testThreadHasStopped = false;
-
-    unsigned int numGames;
+    
+    std::string tag;
 
 };

@@ -17,7 +17,7 @@ public:
 
     bool clearScreen = true;   
 
-    bool printValidMoves = true;
+    bool printValidMoves = false;
 
 private:
 

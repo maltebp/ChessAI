@@ -11,16 +11,20 @@
 #include "MoveUtil.h"
 
 
+using GameInfo = IPlayerController::GameInfo;
+using TurnResult = IPlayerController::TurnResult;
+
+
 ArenaController::ArenaController(
     const fs::path& outputPath,
-    unsigned int numGames,
     IPlayerController& engine1,
-    IPlayerController& engine2
+    IPlayerController& engine2,
+    std::string tag
 )
     :   outputPath(outputPath),
         engine1(engine1),
         engine2(engine2),
-        numGames(numGames)
+        tag(tag)
 {
     
     // Remove white space from names, and check if they are the same
@@ -47,7 +51,7 @@ void ArenaController::start() {
     std::thread s([&]() { this->runSession(sessionPath); });
 
     // Start input parsing
-    
+        
     while(true) {
 
         // In case the test thread stops before we request it to
@@ -84,7 +88,7 @@ void ArenaController::start() {
             );
 
             std::cout << "\nresults.csv:\n" << content << std::endl; 
-            break;
+            continue;
         }
 
         std::cout << "Error: invalid command" << std::endl;
@@ -105,7 +109,19 @@ void ArenaController::runSession(const fs::path& outputPath) {
     );
 
     // CSV header
-    resultsFile << "Game Id,Winner,Half turns,Engine 1 pieces left, Engine 2 piece left,Engine 1 Search Time, Engine 2 Search Time,End state" << std::endl; 
+    resultsFile 
+        << "tag,"
+        << "game_id,"
+        << "winner," // Engine number
+        << "white,"
+        << "black,"
+        << "half_turns,"
+        << "engine1_pieces,"
+        << "engine2_pieces,"
+        << "engine1_time,"
+        << "engine2_time,"
+        << "end_state" 
+        << std::endl; 
     
     unsigned int gameId = 1;
 
@@ -116,8 +132,11 @@ void ArenaController::runSession(const fs::path& outputPath) {
         streamState.copyfmt(resultsFile);
         resultsFile << std::setprecision(2) << std::fixed;
         resultsFile 
+            << tag << ','
             << gameId << ',' 
             << result.winner << ','
+            << result.whitePlayerId << ','
+            << result.blackPlayerId << ','
             << result.halfTurns << ','
             << result.engine1PiecesLeft << ','
             << result.engine2PiecesLeft << ','
@@ -171,62 +190,61 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
         );
     }
    
-    gameLog << "Starting " << engine1Name << " (Engine 1, White)" << std::endl;
+    gameLog << "Starting " << engine1Name << " (Engine 1)" << std::endl;
     engine1.start(&engine1Log, &engine1Log);
-    gameLog << "Starting " << engine2Name << " (Engine 2, White)" << std::endl;
+    gameLog << "Starting " << engine2Name << " (Engine 2)" << std::endl;
     engine2.start(&engine2Log, &engine2Log);
+    
+    unsigned int whitePlayerId = (gameNum % 2 == 1) ? 1 : 2;
+    unsigned int blackPlayerId = (gameNum % 2 == 1) ? 2 : 1;
+    IPlayerController& whitePlayer = whitePlayerId == 1 ? engine1 : engine2;
+    IPlayerController& blackPlayer = blackPlayerId == 1 ? engine1 : engine2;
 
     gameLog << "Starting game" << std::endl;
     gameLog << "Time: " << Util::getDateString("%d/%m %H:%M:%S ") << std::endl;
-    State state = State::createDefault();
-    Move lastMove;
+    gameLog << "White player: " << whitePlayer.getName() << " (Engine " << whitePlayerId << ")" << std::endl;
+    gameLog << "Black player: " << blackPlayer.getName() << " (Engine " << blackPlayerId << ")" << std::endl;
+
+    GameInfo gameInfo;
+    gameInfo.currentState = State::createDefault();
     std::stringstream ss;   
 
     while(true) {
 
-        IPlayerController& currentEngine = state.turn % 2 == 0 ? engine1 : engine2;
+        bool whitesTurn = gameInfo.currentState.isWhitesTurn();
+        unsigned currentPlayerId = whitesTurn ? whitePlayerId : blackPlayerId;
+        IPlayerController& currentEngine = whitesTurn ? whitePlayer : blackPlayer;
 
-        std::string boardString = state.toPrettyString("  ");
+        std::string boardString = gameInfo.currentState.toPrettyString("  ");
         gameLog << '\n' << boardString << std::endl;
-        gameLog << '\n' << state.toFEN() << std::endl;
+        gameLog << '\n' << gameInfo.currentState.toFEN() << std::endl;
         gameLog << "Turn: " << currentEngine.getName() << std::endl;
 
-        if( state.drawCounter >= 49 ) {
-            gameLog << "Result: Draw" << std::endl;
+        if( gameInfo.currentState.drawCounter >= 49 ) {
+            gameLog << "Winner: Draw" << std::endl;
             result.winner = 0;
             break;
         }
 
-        // This is only necessary because of the bug in our engine
-        if( MoveUtil::isKingThreatened(state) ) {
-            bool whiteWins = state.turn % 2 == 1;
-            // Note: at some point, eninge1 should NOT be synonymous with "white"
-            // They should switch turns every game
-            std::string winnerName = whiteWins ? engine1Name : engine2Name;
+        MoveUtil::getAllMoves(gameInfo.currentState, gameInfo.validMoves);
+        if( gameInfo.validMoves.size() == 0 ) {
+            bool whiteWins = !whitesTurn;
+            std::string winnerName = whiteWins ? whitePlayer.getName() : blackPlayer.getName();
             gameLog << "\nWinner: " << winnerName << std::endl;
-            result.winner = whiteWins ? 1 : 2; 
-            break;
-        }
-
-        std::vector<Move> availableMoves = MoveUtil::getAllMoves(state);
-        if( availableMoves.size() == 0 ) {
-            bool whiteWins = state.turn % 2 == 1;
-            // Note: at some point, eninge1 should NOT be synonymous with "white"
-            // They should switch turns every game
-            std::string winnerName = whiteWins ? engine1Name : engine2Name;
-            gameLog << "\nWinner: " << winnerName << std::endl;
-            result.winner = whiteWins ? 1 : 2;
+            result.winner = whiteWins ? whitePlayerId : blackPlayerId; 
             break;
         }
 
         auto searchStartClock = std::chrono::system_clock::now();
         
-        Move move = currentEngine.getMove(state, availableMoves, lastMove);
+        TurnResult turnResult = currentEngine.giveTurn(gameInfo);
+        
+        assert(turnResult.numStatesToRevert == 0 && "Reverting states is not supported in Arena");
 
         auto searchEndClock = std::chrono::system_clock::now();
         auto searchTime = std::chrono::duration_cast<std::chrono::milliseconds>(searchEndClock - searchStartClock);    
 
-        if( state.turn % 2 == 0 ) {
+        if( currentPlayerId == 1 ) {
             result.engine1SearchTime += searchTime.count() / 1000.0;
         }
         else {
@@ -235,38 +253,37 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
 
         gameLog << "Search time: " << searchTime.count() << "ms" << std::endl;
         
-        if( move == Move() ) {  
+        if( turnResult.chosenMove == Move() ) {  
             std::stringstream ss;
-            ss << (state.turn % 2 == 0 ? engine1Name : engine2Name) << " did INVALID MOVE!" << std::endl;
+            ss << currentEngine.getName() << " did INVALID MOVE!" << std::endl;
             ss << "Available moves were:" << std::endl;
-            for( auto move : availableMoves ) {
-                ss << "  " << move << std::endl;
+            for( size_t i = 0; i < gameInfo.validMoves.size(); i++ ) {
+                ss << "  " << gameInfo.validMoves[i] << std::endl;
             }
 
-            gameLog << ss.str();
-            std::cout << ss.str();
-
-            state.turn++;
-            state.drawCounter++;
-            continue;
+            assert(false && "Engine did invalid move");
         }
 
-        gameLog << "Move: " << move << std::endl;
-        state = MoveUtil::executeMove(state, move);
-        lastMove = move;
+        gameLog << "Move: " << turnResult.chosenMove << std::endl;
+        gameInfo.previousStates.push_back(gameInfo.currentState);
+        gameInfo.currentState = MoveUtil::executeMove(gameInfo.currentState, turnResult.chosenMove);
     }    
 
-    result.halfTurns = state.turn;
-    result.endState = state.toFEN();
+    result.whitePlayerId = whitePlayerId;
+    result.blackPlayerId = blackPlayerId;
+    result.halfTurns = gameInfo.currentState.turn;
+    result.endState = gameInfo.currentState.toFEN();
 
     for( int x = 0; x < 8; x++ ) {
         for( int y = 0; y < 8; y++ ) {
-            Piece piece = state.board[x][y];
+            Piece piece = gameInfo.currentState.board[x][y];
             if( piece.getType() == PieceType::NONE ) {
                 continue;
             }
 
-            if( piece.getColor() == PieceColor::WHITE ) {
+            unsigned int pieceOwnerId = piece.getColor() == PieceColor::WHITE ? whitePlayerId : blackPlayerId;
+
+            if( pieceOwnerId == 1 ) {
                 result.engine1PiecesLeft++;
             }
             else {

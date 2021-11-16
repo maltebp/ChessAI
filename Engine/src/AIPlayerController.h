@@ -15,7 +15,9 @@ public:
 
     AIPlayerController(int searchDepth)
         :   searchDepth(searchDepth)
-    { }
+    { 
+        Zobrist::initZobristTable();
+    }
 
 
     std::string getName() override {
@@ -27,18 +29,26 @@ public:
         *outputStream << "Starting Our Engine" << std::endl;
         *outputStream << "Search depth: " << searchDepth << std::endl;
     }
+
+
+    TurnResult giveTurn(const GameInfo& gameInfo) {
+        TurnResult result;
+        result.chosenMove = getMove(gameInfo);
+        return result;
+    }
     
 
-    Move getMove(const State& state, const std::vector<Move>& initialMoves, const Move& lastMove) {
+    Move getMove(const GameInfo& gameInfo) {
+
         if (book) {
             std::vector<BookMoves::Node*> bookmoves;
             if (current == NULL) {
-                BookMoves::initTree;
+                BookMoves::initTree();
                 bookmoves = BookMoves::Node::getRoots();
                 current = bookmoves[rand() % bookmoves.size()];
                 return current->move;
             }
-            BookMoves::Node* last = current->findChild(lastMove);
+            BookMoves::Node* last = current->findChild(gameInfo.previousMoves.back());
             if (last != NULL && last->children.size() > 0) {
                 current = last->children[rand() % last->children.size()];
                 return current->move;
@@ -46,12 +56,22 @@ public:
             else book = false;
 
         }
-        MinMaxSearcher::Result result = MinMaxSearcher::search(state, searchDepth);
+
+        prevStatesHashes.clear();
+        for( auto& previousState : gameInfo.previousStates ) {
+            unsigned long long hash = Zobrist::calcHashValue(previousState.board);
+            prevStatesHashes.push_back(hash);
+        }
+
+        MinMaxSearcher::Result result = MinMaxSearcher::search(gameInfo.currentState, searchDepth, prevStatesHashes);
+
         return result.bestMove;
     }
 
 
 private:
+
+    std::vector<unsigned long long> prevStatesHashes;
 
     int searchDepth;
 };

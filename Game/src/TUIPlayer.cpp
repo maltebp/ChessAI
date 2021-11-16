@@ -12,6 +12,10 @@
 #include "MinMax.h"
 
 
+using TurnResult = IPlayerController::TurnResult;
+using GameInfo = IPlayerController::GameInfo;
+
+
 std::string TUIPlayer::getName() {
 	return "TUI Player";
 }
@@ -22,16 +26,7 @@ void TUIPlayer::start(std::ostream* outputStream, std::ostream* errorStream) {
 }
 
 
-void printMoves(const State& state) {
-
-	std::vector<Move> moves = MoveUtil::getAllMoves(state);
-	for (Move move : moves) {
-		std::cout << move << std::endl;
-	}
-}
-
-
-std::tuple<Move, std::string> parseInput(const State& state, const std::vector<Move>& moves, const std::vector<std::string> inputTokens) {
+std::tuple<TurnResult, std::string> parseInput(const GameInfo& gameInfo, const std::vector<std::string> inputTokens) {
 	
 	std::string command = inputTokens[0];
 
@@ -52,7 +47,7 @@ std::tuple<Move, std::string> parseInput(const State& state, const std::vector<M
 
 		Move move = { fromPosition, toPosition };
 
-		if( std::find(moves.begin(), moves.end(), move) == moves.end() ) {
+		if( !gameInfo.validMoves.contains(move) ) {
 			return { {}, "Error: Invalid move" };
 		}
 
@@ -67,18 +62,53 @@ std::tuple<Move, std::string> parseInput(const State& state, const std::vector<M
 
 		std::stringstream ss;
 		ss << "Valid moves:\n";
-		for(auto move : moves) {
-			ss << "  " << move << "\n";
+		for( size_t i = 0; i < 100; i++ ) {
+			ss << "  " << gameInfo.validMoves[i] << "\n";
 		}
 
 		return { {}, ss.str() }; 
+	}
+
+	
+	if( command == "rev" ) {
+		
+		if( inputTokens.size() != 2 ) {
+			return { {}, "Error: 'rev' takes exactly 1 argument" };
+		}
+
+		unsigned long numStatesToRevert = 0; 
+		try {
+			numStatesToRevert = std::stoul(inputTokens[1]);
+		} catch (std::invalid_argument& e) {
+			return { {}, "Error: invalid integer argument" };
+		} catch (std::out_of_range& e) {
+			return { {}, "Error: integer is too large" };
+		}
+
+		if( numStatesToRevert == 0 ) {
+			return { {}, "Error: argument must be larger than 0" };
+		}
+
+		if( numStatesToRevert > gameInfo.previousStates.size() ) {
+			std::stringstream ss;
+			ss << "Error: " << " cannot revert more than " << gameInfo.previousStates.size() << " states" << std::endl;
+			return { {}, ss.str() };
+		}
+
+		State targetState = gameInfo.previousStates[gameInfo.previousStates.size() - numStatesToRevert];
+		std::stringstream ss;
+		ss << "Reverting to state: " << targetState.toFEN() << std::endl; 
+
+		TurnResult turnResult;
+		turnResult.numStatesToRevert = (unsigned int)numStatesToRevert;
+		return { turnResult, "" };
 	}
 
 	return { {}, "Error: Invalid command '" + inputTokens[0] + "'" };
 }
 
 
-Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves, const Move& lastMove) {
+TurnResult TUIPlayer::giveTurn(const GameInfo& gameInfo) {
 
 	while( true ) {
 
@@ -90,13 +120,13 @@ Move TUIPlayer::getMove(const State& state, const std::vector<Move>& moves, cons
 
 		if( inputTokens.size() == 0 ) continue;
 
-		auto [move,parseOutput] = parseInput(state, moves, inputTokens);
+		auto [turnResult, parseOutput] = parseInput(gameInfo, inputTokens);
 		if( parseOutput.empty() || parseOutput == "" ) {
-			return move;
+			return turnResult;
 		}
 
 		std::cout << parseOutput;		
 	}
 
-	return Move();
+	return TurnResult();
 }
