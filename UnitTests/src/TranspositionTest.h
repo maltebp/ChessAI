@@ -4,6 +4,7 @@
 
 #include "Util.h"
 #include "Transposition.h"
+#include <limits>
 
 
 TEST_CASE("InitTable", "[Transposition]") {
@@ -11,14 +12,13 @@ TEST_CASE("InitTable", "[Transposition]") {
     Transposition::initTranspositionTable();
 
     REQUIRE(Transposition::tableCounter == 1);
-    for (int i = 0; i < Transposition::size; i++) {
-        if (Transposition::table[i].entryCounter != 0){ 
-            REQUIRE(false); 
-        }
-        else {
-            REQUIRE(true);
+    bool flag = true;
+    for (int i = 0; i < Transposition::SIZE; i++) {
+        if (Transposition::table[i].entryCounter != 0) {
+            flag = false;
         }
     }
+    REQUIRE(flag);
 }
 
 TEST_CASE("NewHash", "[Transposition]") {
@@ -41,4 +41,19 @@ TEST_CASE("NewHash", "[Transposition]") {
     REQUIRE(Transposition::table[3].score == 24);
     REQUIRE(Transposition::table[3].entryCounter == 2);
 
+}
+TEST_CASE("HashMask", "[Transposition]") {
+
+   if( Transposition::hashToIndex(std::numeric_limits<unsigned long long int>::max())<Transposition::SIZE ){
+        REQUIRE(true);
+    }
+   else {
+       REQUIRE(false);
+   }
+   if (Transposition::hashToIndex(0) < Transposition::SIZE) {
+       REQUIRE(true);
+   }
+   else {
+       REQUIRE(false);
+   }
 }
