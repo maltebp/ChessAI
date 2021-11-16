@@ -102,8 +102,6 @@ private:
 		for (int i = 1; i <= depth; i++) {
 			if( stopSearch ) break;
 
-			Transposition::nextCounter();
-
 			Result currentResult = finishedResult;
 			
 			bool useMoveSequence = i > 1;
@@ -202,7 +200,7 @@ private:
 		}
 		
 		//Check Transpotable
-		if (Transposition::isEntry(hash)) {
+		if (!Transposition::isDeeper(hash, remainingDepth)) {
 			return { Move(), Transposition::getScore(hash)};
 		}
 
@@ -286,7 +284,7 @@ private:
 		previousStateHashes.pop_back();
 		int score = isMaximizer ? alpha : beta;
 		//insert in transpotable
-		Transposition::insertEntry(hash, score);
+		Transposition::insertEntry(hash, score, remainingDepth, bestMove);
 		return { bestMove,score };
 	}
 

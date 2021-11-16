@@ -3,14 +3,12 @@
 
 namespace Transposition {
 
-    short tableCounter = 1;
     
     TranspositionEntry table[SIZE];
     
     void initTranspositionTable() {
-        tableCounter = 1;
         for (int i = 0; i < SIZE; i++) {
-            table[i].entryCounter = 0;
+            table[i].depth = -1;
         }
     }
 
@@ -20,15 +18,15 @@ namespace Transposition {
     }
 
     
-    void insertEntry(unsigned long long hash, short score) {
-        table[hashToIndex(hash)].entryCounter = tableCounter;
+    void insertEntry(unsigned long long hash, int score, char depth, Move best) {
+        table[hashToIndex(hash)].depth = depth;
         table[hashToIndex(hash)].score = score;
+        table[hashToIndex(hash)].move = best;
     }
 
 
-    bool isEntry(unsigned long long hash) { // if it already exists for this counter it'll 
-        //return true. if it hasn't been explored yet it returns false.
-        if (table[hashToIndex(hash)].entryCounter == tableCounter) {
+    bool isDeeper(unsigned long long hash, char depth) { // if the new entry is deeper then return true, else return false
+        if (table[hashToIndex(hash)].depth <depth) {
             return true;
         }
         return false;
@@ -37,12 +35,6 @@ namespace Transposition {
 
     short getScore(unsigned long long hash) {
         return table[hashToIndex(hash)].score;
-    }
-
-
-    void nextCounter() {
-        tableCounter++;
-        return;
     }
 
 }
