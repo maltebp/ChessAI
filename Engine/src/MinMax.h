@@ -8,6 +8,7 @@
 #include "MoveUtil.h"
 #include "MoveSorter.h"
 #include "Zobrist.h"
+#include "Transposition.h"
 
 
 
@@ -144,7 +145,11 @@ private:
 		if (drawBy3FoldRep ||drawBy50Moves) {
 			return { Move(), DRAW_SCORE };
 		}
+		//Check Transpotable
 		
+		if (Transposition::isEntry(hash)) {
+			return { Move(), Transposition::getScore(hash)};
+		}
 
 		//----------------------------------SEARCH SUBTREE-------------------------------------------------------------
 		previousStateHashes.push_back(hash);
@@ -164,7 +169,9 @@ private:
 
 		Move bestMoveFromPrevious = Move();
 		if (useMoveSequence) {
-			bestMoveFromPrevious = previousBestMoves[currentDepth];
+			if (previousBestMoves.size()>currentDepth) {
+				bestMoveFromPrevious = previousBestMoves[currentDepth];
+			}
 		}
 
 		//Sort the list of moves according to moveorder heuristic
@@ -217,6 +224,8 @@ private:
 		//Pop this state from previousStateHashes
 		previousStateHashes.pop_back();
 		int score = isMaximizer ? alpha : beta;
+		//insert in transpotable
+		Transposition::insertEntry(hash, score);
 		return { bestMove,score };
 	}
 
