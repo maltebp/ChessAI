@@ -124,6 +124,7 @@
     <ClCompile Include="src\MoveUtil.cpp" />
     <ClCompile Include="src\Process.cpp" />
     <ClCompile Include="src\State.cpp" />
+    <ClCompile Include="src\Transposition.cpp" />
     <ClCompile Include="src\UCIEngine.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
