@@ -16,9 +16,7 @@ public:
     AIPlayerController(int searchTime, bool useOpeningBook)
         :   searchTime(searchTime),
             useOpeningBook(useOpeningBook)
-    {
-        Zobrist::initZobristTable();
-    }
+    { }
 
 
     std::string getName() override {
@@ -29,6 +27,7 @@ public:
     void start(std::ostream* outputStream, std::ostream* errorStream) override {
         *outputStream << "Starting Our Engine" << std::endl;
         *outputStream << "Search depth: " << searchTime << std::endl;
+        MinMaxSearcher::initialize();
     }
 
 

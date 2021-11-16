@@ -47,13 +47,21 @@ public:
 public:
 
 
+	static void initialize() {
+		initialized = true;
+		Transposition::initTranspositionTable();	
+	}
+
+
 	static Result searchToDepth(const State& state, int depth, std::vector<unsigned long long>& previousStateHashes) {
+		assert(initialized);
 		assert(depth > 0);
 		return iterativeSearch(state, false, previousStateHashes, depth);
 	}
 
 
 	static Result searchTimed(const State& state, long long searchTime, std::vector<unsigned long long>& previousStateHashes, bool useInterrupted = true) {
+		assert(initialized);
 		stopSearch = false;
 		
 		Result result;
@@ -93,6 +101,8 @@ private:
 
 		for (int i = 1; i <= depth; i++) {
 			if( stopSearch ) break;
+
+			Transposition::nextCounter();
 
 			Result currentResult = finishedResult;
 			
@@ -512,6 +522,8 @@ private:
 	static inline bool searching = false;
 
 	static inline bool stopSearch = false;
+
+	static inline bool initialized = true;
 
 	constexpr static int ENDGAME_WINNER_SCORE_THRESHOLD  = 500;
 
