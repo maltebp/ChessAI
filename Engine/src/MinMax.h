@@ -216,7 +216,8 @@ private:
 		}
 
 		//Sort the list of moves according to moveorder heuristic
-		MoveSorter::sortMoves(state, moves, bestMoveFromPrevious);
+
+		MoveSorter::sortMoves(state, moves, bestMoveFromPrevious, hash);
 
 		Move bestMove;
 		for(int i=0; i<moves.size(); i++) {

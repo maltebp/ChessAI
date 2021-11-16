@@ -36,7 +36,9 @@ namespace Transposition {
 	void insertEntry(unsigned long long hash, int score, char depth, Move best);
 
 	bool isDeeper(unsigned long long hash, char depth);
+
+	Move getMove(unsigned long long hash);
 	
-	short getScore(unsigned long long hash);
+	int getScore(unsigned long long hash);
 
 }

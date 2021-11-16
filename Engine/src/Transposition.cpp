@@ -32,8 +32,15 @@ namespace Transposition {
         return false;
     }
 
+    Move getMove(unsigned long long hash) { 
+        if (table[hashToIndex(hash)].depth != -1) {
+            return table[hashToIndex(hash)].move;
+        }
+        return Move();
+    }
 
-    short getScore(unsigned long long hash) {
+
+    int getScore(unsigned long long hash) {
         return table[hashToIndex(hash)].score;
     }
 
