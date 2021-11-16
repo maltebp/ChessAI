@@ -9,7 +9,7 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
+    <Filter Include="Source Files\Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
@@ -24,42 +24,12 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\EngineArena\EngineArenaController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EngineArena\Process.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EngineArena\UCIEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GameController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\TUIPlayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EngineArena\EngineArenaController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EngineArena\Main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EngineArena\Process.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EngineArena\Signal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EngineArena\UCIEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EngineArena\VariableSignal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EngineArena\Warning.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

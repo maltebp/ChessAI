@@ -188,9 +188,11 @@ private:
 		}
 		
 		//Check Transpotable
-		if (!Transposition::isDeeper(hash, remainingDepth)) {
-			return { Move(), Transposition::getScore(hash)};
+		Transposition::TranspositionEntry entry = Transposition::getEntry(hash);
+		if (entry.depth > remainingDepth) {
+			return { entry.move, entry.score };
 		}
+		
 
 		//----------------------------------SEARCH SUBTREE-------------------------------------------------------------
 		previousStateHashes.push_back(hash);

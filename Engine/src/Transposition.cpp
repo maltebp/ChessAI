@@ -44,4 +44,7 @@ namespace Transposition {
         return table[hashToIndex(hash)].score;
     }
 
+    TranspositionEntry getEntry(unsigned long long hash) {
+        return table[hashToIndex(hash)];
+    }
 }

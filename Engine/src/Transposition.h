@@ -41,4 +41,6 @@ namespace Transposition {
 	
 	int getScore(unsigned long long hash);
 
+	TranspositionEntry getEntry(unsigned long long hash);
+
 }
