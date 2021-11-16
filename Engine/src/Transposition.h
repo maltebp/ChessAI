@@ -1,6 +1,6 @@
 #pragma once
 namespace Transposition {
-	const int size = 10;
+	const int size = 4194304;
 	struct TranspositionEntry {
 		short entryCounter;
 		short score;
