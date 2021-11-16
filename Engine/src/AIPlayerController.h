@@ -2,20 +2,21 @@
 
 #include <vector>
 #include <climits>
+#include <cstdlib>
 
 #include "IPlayerController.h"
 #include "MinMax.h"
 #include "BookTree.h"
-#include <cstdlib>
+
 
 class AIPlayerController : public IPlayerController {
-    bool book = false;
-    BookMoves::Node* current;
 public:
 
-    AIPlayerController(int searchDepth)
-        :   searchDepth(searchDepth)
-    { 
+
+    AIPlayerController(int searchTime, bool useOpeningBook)
+        :   searchTime(searchTime),
+            useOpeningBook(useOpeningBook)
+    {
         Zobrist::initZobristTable();
     }
 
@@ -27,7 +28,7 @@ public:
 
     void start(std::ostream* outputStream, std::ostream* errorStream) override {
         *outputStream << "Starting Our Engine" << std::endl;
-        *outputStream << "Search depth: " << searchDepth << std::endl;
+        *outputStream << "Search depth: " << searchTime << std::endl;
     }
 
 
@@ -40,30 +41,49 @@ public:
 
     Move getMove(const GameInfo& gameInfo) {
 
-        if (book) {
-            std::vector<BookMoves::Node*> bookmoves;
-            if (current == NULL) {
-                BookMoves::initTree();
-                bookmoves = BookMoves::Node::getRoots();
-                current = bookmoves[rand() % bookmoves.size()];
-                return current->move;
-            }
-            BookMoves::Node* last = current->findChild(gameInfo.previousMoves.back());
-            if (last != NULL && last->children.size() > 0) {
-                current = last->children[rand() % last->children.size()];
-                return current->move;
-            }
-            else book = false;
-
-        }
-
         prevStatesHashes.clear();
         for( auto& previousState : gameInfo.previousStates ) {
             unsigned long long hash = Zobrist::calcHashValue(previousState.board);
             prevStatesHashes.push_back(hash);
         }
 
-        MinMaxSearcher::Result result = MinMaxSearcher::search(gameInfo.currentState, searchDepth, prevStatesHashes);
+        if (useOpeningBook) {
+            srand(time(NULL));
+            std::vector<BookMoves::Node*> bookmoves;
+            if (currentBookMove == NULL) {
+                BookMoves::initTree();
+                bookmoves = BookMoves::Node::getRoots();
+                if (gameInfo.currentState.isWhitesTurn()) { //white
+                    currentBookMove = bookmoves[rand() % bookmoves.size()];
+                    return currentBookMove->move;
+                }
+                else { // black
+                    for (int i = 0; i < bookmoves.size(); i++) {
+                        if ((bookmoves[i]->move) == gameInfo.previousMoves.back()) {
+                            currentBookMove = bookmoves[i];
+                        }
+                    }
+                    
+                    if (currentBookMove!= NULL) {
+                        currentBookMove = currentBookMove->children[rand() % currentBookMove->children.size()];
+                        return currentBookMove->move;
+                    }
+                    else useOpeningBook = false;
+                    MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(gameInfo.currentState, searchTime, prevStatesHashes);
+                    return result.bestMove;
+                }
+                
+            }
+            BookMoves::Node* last = currentBookMove->findChild(gameInfo.previousMoves.back());
+            if (last != NULL && last->children.size() > 0) {
+                currentBookMove = last->children[rand() % last->children.size()];
+                return currentBookMove->move;
+            }
+            else useOpeningBook = false;
+
+        }
+
+        MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(gameInfo.currentState, searchTime, prevStatesHashes);
 
         return result.bestMove;
     }
@@ -71,7 +91,12 @@ public:
 
 private:
 
-    std::vector<unsigned long long> prevStatesHashes;
+    int searchTime;
 
-    int searchDepth;
+    bool useOpeningBook;
+    
+    BookMoves::Node* currentBookMove = nullptr;
+
+    std::vector<unsigned long long> prevStatesHashes;
+    
 };

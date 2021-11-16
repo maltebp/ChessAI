@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <limits>
 #include <chrono>
+#include <thread>
+#include <cstdlib>
 
 #include "DynamicAllocation.h"
 #include "MoveUtil.h"
@@ -45,35 +47,23 @@ public:
 public:
 
 
-	static Result search(const State& state, int depth, const std::vector<unsigned long long>& previousStateHashes) {
+	static Result searchToDepth(const State& state, int depth, std::vector<unsigned long long>& previousStateHashes) {
+		assert(depth > 0);
+		return iterativeSearch(state, false, previousStateHashes, depth);
+	}
+
+
+	static Result searchTimed(const State& state, long long searchTime, std::vector<unsigned long long>& previousStateHashes, bool useInterrupted = true) {
+		stopSearch = false;
+		
 		Result result;
+		std::thread thread([&](){
+			result = iterativeSearch(state, useInterrupted, previousStateHashes);
+		});
 
-	    unsigned long long numAllocationsAtStart = DynamicAllocation::numAllocations;
-		MinMaxSearcher::previousStateHashes = previousStateHashes;
-	    auto startTime = std::chrono::system_clock::now();
-		Move bestMove;
-		for (int i = 1; i <= depth; i++) {
-			bool useMoveSequence = i > 1;
-			auto [move, score] = searchInternal(
-				state, 
-				i, 
-				0, 
-				std::numeric_limits<int>::min(), 
-				std::numeric_limits<int>::max(), 
-				result, 
-				useMoveSequence
-			);
-			bestMove = move;
-			previousBestMoves = moveList;
-			moveList.clear();
-		}
-
-    	auto endTime = std::chrono::system_clock::now();
-    	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-
-		result.bestMove = bestMove;		
-		result.searchTime = elapsed.count() / 1000.0;
-		result.dynamicAllocations = DynamicAllocation::numAllocations - numAllocationsAtStart;
+		std::this_thread::sleep_for(std::chrono::milliseconds(searchTime));
+		stopSearch = true;
+		thread.join();
 
 		return result;
 	}
@@ -81,10 +71,64 @@ public:
 
 private:
 
+
 	static void deleteElementsBetween(std::vector<Move>& v, size_t startIndex, size_t endIndex) {
 		if( startIndex >= endIndex ) return;
 		v.erase(v.begin() + startIndex, v.begin() + endIndex ); 
 	}
+
+
+	static Result iterativeSearch(const State& state, bool useInterrupted, std::vector<unsigned long long>& previousStateHashes, int depth = std::numeric_limits<int>::max()) {
+		
+		// Safety not to ensure we don't call this function recursively, or
+		// in a multithreaded environment
+		assert(!searching);
+		searching = true;
+
+	    unsigned long long numAllocationsAtStart = DynamicAllocation::numAllocations;
+		MinMaxSearcher::previousStateHashes = previousStateHashes;
+	    auto startTime = std::chrono::system_clock::now();
+
+		Result finishedResult;
+
+		for (int i = 1; i <= depth; i++) {
+			if( stopSearch ) break;
+
+			Result currentResult = finishedResult;
+			
+			bool useMoveSequence = i > 1;
+
+			auto [move, score] = searchInternal(
+				state, 
+				i,
+				0,
+				std::numeric_limits<int>::min(), std::numeric_limits<int>::max(),
+				currentResult,
+				useMoveSequence
+			);
+
+			if( (useInterrupted || !stopSearch) && move != Move() ){
+				currentResult.bestMove = move;
+				finishedResult = currentResult;
+			}
+
+			previousBestMoves = moveList;
+			moveList.clear();
+		}
+
+    	auto endTime = std::chrono::system_clock::now();
+    	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+
+		finishedResult.searchTime = elapsed.count() / 1000.0;
+		finishedResult.dynamicAllocations = DynamicAllocation::numAllocations - numAllocationsAtStart;
+
+		previousStateHashes = MinMaxSearcher::previousStateHashes;
+
+		searching = false;
+
+		return finishedResult;
+	}
+
 
 	static std::tuple<Move, int> noMovesPossibleScore(const State& state, int remainingDepth, Result& result) {
 		//In this case it is either a draw of a loss or current player
@@ -110,6 +154,7 @@ private:
 			return { Move(), DRAW_SCORE };
 		}
 	}
+
 	
 	static std::tuple<Move, int> searchInternal(
 		const State& state, 
@@ -179,6 +224,9 @@ private:
 
 		Move bestMove;
 		for(int i=0; i<moves.size(); i++) {
+
+			if( stopSearch ) break;
+
             Move move = moves[i];
 
 			if (alpha >= beta) {
@@ -196,13 +244,16 @@ private:
 			State resultState = MoveUtil::executeMove(state, move);
 
 			bool useMoveSequenceAgain = useMoveSequence && move == bestMoveFromPrevious && remainingDepth -1 > 1;
-			auto [resultMove, resultScore] = searchInternal(
-				resultState, 
-				remainingDepth - 1, currentDepth+1, 
-				alpha, 
-				beta, 
-				result, 
-				useMoveSequenceAgain);
+
+			auto [resultMove, resultScore] = searchInternal(resultState, remainingDepth - 1, currentDepth+1, alpha, beta, result, useMoveSequenceAgain);
+			
+			// Considering a move from an interrupted branch may result in
+			// not choosing the optimal move.
+			if( stopSearch ) {
+				deleteElementsBetween(moveList, currentIndex, moveList.size());
+				break;
+			}
+
 			if (isMaximizer && resultScore > alpha) 
 			{
 				alpha = resultScore;
@@ -278,7 +329,8 @@ private:
 		int sum = 0;
 		int piecesLeft = 0;
 		Position blackKingPos, whiteKingPos;
-
+		int whiteSum = 0;
+		int blackSum = 0;
 		int whitesMinorPieceThreaths = 0;
 		int blacksMinorPieceThreaths = 0;
 
@@ -381,6 +433,12 @@ private:
 				}
 
 				sum += sign * current;
+				if (whitePiece) {
+					whiteSum += current;
+				}
+				else {
+					blackSum += current;
+				}
 			}
 		}
 
@@ -392,19 +450,33 @@ private:
 		sum += minorPiecesThreatheningPoints(whitesMinorPieceThreaths);
 		sum -= minorPiecesThreatheningPoints(blacksMinorPieceThreaths);
 
-		//This part is not from original Danielsen Heuristic, but added to handle endgame better
+		//This part is from original Danielsen Heuristic, added to handle endgame better
 		//---------------------------------------------------
-		bool isEndgame = piecesLeft < ENDGAME_PIECES_THRESHOLD;
+		bool isEndgame = (whiteSum <= ENDGAME_SCORE_THRESHOLD || blackSum <= ENDGAME_SCORE_THRESHOLD);
 		if (isEndgame) {
-			//Best to keep the king in the middle - effect is stronger, the fewer pieces are left
-			int whiteKingDist = MoveUtil::manhattanDistFromMiddle(whiteKingPos);
-			int blackKingDist = MoveUtil::manhattanDistFromMiddle(blackKingPos);
 
-			//Award white points for black kings distance
-			sum += (ENDGAME_PIECES_THRESHOLD - piecesLeft) * blackKingDist * 10;
+			int whiteDistFromCenter = MoveUtil::manhattanDistFromMiddle(whiteKingPos);
+			int blackDistFromCenter = MoveUtil::manhattanDistFromMiddle(blackKingPos);
+			whiteSum -= 1 * whiteDistFromCenter;
+			blackSum -= 1 * blackDistFromCenter;
+			sum += -1 * whiteDistFromCenter;
+			sum -= -1 * blackDistFromCenter;
 
-			//Award black points for white kings distance
-			sum -= (ENDGAME_PIECES_THRESHOLD - piecesLeft) * whiteKingDist * 10;
+			bool isMating = (whiteSum <= MATING_SCORE_THRESHOLD || blackSum <= MATING_SCORE_THRESHOLD);
+			if (isMating) {
+				int distBetweenKings = std::abs((int)whiteKingPos.x-(int)blackKingPos.x) + std::abs((int)whiteKingPos.y - (int)blackKingPos.y);
+
+				if (whiteSum >= blackSum) {//white winning
+					sum -= -8 * blackDistFromCenter;
+					sum += -2 * distBetweenKings;
+				}
+				else { //black winning
+					sum += -8 * whiteDistFromCenter;
+					sum -= -2 * distBetweenKings;
+
+				}
+
+			}
 		}
 
 		//---------------------------------------------------
@@ -437,9 +509,15 @@ private:
 
 	static inline std::vector<Move> previousBestMoves;
 
+	static inline bool searching = false;
+
+	static inline bool stopSearch = false;
+
 	constexpr static int ENDGAME_WINNER_SCORE_THRESHOLD  = 500;
 
-	constexpr static int ENDGAME_PIECES_THRESHOLD  = 8;
+	constexpr static int ENDGAME_SCORE_THRESHOLD  = 1500;
+
+	constexpr static int MATING_SCORE_THRESHOLD = 600;
 
 	constexpr static int DRAW_SCORE  = 0;
 

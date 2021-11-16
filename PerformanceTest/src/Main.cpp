@@ -92,8 +92,9 @@ void runTestCase(TestCase testCase) {
 
         for( int i=0; i < SAMPLES; i++ ) {
             out << " Sample " << (i+1) << ".. " << std::flush;
+
             previousStateHashes.clear();
-            samples[i] = MinMaxSearcher::search(testCase.state, depth, previousStateHashes);
+            samples[i] = MinMaxSearcher::searchToDepth(testCase.state, depth, previousStateHashes);
 
             averageSample.searchTime += samples[i].searchTime;
             averageSample.staticEvaluations += samples[i].staticEvaluations;
