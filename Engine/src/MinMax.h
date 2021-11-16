@@ -190,8 +190,8 @@ private:
 		if (drawBy3FoldRep ||drawBy50Moves) {
 			return { Move(), DRAW_SCORE };
 		}
-		//Check Transpotable
 		
+		//Check Transpotable
 		if (Transposition::isEntry(hash)) {
 			return { Move(), Transposition::getScore(hash)};
 		}

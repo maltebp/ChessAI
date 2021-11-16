@@ -1,7 +1,7 @@
 #pragma once
 namespace Transposition {
 
-	const size_t INDEX_BITS = 22;
+	const size_t INDEX_BITS = 26;
 
 	static constexpr unsigned long long getIndexMask() {
 		unsigned long long mask = 0;
@@ -15,7 +15,7 @@ namespace Transposition {
 		return mask;
 	}
 
-	constexpr int size = getIndexMask() + 1;
+	constexpr size_t SIZE = getIndexMask() + 1;
 
 	static unsigned long long hashToIndex(unsigned long long hash) {
 		return hash & getIndexMask();
@@ -26,11 +26,11 @@ namespace Transposition {
 		short score;
 	};
 	static short tableCounter = 1;
-	static TranspositionEntry table[size];
+	static TranspositionEntry table[SIZE];
 
 	static void initTranspositionTable() {
 		tableCounter = 1;
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < SIZE; i++) {
 			table[i].entryCounter = 0;
 		}
 	}
