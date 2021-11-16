@@ -47,7 +47,7 @@ public:
         }
 
         if (useOpeningBook) {
-            srand(time(NULL));
+            srand((unsigned int)time(NULL));
             std::vector<BookMoves::Node*> bookmoves;
             if (currentBookMove == NULL) {
                 BookMoves::initTree();

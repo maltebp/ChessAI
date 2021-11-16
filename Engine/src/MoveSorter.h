@@ -3,12 +3,13 @@
 #include "MoveUtil.h"
 #include <algorithm>
 #include <array>
+#include "Transposition.h"
 
 
 class MoveSorter {
 	struct element {
 		Move move;
-		int benefit;
+		int benefit = 0;
 	};
 
 	const static int lastMovedCaptureBonus = 1000;
@@ -105,7 +106,7 @@ public:
 		}
 	}
 
-	static Move bringMoveToFront(MoveUtil::GenerationList& moves, Move& move) {
+	static void bringMoveToFront(MoveUtil::GenerationList& moves, Move& move) {
 		bool foundIt = false;
 		for (int i = 0; i < moves.size(); i++) {
 			if (moves[i] == move) {
