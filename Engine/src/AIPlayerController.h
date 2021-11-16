@@ -29,6 +29,7 @@ public:
     void start(std::ostream* outputStream, std::ostream* errorStream) override {
         *outputStream << "Starting Our Engine" << std::endl;
         *outputStream << "Search depth: " << searchTime << std::endl;
+        srand((unsigned int)time(NULL));
     }
 
 
@@ -48,7 +49,6 @@ public:
         }
 
         if (useOpeningBook) {
-            srand(time(NULL));
             std::vector<BookMoves::Node*> bookmoves;
             if (currentBookMove == NULL) {
                 BookMoves::initTree();
