@@ -14,19 +14,19 @@ namespace Transposition {
 			table[i].entryCounter = 0;
 		}
 	}
-	static void insertEntry(long long hash, short score) {
+	static void insertEntry(unsigned long long hash, short score) {
 		table[hash].entryCounter = tableCounter;
 		table[hash].score = score;
 	}
 
-	static bool isEntry(long long hash) { // if it already exists for this counter it'll 
+	static bool isEntry(unsigned long long hash) { // if it already exists for this counter it'll 
 		//return true. if it hasn't been explored yet it returns false.
 		if (table[hash].entryCounter == tableCounter) {
 			return true;
 		}
 		return false;
 	}
-	static short getScore(long long hash) {
+	static short getScore(unsigned long long hash) {
 		return table[hash].score;
 	}
 
