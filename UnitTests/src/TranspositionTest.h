@@ -11,7 +11,7 @@ TEST_CASE("InitTable", "[Transposition]") {
     Transposition::initTranspositionTable();
 
     REQUIRE(Transposition::tableCounter == 1);
-    for (int i = 0; i < Transposition::size; i++) {
+    for (int i = 0; i < Transposition::SIZE; i++) {
         if (Transposition::table[i].entryCounter != 0){ 
             REQUIRE(false); 
         }
