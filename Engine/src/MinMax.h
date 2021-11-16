@@ -4,7 +4,11 @@
 #include <limits>
 #include <chrono>
 
+#include "DynamicAllocation.h"
 #include "MoveUtil.h"
+#include "MoveSorter.h"
+#include "Zobrist.h"
+
 
 
 const static double pawnFieldValuesForWhite[8][8] = {
@@ -32,6 +36,7 @@ public:
 		unsigned long long checkmates = 0;
 		unsigned long long draws = 0;
 		unsigned long long staticEvaluations = 0;
+		unsigned long long dynamicAllocations = 0;
 
 	};
 	
@@ -39,18 +44,35 @@ public:
 public:
 
 
-	static Result search(const State& state, int depth) {
+	static Result search(const State& state, int depth, const std::vector<unsigned long long>& previousStateHashes) {
 		Result result;
 
+	    unsigned long long numAllocationsAtStart = DynamicAllocation::numAllocations;
+		MinMaxSearcher::previousStateHashes = previousStateHashes;
 	    auto startTime = std::chrono::system_clock::now();
-
-		auto [move, score] = searchInternal(state, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), result);
+		Move bestMove;
+		for (int i = 1; i <= depth; i++) {
+			bool useMoveSequence = i > 1;
+			auto [move, score] = searchInternal(
+				state, 
+				i, 
+				0, 
+				std::numeric_limits<int>::min(), 
+				std::numeric_limits<int>::max(), 
+				result, 
+				useMoveSequence
+			);
+			bestMove = move;
+			previousBestMoves = moveList;
+			moveList.clear();
+		}
 
     	auto endTime = std::chrono::system_clock::now();
     	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
 
-		result.bestMove = move;		
+		result.bestMove = bestMove;		
 		result.searchTime = elapsed.count() / 1000.0;
+		result.dynamicAllocations = DynamicAllocation::numAllocations - numAllocationsAtStart;
 
 		return result;
 	}
@@ -58,45 +80,81 @@ public:
 
 private:
 
+	static void deleteElementsBetween(std::vector<Move>& v, size_t startIndex, size_t endIndex) {
+		if( startIndex >= endIndex ) return;
+		v.erase(v.begin() + startIndex, v.begin() + endIndex ); 
+	}
+
+	static std::tuple<Move, int> noMovesPossibleScore(const State& state, int remainingDepth, Result& result) {
+		//In this case it is either a draw of a loss or current player
+		bool isMaximizer = state.turn % 2 == 0;
+		PieceColor colorToMove = state.turn % 2 == 0 ? PieceColor::WHITE : PieceColor::BLACK;
+		Position kingPosition = state.getPiecePosition({ colorToMove, PieceType::KING });
+		bool kingIsThreathened = MoveUtil::isFieldThreatened(state, kingPosition, isMaximizer);
+
+		if (kingIsThreathened) {
+			//If king is threathened - it is check mate
+
+			//Adjust score with depth, so quick mate is preferred no matter the other factors
+			int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (remainingDepth * VERY_LARGE_POINT_BONUS);
+			int score = isMaximizer ? -scoreValue : scoreValue;
+
+			result.checkmates++;
+
+			return { Move(), score };
+		}
+		else {
+			//Else it is a draw
+			result.draws++;
+			return { Move(), DRAW_SCORE };
+		}
+	}
 	
-	static std::tuple<Move, int> searchInternal(const State& state, int depth, int alpha, int beta, Result& result) {
-
+	static std::tuple<Move, int> searchInternal(
+		const State& state, 
+		int remainingDepth, 
+		int currentDepth, 
+		int alpha, 
+		int beta, 
+		Result& result, 
+		bool useMoveSequence
+	) {
+		//Bookkeeping
+		size_t startIndex = moveList.size();
 		result.nodesVisited++;
+		bool isMaximizer = state.turn % 2 == 0;
 
-		//Base case: Leaf node
-		if (depth == 0) {
+		//--------------------------------BASE CASES---------------------------------------------------------------
+		//Leaf node
+		if (remainingDepth == 0) {
+			bool mateOrStalemate = MoveUtil::anyMovePossible(state);
+			if (mateOrStalemate) {
+				return noMovesPossibleScore(state, remainingDepth, result);
+			}
+
 			result.staticEvaluations++;
 			int score = danielsenHeuristic(state);
 			return { Move(), score };
 		}
 
-		bool isMaximizer = state.turn % 2 == 0;
+		//Draw rules
+		bool drawBy50Moves = state.drawCounter > 49;
+		unsigned long long hash = Zobrist::calcHashValue(state.board);
+		bool drawBy3FoldRep = getNumOfTimesContained(hash, previousStateHashes, isMaximizer) == 2;
+		if (drawBy3FoldRep ||drawBy50Moves) {
+			return { Move(), DRAW_SCORE };
+		}
+		
+
+		//----------------------------------SEARCH SUBTREE-------------------------------------------------------------
+		previousStateHashes.push_back(hash);
 
 		//Get all possible moves
-		std::vector<Move> moves = MoveUtil::getAllMoves(state);
+		MoveUtil::GenerationList moves;
+		MoveUtil::getAllMoves(state, moves);
 
 		if (moves.size() == 0) {
-			//In this case it is either a draw of a loss or current player
-			PieceColor colorToMove = isMaximizer ? PieceColor::WHITE : PieceColor::BLACK;
-			Position kingPosition = state.getPiecePosition({ colorToMove, PieceType::KING });
-			bool kingIsThreathened = MoveUtil::isFieldThreatened(state, kingPosition, isMaximizer);
-
-			if (kingIsThreathened) {
-				//If king is threathened - it is check mate
-
-				//Adjust score with depth, so quick mate is preferred no matter the other factors
-				int scoreValue = MAX_SCORE - EVEN_LARGER_POINT_BONUS + (depth *VERY_LARGE_POINT_BONUS);
-				int score = isMaximizer ? -scoreValue : scoreValue;
-
-				result.checkmates++;
-				
-				return { Move(), score };
-			}
-			else {
-				//Else it is a draw
-				result.draws++;
-				return { Move(), DRAW_SCORE };
-			}
+			return noMovesPossibleScore(state, remainingDepth, result);
 		}
 
 		// Branching factor is average of all nodes
@@ -104,12 +162,20 @@ private:
 		result.branchingFactor =
 			currentBranchingFactor + (moves.size() - currentBranchingFactor) / result.nodesVisited;
 
+		Move bestMoveFromPrevious = Move();
+		if (useMoveSequence) {
+			bestMoveFromPrevious = previousBestMoves[currentDepth];
+		}
+
+		//Sort the list of moves according to moveorder heuristic
+		MoveSorter::sortMoves(state, moves, bestMoveFromPrevious);
+
 		Move bestMove;
 		for(int i=0; i<moves.size(); i++) {
             Move move = moves[i];
 
 			if (alpha >= beta) {
-				unsigned int numCutOffs = moves.size() - i;
+				size_t numCutOffs = moves.size() - i;
 				double currentCutOffFactor = result.cutOffFactor;
 				result.cutOffFactor =
 					currentCutOffFactor + (numCutOffs - currentCutOffFactor) / result.nodesVisited;
@@ -117,23 +183,40 @@ private:
 				break;
 			}
 
+			size_t currentIndex = moveList.size();
+			moveList.push_back(move);
+
 			State resultState = MoveUtil::executeMove(state, move);
 
-			auto [resultMove, resultScore] = searchInternal(resultState, depth - 1, alpha, beta, result);
+			bool useMoveSequenceAgain = useMoveSequence && move == bestMoveFromPrevious && remainingDepth -1 > 1;
+			auto [resultMove, resultScore] = searchInternal(
+				resultState, 
+				remainingDepth - 1, currentDepth+1, 
+				alpha, 
+				beta, 
+				result, 
+				useMoveSequenceAgain);
 			if (isMaximizer && resultScore > alpha) 
 			{
 				alpha = resultScore;
 				bestMove = move;
+
+				deleteElementsBetween(moveList, startIndex, currentIndex);
 			} else if (!isMaximizer && resultScore < beta) 
 			{
 				beta = resultScore;
 				bestMove = move;
+
+				deleteElementsBetween(moveList, startIndex, currentIndex);
+			} else {
+				deleteElementsBetween(moveList, currentIndex, moveList.size());
 			}
 
 		}
 
+		//Pop this state from previousStateHashes
+		previousStateHashes.pop_back();
 		int score = isMaximizer ? alpha : beta;
-
 		return { bestMove,score };
 	}
 
@@ -180,6 +263,9 @@ private:
 	}
 
 	static int danielsenHeuristic(const State& state) {
+		static std::vector<Position> slidingPositions;
+		
+
 		int sum = 0;
 		int piecesLeft = 0;
 		Position blackKingPos, whiteKingPos;
@@ -191,6 +277,7 @@ private:
 		int current;
 		for (unsigned int i = 0; i < 8; i++) {
 			for (unsigned int j = 0; j < 8; j++) {
+				slidingPositions.clear();
 				current = 0;
 				Piece piece = state.board[i][j];
 				int sign = piece.getColor() == PieceColor::WHITE ? 1 : -1;
@@ -213,7 +300,8 @@ private:
 				}
 				case PieceType::QUEEN:
 				{
-					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
+					int controlledSquares = (int) slidingPositions.size();
 					current = 900 + 1 * controlledSquares;
 					minorPieceThreathening = MoveUtil::isRooksThreathening(state, pos, whitePiece)
 						|| MoveUtil::isBishopThreathening(state, pos, whitePiece)
@@ -225,7 +313,8 @@ private:
 				}
 				case PieceType::ROOK:
 				{
-					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
+					int controlledSquares = (int) slidingPositions.size();
 					current = (int)(500 + 1.5 * controlledSquares);
 					minorPieceThreathening = MoveUtil::isBishopThreathening(state, pos, whitePiece)
 						|| MoveUtil::isKnightThreathening(state, pos, whitePiece)
@@ -235,7 +324,8 @@ private:
 				}
 				case PieceType::BISHOP:
 				{
-					int controlledSquares = MoveUtil::getAllSliderPositionsForPiece(state, pos, piece).size();
+					MoveUtil::getAllSliderPositionsForPiece(state, pos, piece, slidingPositions);
+					int controlledSquares = (int) slidingPositions.size();
 					current = 300 + 2 * controlledSquares;
 					minorPieceThreathening = MoveUtil::isPawnThreathening(state, pos, whitePiece);
 					piecesLeft++;
@@ -254,7 +344,7 @@ private:
 				{
 					//This conversion mirrors the field-positions-board, if piece is black
 					int yvalue = piece.getColor() == PieceColor::WHITE ? pos.y : 7 - pos.y;
-					current = 100 + pawnFieldValuesForWhite[pos.x][yvalue];
+					current = 100 + (int) pawnFieldValuesForWhite[pos.x][yvalue];
 
 					//Double pawns - check if there is a pawn of my own color in front of me
 					//(It doesn't matter that we look in the same way for black and white, and we cannot go out of the board this way)
@@ -317,7 +407,26 @@ private:
 		return num == 0 ? 2 : num == 1 ? -10 : -50;
 	}
 
+	static int getNumOfTimesContained(unsigned long long hash, std::vector<unsigned long long> hashes, bool whitesTurn) {
+		//White only looks at even indices. Black only looks at uneven indices
+		int startIndex = whitesTurn ? 0 : 1;
+		int count = 0;
+		for (int i = startIndex; i < hashes.size(); i = i+2) {
+			if (hashes[i] == hash) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 private:
+
+
+	static inline std::vector<unsigned long long> previousStateHashes;
+
+	static inline std::vector<Move> moveList;
+
+	static inline std::vector<Move> previousBestMoves;
 
 	constexpr static int ENDGAME_WINNER_SCORE_THRESHOLD  = 500;
 
