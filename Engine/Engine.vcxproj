@@ -90,6 +90,7 @@
   <ItemGroup>
     <ClInclude Include="src\DynamicAllocation.h" />
     <ClInclude Include="src\FixedVector.h" />
+    <ClInclude Include="src\Heuristic.h" />
     <ClInclude Include="src\MoveSorter.h" />
     <ClInclude Include="src\AIPlayerController.h" />
     <ClInclude Include="src\EngineArena\EngineArenaController.h" />
