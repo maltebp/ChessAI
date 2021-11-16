@@ -16,9 +16,7 @@ public:
     AIPlayerController(int searchTime, bool useOpeningBook)
         :   searchTime(searchTime),
             useOpeningBook(useOpeningBook)
-    {
-        Zobrist::initZobristTable();
-    }
+    { }
 
 
     std::string getName() override {
