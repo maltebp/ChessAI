@@ -107,7 +107,7 @@ public:
 					bool isPawnOfSameColor = pieceInFront.getColor() == piece.getColor() && pieceInFront.getType() == piece.getType();
 					if (isPawnOfSameColor) {
 						//We have a double pawn
-						current += 8;
+						current -= 8;
 					}
 					piecesLeft++;
 					break;
