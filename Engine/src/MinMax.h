@@ -189,7 +189,7 @@ private:
 		
 		//Check Transpotable
 		Transposition::TranspositionEntry entry = Transposition::getEntry(hash);
-		if (entry.depth > remainingDepth) {
+		if (entry.depth >= remainingDepth) {
 			return { entry.move, entry.score };
 		}
 		
