@@ -7,12 +7,6 @@ struct Position {
 	Position() { }
 
 
-	// Position(char x, char y)
-	// 	: 	x(x),
-	// 		y(y)
-	// { }
-
-
 	// Constructor takes an int to make construction easier. If took chars as arguments, we would
 	// need a lot of downcasting, and if we had both, construction would be ambigious
 	Position(int x, int y) 
