@@ -154,8 +154,8 @@ namespace MoveUtil {
 
 	void getPawnPromotionMoves(const State& state, Position oldPos, Piece piece, GenerationList& moves) {
 		PieceType possiblePieces[] = { PieceType::BISHOP, PieceType::KNIGHT, PieceType::QUEEN, PieceType::ROOK };
-		unsigned int yval = piece.getColor() == PieceColor::WHITE ? 7 : 0;
-		Position newPos = Position{ oldPos.x, yval };
+		int yval = piece.getColor() == PieceColor::WHITE ? 7 : 0;
+		Position newPos(oldPos.x, yval);
 
 		for (PieceType type : possiblePieces) {
 
@@ -184,7 +184,7 @@ namespace MoveUtil {
 		}
 
 		//Forward
-		Position candidatePos = { oldPos.x,oldPos.y + y_direction };
+		Position candidatePos = { oldPos.x, oldPos.y + y_direction };
 		if (candidatePos.isFieldInBoard()) {
 			bool fieldEmpty = state.board[candidatePos.x][candidatePos.y].getType() == PieceType::NONE;
 			if (fieldEmpty) {
@@ -486,14 +486,14 @@ namespace MoveUtil {
 		GenerationList moves;
 		auto colorToMove = state.getTurnColor();
 
-		for (unsigned int y = 0; y < 8; y++) {
-			for (unsigned int x = 0; x < 8; x++) {
+		for (char y = 0; y < 8; y++) {
+			for (char x = 0; x < 8; x++) {
 				Piece piece = state.board[x][y];
 				if (piece.getType() != PieceType::NONE) {
 					continue;
 				}
 				if (piece.getColor() == colorToMove) {
-					getMovesForPiece(state, piece, { x,y }, moves);
+					getMovesForPiece(state, piece, Position(x,y), moves);
 					if (moves.size() > 0) {
 						return true;
 					}
@@ -510,14 +510,14 @@ namespace MoveUtil {
 		moves.clear();
 		auto colorToMove = state.getTurnColor();
 
-		for (unsigned int y = 0; y < 8; y++) {
-			for (unsigned int x = 0; x < 8; x++) {
+		for (char y = 0; y < 8; y++) {
+			for (char x = 0; x < 8; x++) {
 				Piece piece = state.board[x][y];
 				if (piece.getType() == PieceType::NONE) {
 					continue;
 				}
 				if (piece.getColor() == colorToMove) {
-					getMovesForPiece(state, piece, { x,y }, moves);
+					getMovesForPiece(state, piece, Position(x,y), moves);
 				}
 			}
 		}

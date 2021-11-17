@@ -327,14 +327,14 @@ private:
 
 		//Pieces and their positional values
 		int current;
-		for (unsigned int i = 0; i < 8; i++) {
-			for (unsigned int j = 0; j < 8; j++) {
+		for (char i = 0; i < 8; i++) {
+			for (char j = 0; j < 8; j++) {
 				slidingPositions.clear();
 				current = 0;
 				Piece piece = state.board[i][j];
 				int sign = piece.getColor() == PieceColor::WHITE ? 1 : -1;
 				bool whitePiece = sign == 1;
-				Position pos = { i,j };
+				Position pos = { i, j };
 				bool minorPieceThreathening = false;
 				switch (piece.getType())
 				{
