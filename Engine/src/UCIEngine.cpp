@@ -17,7 +17,7 @@ using GameInfo = IPlayerController::GameInfo;
 
 // It's uncertain whether printing debug info will slow down Engine
 // (it's untested).
-constexpr bool PRINT_DEBUG_INFO = true;
+constexpr bool PRINT_DEBUG_INFO = false;
 
 
 UCIEngine::UCIEngine(std::string name, fs::path enginePath, long long searchTime)
@@ -93,6 +93,9 @@ void UCIEngine::startProcess() {
     writeToEngine("setoption name UCI_LimitStrength value true"); // Enables lower elo (default is 1359)
 
     if( PRINT_DEBUG_INFO ) {
+        writeToEngine("debug on");
+    }
+    else {
         writeToEngine("debug on");
     }
 
