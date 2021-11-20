@@ -279,6 +279,7 @@ private:
 		return { bestMove,score };
 	}
 
+
 	static int getNumOfTimesContained(unsigned long long hash, std::vector<unsigned long long> hashes, bool whitesTurn) {
 		//White only looks at even indices. Black only looks at uneven indices
 		int startIndex = whitesTurn ? 0 : 1;

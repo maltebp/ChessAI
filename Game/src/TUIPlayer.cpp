@@ -79,9 +79,9 @@ std::tuple<TurnResult, std::string> parseInput(const GameInfo& gameInfo, const s
 		unsigned long numStatesToRevert = 0; 
 		try {
 			numStatesToRevert = std::stoul(inputTokens[1]);
-		} catch (std::invalid_argument& e) {
+		} catch (std::invalid_argument&) {
 			return { {}, "Error: invalid integer argument" };
-		} catch (std::out_of_range& e) {
+		} catch (std::out_of_range&) {
 			return { {}, "Error: integer is too large" };
 		}
 

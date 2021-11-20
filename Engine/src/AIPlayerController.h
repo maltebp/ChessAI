@@ -28,6 +28,7 @@ public:
         *outputStream << "Starting Our Engine" << std::endl;
         *outputStream << "Search depth: " << searchTime << std::endl;
         MinMaxSearcher::initialize();
+        srand((unsigned int)time(NULL));
     }
 
 
@@ -47,7 +48,6 @@ public:
         }
 
         if (useOpeningBook) {
-            srand((unsigned int)time(NULL));
             std::vector<BookMoves::Node*> bookmoves;
             if (currentBookMove == NULL) {
                 BookMoves::initTree();

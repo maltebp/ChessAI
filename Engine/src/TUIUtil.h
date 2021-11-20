@@ -71,7 +71,7 @@ namespace TUIUtil {
                         ss << '|';
                     }
                     else if(x % 2 == 0) {   
-                        Position position = { (unsigned int) (x/4),(unsigned int)(y/2) };
+                        Position position = { (char)(x/4), (char)(y/2) };
                         PieceColor positionHighlight = getPositionHighlightColor(position);
 
                         char pieceChar = state[position].getAlgebraicChar();

@@ -19,7 +19,6 @@ public:
 	static int danielsenHeuristic(const State& state) {
 		static std::vector<Position> slidingPositions;
 
-
 		int sum = 0;
 		int piecesLeft = 0;
 		Position blackKingPos, whiteKingPos;
@@ -30,8 +29,8 @@ public:
 
 		//Pieces and their positional values
 		int current;
-		for (unsigned int i = 0; i < 8; i++) {
-			for (unsigned int j = 0; j < 8; j++) {
+		for (char i = 0; i < 8; i++) {
+			for (char j = 0; j < 8; j++) {
 				slidingPositions.clear();
 				current = 0;
 				Piece piece = state.board[i][j];

@@ -13,7 +13,7 @@ TEST_CASE("Pawn Moves: Start state", "[moves][pawn]") {
     
     MoveUtil::getAllMoves(state, moves);
 
-    for( unsigned int i = 0; i < 8; i++ ) {
+    for( char i = 0; i < 8; i++ ) {
         REQUIRE(moves.contains({ {i,1}, {i,2} }));
         REQUIRE(moves.contains({ {i,1}, {i,3} }));
     }
@@ -22,7 +22,7 @@ TEST_CASE("Pawn Moves: Start state", "[moves][pawn]") {
  
     MoveUtil::getAllMoves(state, moves);
 
-    for( unsigned int i = 0; i < 8; i++ ) {
+    for( char i = 0; i < 8; i++ ) {
         REQUIRE(moves.contains(Move{ {i,6}, {i,5} }));
         REQUIRE(moves.contains(Move{ {i,6}, {i,4} }));
     }

@@ -19,8 +19,8 @@ State::State(const std::string& fenString) {
 
 
 Position State::getPiecePosition(const Piece& piece) const {
-    for(unsigned int x=0; x<8; x++) {
-        for(unsigned int y=0; y<8; y++) {
+    for(char x=0; x<8; x++) {
+        for(char y=0; y<8; y++) {
             if (board[x][y] == piece) {
                 return {x,y};
             }
