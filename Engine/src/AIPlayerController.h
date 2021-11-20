@@ -25,8 +25,10 @@ public:
 
 
     void start(std::ostream* outputStream, std::ostream* errorStream) override {
-        *outputStream << "Starting Our Engine" << std::endl;
-        *outputStream << "Search depth: " << searchTime << std::endl;
+        this->outputStream = outputStream;
+        *outputStream << "\n\n------------------------------------------------------------" << std::endl;
+        *outputStream << "Starting new game!" << std::endl;
+        *outputStream << "Search time: " << searchTime << std::endl;
         srand((unsigned int)time(NULL));
     }
 
@@ -34,11 +36,20 @@ public:
     TurnResult giveTurn(const GameInfo& gameInfo) {
         TurnResult result;
         result.chosenMove = getMove(gameInfo);
+
+        *outputStream << "Chosen move: " << result.chosenMove << std::endl;
+
         return result;
     }
     
 
+private:
+
+
     Move getMove(const GameInfo& gameInfo) {
+
+        unsigned long long stateHash = Zobrist::calcHashValue(gameInfo.currentState.board);
+        *outputStream << "State: " << gameInfo.currentState.toFEN() << "  (Hash: " << stateHash << ")" << std::endl;
 
         prevStatesHashes.clear();
         for( auto& previousState : gameInfo.previousStates ) {
@@ -46,44 +57,77 @@ public:
             prevStatesHashes.push_back(hash);
         }
 
-        if (useOpeningBook) {
-            std::vector<BookMoves::Node*> bookmoves;
-            if (currentBookMove == NULL) {
-                BookMoves::initTree();
-                bookmoves = BookMoves::Node::getRoots();
-                if (gameInfo.currentState.isWhitesTurn()) { //white
-                    currentBookMove = bookmoves[rand() % bookmoves.size()];
-                    return currentBookMove->move;
-                }
-                else { // black
-                    for (int i = 0; i < bookmoves.size(); i++) {
-                        if ((bookmoves[i]->move) == gameInfo.previousMoves.back()) {
-                            currentBookMove = bookmoves[i];
-                        }
-                    }
-                    
-                    if (currentBookMove!= NULL) {
-                        currentBookMove = currentBookMove->children[rand() % currentBookMove->children.size()];
-                        return currentBookMove->move;
-                    }
-                    else useOpeningBook = false;
-                    MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(gameInfo.currentState, searchTime, prevStatesHashes);
-                    return result.bestMove;
-                }
-                
-            }
-            BookMoves::Node* last = currentBookMove->findChild(gameInfo.previousMoves.back());
-            if (last != NULL && last->children.size() > 0) {
-                currentBookMove = last->children[rand() % last->children.size()];
-                return currentBookMove->move;
-            }
-            else useOpeningBook = false;
+        BookMoves::Node* bookMove = getBookMove(gameInfo);
+        if( bookMove != nullptr ) {
+            *outputStream << "Using move from opening: " << bookMove->openingName << std::endl;
+            return bookMove->move;
+        } 
 
+        *outputStream << "Analyzing MinMax move..." << std::endl;
+
+        MinMaxSearcher::Result minmaxResult = MinMaxSearcher::searchTimed(gameInfo.currentState, searchTime, prevStatesHashes);
+
+        *outputStream << "MinMax result: " << std::endl;
+        *outputStream << "  Search time:      " << minmaxResult.searchTime << " sec" << std::endl;
+        *outputStream << "  Depths finished:  " << minmaxResult.depthsFinished << std::endl;
+        *outputStream << "  Nodes visited:    " << minmaxResult.nodesVisited << std::endl;
+        *outputStream << "  Branch factor:    " << minmaxResult.branchingFactor << std::endl;
+        *outputStream << "  Cut offs:         " << minmaxResult.cutOffFactor << std::endl;
+        *outputStream << "  Evaluations:      " << minmaxResult.staticEvaluations << std::endl;
+        *outputStream << "  Checkmates found: " << minmaxResult.checkmates << std::endl;
+        *outputStream << "  Draws found:      " << minmaxResult.draws << std::endl;
+
+        if( minmaxResult.dynamicAllocations > 0 ) {
+            *outputStream << "WARNING: MinMax did " << minmaxResult.dynamicAllocations << " dynamic allocation(s)!" << std::endl;
         }
 
-        MinMaxSearcher::Result result = MinMaxSearcher::searchTimed(gameInfo.currentState, searchTime, prevStatesHashes);
+        return minmaxResult.bestMove;
+    }
 
-        return result.bestMove;
+
+    BookMoves::Node* getBookMove(const GameInfo& gameInfo) {
+
+        if( !useOpeningBook ) return nullptr;
+        
+        std::vector<BookMoves::Node*> bookmoves;
+
+        if (currentBookMove == nullptr) {
+        
+            BookMoves::initTree();
+            bookmoves = BookMoves::Node::getRoots();
+        
+            if (gameInfo.currentState.isWhitesTurn()) { //white
+                currentBookMove = bookmoves[rand() % bookmoves.size()];
+                return currentBookMove;
+            }
+            else { // black
+                for (int i = 0; i < bookmoves.size(); i++) {
+                    if ((bookmoves[i]->move) == gameInfo.previousMoves.back()) {
+                        currentBookMove = bookmoves[i];
+                    }
+                }
+                
+                if (currentBookMove != NULL) {
+                    currentBookMove = currentBookMove->children[rand() % currentBookMove->children.size()];
+                    return currentBookMove;
+                }
+                else {
+                    useOpeningBook = false;
+                    return nullptr;
+                }
+            }
+            
+        }
+        
+        BookMoves::Node* last = currentBookMove->findChild(gameInfo.previousMoves.back());
+        if (last != NULL && last->children.size() > 0) {
+            currentBookMove = last->children[rand() % last->children.size()];
+            return currentBookMove;
+        }
+        else {
+            useOpeningBook = false;
+            return nullptr;
+        }
     }
 
 
@@ -96,5 +140,7 @@ private:
     BookMoves::Node* currentBookMove = nullptr;
 
     std::vector<unsigned long long> prevStatesHashes;
+
+    std::ostream* outputStream = nullptr;
     
 };
