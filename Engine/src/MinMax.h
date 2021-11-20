@@ -22,6 +22,7 @@ public:
 		Move bestMove;
 		double searchTime = 0;
 		unsigned long long nodesVisited = 0;
+		unsigned int depthsFinished = 0;
 		double branchingFactor = 0;
 		double cutOffFactor = 0; // Cut off per node
 		unsigned long long checkmates = 0;
@@ -113,6 +114,7 @@ private:
 
 			previousBestMoves = moveList;
 			moveList.clear();
+			finishedResult.depthsFinished++;
 		}
 
     	auto endTime = std::chrono::system_clock::now();
