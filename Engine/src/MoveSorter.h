@@ -3,13 +3,16 @@
 #include "MoveUtil.h"
 #include <algorithm>
 #include <array>
+#include "Transposition.h"
 
 
 class MoveSorter {
 	struct element {
 		Move move;
-		int benefit;
+		int benefit = 0;
 	};
+
+	const static int lastMovedCaptureBonus = 1000;
 
 	static int getStaticPieceValue(PieceType type) {
 		switch (type) {
@@ -40,30 +43,36 @@ class MoveSorter {
 		bool isCapture = victim.getType() != PieceType::NONE;
 		if (isCapture) {
 			benefit = getStaticPieceValue(victim.getType()) - getStaticPieceValue(agressor.getType());
+
+			//Give bonus if captured piece is the last moved piece 
+			bool captureLastMoved = state.lastMovedPiecePosition == move.toField;
+			if (captureLastMoved) {
+				benefit += lastMovedCaptureBonus;
+			}
 		}
 		return { isCapture, benefit };
 	}
 
 public:
 
-	static void sortMoves(const State& state, MoveUtil::GenerationList& moves, Move& bestMoveFromPrevious) {
+	static void sortMoves(
+		const State& state, 
+		MoveUtil::GenerationList& moves, 
+		Move& bestMoveFromPrevious, 
+		unsigned long long stateHash) 
+	{
 
+		Move transpoTableMove = Transposition::getMove(stateHash);
+
+		bool usingBestMoveFromTranspo = transpoTableMove != Move();
 		bool usingBestFromPrevious = bestMoveFromPrevious != Move();
-		//Move bestFromPrevious to front if it is there
+
+		//Move bestFromPrevious or bestMoveFromTranspo to front if it is there 
 		if (usingBestFromPrevious) {
-			bool foundIt = false;
-			for (int i = 0; i < moves.size(); i++) {
-				if (moves[i] == bestMoveFromPrevious) {
-					foundIt = true;
-					Move tmp = moves[0];
-					moves[0] = bestMoveFromPrevious;
-					moves[i] = tmp;
-					break;
-				}
-			}
-			if (!foundIt) {
-				std::cout << "ERROR in sortMoves() - sought move was not present." << std::endl;
-			}
+			bringMoveToFront(moves, bestMoveFromPrevious);
+		}
+		else if (usingBestMoveFromTranspo) {
+			bringMoveToFront(moves, transpoTableMove);
 		}
 		
 		int lastCaptureIndex = usingBestFromPrevious ? 1 : 0;
@@ -95,5 +104,19 @@ public:
 		for (int i = sortingStartIndex; i < moves.size(); i++) {
 			moves[i] = moveElements[i].move;
 		}
+	}
+
+	static void bringMoveToFront(MoveUtil::GenerationList& moves, Move& move) {
+		bool foundIt = false;
+		for (int i = 0; i < moves.size(); i++) {
+			if (moves[i] == move) {
+				foundIt = true;
+				Move tmp = moves[0];
+				moves[0] = move;
+				moves[i] = tmp;
+				break;
+			}
+		}
+
 	}
 };

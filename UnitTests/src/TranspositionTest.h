@@ -10,11 +10,9 @@
 TEST_CASE("InitTable", "[Transposition]") {
 
     Transposition::initTranspositionTable();
-
-    REQUIRE(Transposition::tableCounter == 1);
     bool flag = true;
     for (int i = 0; i < Transposition::SIZE; i++) {
-        if (Transposition::table[i].entryCounter != 0) {
+        if (Transposition::table[i].depth != -1) {
             flag = false;
         }
     }
@@ -25,21 +23,17 @@ TEST_CASE("NewHash", "[Transposition]") {
 
     Transposition::initTranspositionTable();
 
-    Transposition::insertEntry(3,27);
+    Transposition::insertEntry(3, 27, 5, { {2,2} ,{3,3} });
 
     REQUIRE(Transposition::table[3].score == 27);
-    REQUIRE(Transposition::table[3].entryCounter == 1);
-    REQUIRE(Transposition::tableCounter == 1);
+    REQUIRE(Transposition::table[3].depth == 5);
      
-    REQUIRE(Transposition::isEntry(3));
+    REQUIRE(Transposition::isDeeper(3,6));
+    REQUIRE(!Transposition::isDeeper(3, 4));
 
-    Transposition::nextCounter();
-    REQUIRE(Transposition::table[3].score == 27);
-    REQUIRE(Transposition::tableCounter == 2);
-    REQUIRE(Transposition::table[3].entryCounter == 1);
-    Transposition::insertEntry(3, 24);
+    Transposition::insertEntry(3, 24, 7, { {2,2} ,{3,3} });
     REQUIRE(Transposition::table[3].score == 24);
-    REQUIRE(Transposition::table[3].entryCounter == 2);
+    REQUIRE(Transposition::table[3].depth == 7);
 
 }
 TEST_CASE("HashMask", "[Transposition]") {

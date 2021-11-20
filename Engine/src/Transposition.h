@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Move.h"
 
 namespace Transposition {	
 
@@ -20,11 +20,12 @@ namespace Transposition {
 	constexpr size_t SIZE = getIndexMask() + 1;
 
 	struct TranspositionEntry {
-		short entryCounter;
-		short score;
+		char depth;
+		int score;
+		Move move;
+		
 	};
 
-	extern short tableCounter;
 	
 	extern TranspositionEntry table[SIZE];
 
@@ -32,12 +33,14 @@ namespace Transposition {
 
 	unsigned long long hashToIndex(unsigned long long hash);
 
-	void insertEntry(unsigned long long hash, short score);
+	void insertEntry(unsigned long long hash, int score, char depth, Move best);
 
-	bool isEntry(unsigned long long hash);
+	bool isDeeper(unsigned long long hash, char depth);
+
+	Move getMove(unsigned long long hash);
 	
-	short getScore(unsigned long long hash);
+	int getScore(unsigned long long hash);
 
-	void nextCounter();
+	TranspositionEntry getEntry(unsigned long long hash);
 
 }

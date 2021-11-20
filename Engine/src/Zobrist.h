@@ -5,6 +5,7 @@
 namespace Zobrist {
 	static unsigned long long zobristTable[8][8][12];
 	static std::mt19937 mt(01234567);
+	static bool isInitialized = false;
 
 	//This code was inspired by the code found here: https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-5-zobrist-hashing/
 	static unsigned long long randomInt() {
@@ -20,6 +21,7 @@ namespace Zobrist {
 				}
 			}
 		}
+		isInitialized = true;
 	}
 	static int getIndex(Piece piece) {
 		switch (piece.getType()) {
@@ -52,6 +54,9 @@ namespace Zobrist {
 	}
 
 	static unsigned long long calcHashValue(const Piece board[8][8]) {
+		if (!isInitialized) {
+			initZobristTable();
+		}
 		unsigned long long tempHash = 0;
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {

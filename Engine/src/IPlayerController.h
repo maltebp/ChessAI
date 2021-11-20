@@ -33,6 +33,10 @@ public:
         Move getLastWhiteMove() const {
             if( previousMoves.size() == 0 ) return Move();
             size_t lastTurnIndex = previousMoves.size() - (currentState.isWhitesTurn() ? 2 : 1);
+            bool outOfRange = lastTurnIndex < 0 || lastTurnIndex >= previousMoves.size();
+            if (outOfRange) {
+                return Move();
+            }
             return previousMoves[lastTurnIndex];
         }
 
@@ -40,12 +44,20 @@ public:
         Move getLastBlackMove() const {
             if( previousMoves.size() < 2 ) return Move();
             size_t lastTurnIndex = previousMoves.size() - (currentState.isWhitesTurn() ? 1 : 2);
+            bool outOfRange = lastTurnIndex < 0 || lastTurnIndex >= previousMoves.size();
+            if (outOfRange) {
+                return Move();
+            }
             return previousMoves[lastTurnIndex];
         }
 
         Piece getLastMovedWhitePiece() const {
             if( previousMoves.size() == 0 ) return Piece();
             size_t lastTurnIndex = previousMoves.size() - (currentState.isWhitesTurn() ? 2 : 1);
+            bool outOfRange = lastTurnIndex < 0 || lastTurnIndex >= previousMoves.size();
+            if (outOfRange) {
+                return Piece();
+            }
 
             const Move& lastMove = previousMoves[lastTurnIndex];
             const State& lastState = previousStates[lastTurnIndex];
@@ -55,6 +67,10 @@ public:
         Piece getLastMovedBlackPiece() const {
             if( previousMoves.size() == 0 ) return Piece();
             size_t lastTurnIndex = previousMoves.size() - (currentState.isWhitesTurn() ? 1 : 2);
+            bool outOfRange = lastTurnIndex < 0 || lastTurnIndex >= previousMoves.size();
+            if (outOfRange) {
+                return Piece();
+            }
 
             const Move& lastMove = previousMoves[lastTurnIndex];
             const State& lastState = previousStates[lastTurnIndex];
