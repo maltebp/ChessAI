@@ -36,6 +36,8 @@ public:
 
     TurnResult giveTurn(const GameInfo& gameInfo) {
         TurnResult result;
+
+        *outputStream << "\n";
         result.chosenMove = getMove(gameInfo);
 
         *outputStream << "Chosen move: " << result.chosenMove << std::endl;
@@ -69,14 +71,18 @@ private:
         MinMaxSearcher::Result minmaxResult = MinMaxSearcher::searchTimed(gameInfo.currentState, searchTime, prevStatesHashes);
 
         *outputStream << "MinMax result: " << std::endl;
-        *outputStream << "  Search time:      " << minmaxResult.searchTime << " sec" << std::endl;
-        *outputStream << "  Depths finished:  " << minmaxResult.depthsFinished << std::endl;
-        *outputStream << "  Nodes visited:    " << minmaxResult.nodesVisited << std::endl;
-        *outputStream << "  Branch factor:    " << minmaxResult.branchingFactor << std::endl;
-        *outputStream << "  Cut offs:         " << minmaxResult.cutOffFactor << std::endl;
-        *outputStream << "  Evaluations:      " << minmaxResult.staticEvaluations << std::endl;
-        *outputStream << "  Checkmates found: " << minmaxResult.checkmates << std::endl;
-        *outputStream << "  Draws found:      " << minmaxResult.draws << std::endl;
+        *outputStream << "  Search time:       " << minmaxResult.searchTime << " sec" << std::endl;
+        *outputStream << "  Depths finished:   " << minmaxResult.depthsFinished << std::endl;
+        *outputStream << "  Nodes visited:     " << minmaxResult.nodesVisited << std::endl;
+        *outputStream << "  Branch factor:     " << minmaxResult.branchingFactor << std::endl;
+        *outputStream << "  Cut offs:          " << minmaxResult.cutOffFactor << std::endl;
+        *outputStream << "  Evaluations:       " << minmaxResult.staticEvaluations << std::endl;
+        *outputStream << "  Checkmates found:  " << minmaxResult.checkmates << std::endl;
+        *outputStream << "  Draws found:       " << minmaxResult.draws << std::endl;
+        *outputStream << "  Trans. hits:       " << minmaxResult.transpositionHits << std::endl;
+        *outputStream << "  trans. near hits:  " << minmaxResult.transpositionNearHits << std::endl;
+        *outputStream << "  Trans. collisions: " << minmaxResult.transpositionCollisions << std::endl;
+        *outputStream << "  Trans. overwrites: " << minmaxResult.transpositionOverwrites << std::endl;
 
         if( minmaxResult.dynamicAllocations > 0 ) {
             *outputStream << "WARNING: MinMax did " << minmaxResult.dynamicAllocations << " dynamic allocation(s)!" << std::endl;
