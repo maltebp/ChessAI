@@ -23,8 +23,10 @@ namespace Transposition {
         InsertResult result;
         unsigned long long index = hashToIndex(hash);
 
-        if( table[index].depth != 0 ) {
+        if( table[index].depth >= 0 && table[index].hash != hash ) {
             result.collision = true;
+
+            if( table[index].depth >= depth ) return result;
         }
         
         table[index].depth = depth;
@@ -32,7 +34,6 @@ namespace Transposition {
         table[index].move = best;
         table[index].hash = hash;
 
-        // Current implementation always overwrites. This may be changed soon
         result.inserted = true;
 
         return result;
