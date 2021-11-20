@@ -479,7 +479,7 @@ private:
 		return num == 0 ? 2 : num == 1 ? -10 : -50;
 	}
 
-	static int getNumOfTimesContained(unsigned long long hash, std::vector<unsigned long long> hashes, bool whitesTurn) {
+	static int getNumOfTimesContained(unsigned long long hash, const std::vector<unsigned long long>& hashes, bool whitesTurn) {
 		//White only looks at even indices. Black only looks at uneven indices
 		int startIndex = whitesTurn ? 0 : 1;
 		int count = 0;
