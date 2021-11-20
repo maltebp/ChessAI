@@ -20,7 +20,8 @@ namespace Transposition {
 	constexpr size_t SIZE = getIndexMask() + 1;
 
 	struct TranspositionEntry {
-		char depth = 0;
+		unsigned long long hash = 0;
+		char depth = -1;
 		int score = 0;
 		Move move = Move();
 	};

@@ -9,7 +9,7 @@ namespace Transposition {
     
     void initTranspositionTable() {
         for (int i = 0; i < SIZE; i++) {
-            table[i].depth = -1;
+            table[i] = TranspositionEntry();
         }
     }
 
@@ -30,6 +30,7 @@ namespace Transposition {
         table[index].depth = depth;
         table[index].score = score;
         table[index].move = best;
+        table[index].hash = hash;
 
         // Current implementation always overwrites. This may be changed soon
         result.inserted = true;

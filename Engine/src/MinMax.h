@@ -197,7 +197,7 @@ private:
 		// Transposition table
 		Transposition::TranspositionEntry transpositionEntry = Transposition::getEntry(hash);
 
-		if( transpositionEntry.move != Move() && moves.contains(transpositionEntry.move) ) {
+		if( transpositionEntry.hash == hash && transpositionEntry.move != Move() && moves.contains(transpositionEntry.move) ) {
 			if( transpositionEntry.depth >= remainingDepth) {
 				result.transpositionHits++;
 				return { transpositionEntry.move, transpositionEntry.score };
