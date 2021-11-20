@@ -107,6 +107,7 @@
     <ClInclude Include="src\MinMax.h" />
     <ClInclude Include="src\Move.h" />
     <ClInclude Include="src\MoveUtil.h" />
+    <ClInclude Include="src\NullStream.h" />
     <ClInclude Include="src\Piece.h" />
     <ClInclude Include="src\Position.h" />
     <ClInclude Include="src\Process.h" />
