@@ -266,6 +266,7 @@ ArenaController::GameResult ArenaController::runGame(unsigned int gameNum, const
 
         gameLog << "Move: " << turnResult.chosenMove << std::endl;
         gameInfo.previousStates.push_back(gameInfo.currentState);
+        gameInfo.previousMoves.push_back(turnResult.chosenMove);
         gameInfo.currentState = MoveUtil::executeMove(gameInfo.currentState, turnResult.chosenMove);
     }    
 
