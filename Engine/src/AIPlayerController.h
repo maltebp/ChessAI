@@ -37,6 +37,8 @@ public:
 
 
     TurnResult giveTurn(const GameInfo& gameInfo) {
+        *outputStream << "\n";
+        
         TurnResult result;
         result.chosenMove = getMove(gameInfo);
 
