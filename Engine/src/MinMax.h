@@ -11,7 +11,7 @@
 #include "MoveSorter.h"
 #include "Zobrist.h"
 #include "Transposition.h"
-#include <Heuristic.h>
+#include "Heuristic.h"
 
 
 class MinMaxSearcher {

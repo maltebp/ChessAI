@@ -1,18 +1,25 @@
 #pragma once
-#include "Piece.h"
+
 #include <random>
+
+#include "Piece.h"
+
 
 namespace Zobrist {
 
 	static bool tableInitialized = false;
+
 	static unsigned long long zobristTable[8][8][12];
+
 	static std::mt19937 mt(01234567);
+
 
 	//This code was inspired by the code found here: https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-5-zobrist-hashing/
 	static unsigned long long randomInt() {
 		std::uniform_int_distribution<unsigned long long> dist(0, UINT64_MAX);
 		return dist(mt);
 	}
+
 
 	static void initZobristTable() {
 		for (int x = 0; x < 12; x++) {
@@ -24,6 +31,7 @@ namespace Zobrist {
 		}
 		tableInitialized = true;
 	}
+
 
 	static int getIndex(Piece piece) {
 		switch (piece.getType()) {
@@ -55,6 +63,7 @@ namespace Zobrist {
 		}
 	}
 
+	
 	static unsigned long long calcHashValue(const Piece board[8][8]) {
 		if( !tableInitialized ) {
 			initZobristTable();
@@ -70,4 +79,5 @@ namespace Zobrist {
 		}
 		return tempHash;
 	}
+	
 }
