@@ -104,6 +104,10 @@ void runTestCase(TestCase testCase) {
             averageSample.checkmates += samples[i].checkmates;
             averageSample.draws += samples[i].draws;
             averageSample.dynamicAllocations += samples[i].dynamicAllocations;
+            averageSample.transpositionHits += samples[i].transpositionHits;
+            averageSample.transpositionNearHits += samples[i].transpositionNearHits;
+            averageSample.transpositionCollisions += samples[i].transpositionCollisions;
+            averageSample.transpositionOverwrites += samples[i].transpositionOverwrites;
         }
 
         averageSample.searchTime /= SAMPLES;
@@ -114,6 +118,10 @@ void runTestCase(TestCase testCase) {
         averageSample.checkmates /= SAMPLES;
         averageSample.draws /= SAMPLES;
         averageSample.dynamicAllocations /= SAMPLES;
+        averageSample.transpositionHits /= SAMPLES;
+        averageSample.transpositionNearHits /= SAMPLES;
+        averageSample.transpositionCollisions /= SAMPLES;
+        averageSample.transpositionOverwrites /= SAMPLES;
 
         results.push_back(averageSample);
 
@@ -130,14 +138,19 @@ void runTestCase(TestCase testCase) {
 
         out << '\n';
         out << "    Depth " << (i+1) << ":" << std::endl;
-        out << "      Search time:    " << depthResult.searchTime << " sec" << std::endl;
-        out << "      Nodes visited:  " << depthResult.nodesVisited << std::endl;
-        out << "      Branch factor:  " << depthResult.branchingFactor << std::endl;
-        out << "      Cut offs:       " << depthResult.cutOffFactor << std::endl;
-        out << "      Evaluations:    " << depthResult.staticEvaluations << std::endl;
-        out << "      Checkmates:     " << depthResult.checkmates << std::endl;
-        out << "      Draws:          " << depthResult.draws << std::endl;
-        out << "      Num. allocs:    " << depthResult.dynamicAllocations << std::endl;
+        out << "      Search time:          " << depthResult.searchTime << " sec" << std::endl;
+        out << "      Nodes visited:        " << depthResult.nodesVisited << std::endl;
+        out << "      Branch factor:        " << depthResult.branchingFactor << std::endl;
+        out << "      Cut offs:             " << depthResult.cutOffFactor << std::endl;
+        out << "      Evaluations:          " << depthResult.staticEvaluations << std::endl;
+        out << "      Checkmates:           " << depthResult.checkmates << std::endl;
+        out << "      Draws:                " << depthResult.draws << std::endl;
+        out << "      Num. allocs:          " << depthResult.dynamicAllocations << std::endl;
+        out << "      Trans. hits:          " << depthResult.transpositionHits << std::endl;
+        out << "      trans. near hits:     " << depthResult.transpositionNearHits << std::endl;
+        out << "      Trans. collisions:    " << depthResult.transpositionCollisions << std::endl;
+        out << "      Trans. overwrites:    " << depthResult.transpositionOverwrites << std::endl;
+
 
         csvDepths 
             << testCase.id << ','

@@ -28,7 +28,10 @@ public:
 		unsigned long long draws = 0;
 		unsigned long long staticEvaluations = 0;
 		unsigned long long dynamicAllocations = 0;
-
+		unsigned long long transpositionHits = 0; // Hits where depth matched
+		unsigned long long transpositionNearHits = 0; // Hit where it was valid, but depth did not match
+		unsigned long long transpositionCollisions = 0;
+		unsigned long long transpositionOverwrites = 0;
 	};
 	
 
@@ -161,13 +164,13 @@ private:
 		Result& result, 
 		bool useMoveSequence
 	) {
-		//Bookkeeping
-		size_t startIndex = moveList.size();
 		result.nodesVisited++;
+
+		size_t startIndex = moveList.size();
 		bool isMaximizer = state.turn % 2 == 0;
 
 		//--------------------------------BASE CASES---------------------------------------------------------------
-		//Leaf node
+		// Leaf node
 		if (remainingDepth == 0) {
 			bool mateOrStalemate = MoveUtil::anyMovePossible(state);
 			if (mateOrStalemate) {
@@ -179,7 +182,7 @@ private:
 			return { Move(), score };
 		}
 
-		//Draw rules
+		// Draw rules
 		bool drawBy50Moves = state.drawCounter > 49;
 		unsigned long long hash = Zobrist::calcHashValue(state.board);
 		bool drawBy3FoldRep = getNumOfTimesContained(hash, previousStateHashes, isMaximizer) == 2;
@@ -187,17 +190,20 @@ private:
 			return { Move(), DRAW_SCORE };
 		}
 		
-		//Check Transpotable
-		Transposition::TranspositionEntry entry = Transposition::getEntry(hash);
-		if (entry.depth >= remainingDepth) {
-			return { entry.move, entry.score };
+		// Transposition table
+		Transposition::TranspositionEntry transpositionEntry = Transposition::getEntry(hash);
+		if( transpositionEntry.depth >= remainingDepth) {
+			result.transpositionHits++;
+			return { transpositionEntry.move, transpositionEntry.score };
+		}
+		else if( transpositionEntry.depth != 0 ) {
+			result.transpositionNearHits++; 
 		}
 		
-
 		//----------------------------------SEARCH SUBTREE-------------------------------------------------------------
 		previousStateHashes.push_back(hash);
 
-		//Get all possible moves
+		// Get all possible moves
 		MoveUtil::GenerationList moves;
 		MoveUtil::getAllMoves(state, moves);
 
@@ -217,7 +223,7 @@ private:
 			}
 		}
 
-		//Sort the list of moves according to moveorder heuristic
+		// Sort the list of moves according to moveorder heuristic
 
 		MoveSorter::sortMoves(state, moves, bestMoveFromPrevious, hash);
 
@@ -271,11 +277,17 @@ private:
 
 		}
 
-		//Pop this state from previousStateHashes
 		previousStateHashes.pop_back();
 		int score = isMaximizer ? alpha : beta;
-		//insert in transpotable
-		Transposition::insertEntry(hash, score, remainingDepth, bestMove);
+
+		Transposition::InsertResult insertResult = Transposition::insertEntry(hash, score, remainingDepth, bestMove);
+		if( insertResult.collision ) {
+			result.transpositionCollisions++;
+			if( insertResult.inserted ) {
+				result.transpositionOverwrites++;
+			}
+		}
+
 		return { bestMove,score };
 	}
 

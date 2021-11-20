@@ -5,6 +5,7 @@ namespace Transposition {
 
     
     TranspositionEntry table[SIZE];
+
     
     void initTranspositionTable() {
         for (int i = 0; i < SIZE; i++) {
@@ -18,10 +19,22 @@ namespace Transposition {
     }
 
     
-    void insertEntry(unsigned long long hash, int score, char depth, Move best) {
-        table[hashToIndex(hash)].depth = depth;
-        table[hashToIndex(hash)].score = score;
-        table[hashToIndex(hash)].move = best;
+    InsertResult insertEntry(unsigned long long hash, int score, char depth, Move best) {
+        InsertResult result;
+        unsigned long long index = hashToIndex(hash);
+
+        if( table[index].depth != 0 ) {
+            result.collision = true;
+        }
+        
+        table[index].depth = depth;
+        table[index].score = score;
+        table[index].move = best;
+
+        // Current implementation always overwrites. This may be changed soon
+        result.inserted = true;
+
+        return result;
     }
 
 
@@ -32,6 +45,7 @@ namespace Transposition {
         return false;
     }
 
+    
     Move getMove(unsigned long long hash) { 
         if (table[hashToIndex(hash)].depth != -1) {
             return table[hashToIndex(hash)].move;
@@ -44,7 +58,9 @@ namespace Transposition {
         return table[hashToIndex(hash)].score;
     }
 
+
     TranspositionEntry getEntry(unsigned long long hash) {
         return table[hashToIndex(hash)];
     }
+
 }

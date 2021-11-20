@@ -20,12 +20,15 @@ namespace Transposition {
 	constexpr size_t SIZE = getIndexMask() + 1;
 
 	struct TranspositionEntry {
-		char depth;
-		int score;
-		Move move;
-		
+		char depth = 0;
+		int score = 0;
+		Move move = Move();
 	};
 
+	struct InsertResult {
+		bool inserted = false;
+		bool collision = false;
+	};
 	
 	extern TranspositionEntry table[SIZE];
 
@@ -33,7 +36,7 @@ namespace Transposition {
 
 	unsigned long long hashToIndex(unsigned long long hash);
 
-	void insertEntry(unsigned long long hash, int score, char depth, Move best);
+	InsertResult insertEntry(unsigned long long hash, int score, char depth, Move best);
 
 	bool isDeeper(unsigned long long hash, char depth);
 
