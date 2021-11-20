@@ -7,7 +7,7 @@
 #include <limits>
 
 
-TEST_CASE("InitTable", "[Transposition]") {
+TEST_CASE("Init Table", "[transposition]") {
 
     Transposition::initTranspositionTable();
     bool flag = true;
@@ -19,7 +19,8 @@ TEST_CASE("InitTable", "[Transposition]") {
     REQUIRE(flag);
 }
 
-TEST_CASE("NewHash", "[Transposition]") {
+
+TEST_CASE("New Hash", "[transposition]") {
 
     Transposition::initTranspositionTable();
 
@@ -36,7 +37,9 @@ TEST_CASE("NewHash", "[Transposition]") {
     REQUIRE(Transposition::table[3].depth == 7);
 
 }
-TEST_CASE("HashMask", "[Transposition]") {
+
+
+TEST_CASE("Hash Mask", "[transposition]") {
 
    if( Transposition::hashToIndex(std::numeric_limits<unsigned long long int>::max())<Transposition::SIZE ){
         REQUIRE(true);
