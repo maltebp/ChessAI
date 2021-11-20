@@ -189,23 +189,26 @@ private:
 		if (drawBy3FoldRep ||drawBy50Moves) {
 			return { Move(), DRAW_SCORE };
 		}
-		
-		// Transposition table
-		Transposition::TranspositionEntry transpositionEntry = Transposition::getEntry(hash);
-		if( transpositionEntry.depth >= remainingDepth) {
-			result.transpositionHits++;
-			return { transpositionEntry.move, transpositionEntry.score };
-		}
-		else if( transpositionEntry.depth != 0 ) {
-			result.transpositionNearHits++; 
-		}
-		
-		//----------------------------------SEARCH SUBTREE-------------------------------------------------------------
-		previousStateHashes.push_back(hash);
 
 		// Get all possible moves
 		MoveUtil::GenerationList moves;
 		MoveUtil::getAllMoves(state, moves);
+		
+		// Transposition table
+		Transposition::TranspositionEntry transpositionEntry = Transposition::getEntry(hash);
+
+		if( transpositionEntry.move != Move() && moves.contains(transpositionEntry.move) ) {
+			if( transpositionEntry.depth >= remainingDepth) {
+				result.transpositionHits++;
+				return { transpositionEntry.move, transpositionEntry.score };
+			}
+			else if( transpositionEntry.depth != 0 ) {
+				result.transpositionNearHits++; 
+			}
+		}
+
+		//----------------------------------SEARCH SUBTREE-------------------------------------------------------------
+		previousStateHashes.push_back(hash);
 
 		if (moves.size() == 0) {
 			return noMovesPossibleScore(state, remainingDepth, result);
