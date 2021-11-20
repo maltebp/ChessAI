@@ -98,6 +98,8 @@
     <ClInclude Include="src\FEN.h" />
     <ClInclude Include="src\PawnMoves.h" />
     <ClInclude Include="src\PromotionMoves.h" />
+    <ClInclude Include="src\TranspositionTest.h" />
+    <ClInclude Include="src\ZobristTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp" />
