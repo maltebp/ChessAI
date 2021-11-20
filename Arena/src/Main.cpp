@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     State state = State::createDefault();
 
     UCIEngine stockfish1 = UCIEngine("Stockfish", STOCKFISH_PATH, 9975);
-    AIPlayerController ourEngine = AIPlayerController(9975, false);
+    AIPlayerController ourEngine = AIPlayerController(9975, true);
 
     // UCIEngine stockfish1 = UCIEngine("Stockfish", STOCKFISH_PATH, 250);
     // AIPlayerController ourEngine = AIPlayerController(5);
