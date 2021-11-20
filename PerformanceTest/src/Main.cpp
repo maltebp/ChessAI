@@ -94,6 +94,7 @@ void runTestCase(TestCase testCase) {
             out << " Sample " << (i+1) << ".. " << std::flush;
 
             previousStateHashes.clear();
+            MinMaxSearcher::initialize();
             samples[i] = MinMaxSearcher::searchToDepth(testCase.state, depth, previousStateHashes);
 
             averageSample.searchTime += samples[i].searchTime;
