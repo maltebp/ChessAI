@@ -106,7 +106,8 @@ void runTestCase(TestCase testCase) {
             averageSample.draws += samples[i].draws;
             averageSample.dynamicAllocations += samples[i].dynamicAllocations;
             averageSample.transpositionHits += samples[i].transpositionHits;
-            averageSample.transpositionNearHits += samples[i].transpositionNearHits;
+            averageSample.transpositionTypeMisses += samples[i].transpositionTypeMisses;
+            averageSample.transpositionDepthMisses += samples[i].transpositionDepthMisses;
             averageSample.transpositionCollisions += samples[i].transpositionCollisions;
             averageSample.transpositionOverwrites += samples[i].transpositionOverwrites;
         }
@@ -120,7 +121,8 @@ void runTestCase(TestCase testCase) {
         averageSample.draws /= SAMPLES;
         averageSample.dynamicAllocations /= SAMPLES;
         averageSample.transpositionHits /= SAMPLES;
-        averageSample.transpositionNearHits /= SAMPLES;
+        averageSample.transpositionTypeMisses /= SAMPLES;
+        averageSample.transpositionDepthMisses /= SAMPLES;
         averageSample.transpositionCollisions /= SAMPLES;
         averageSample.transpositionOverwrites /= SAMPLES;
 
@@ -148,7 +150,8 @@ void runTestCase(TestCase testCase) {
         out << "      Draws:                " << depthResult.draws << std::endl;
         out << "      Num. allocs:          " << depthResult.dynamicAllocations << std::endl;
         out << "      Trans. hits:          " << depthResult.transpositionHits << std::endl;
-        out << "      trans. near hits:     " << depthResult.transpositionNearHits << std::endl;
+        out << "      Trans. type miss:     " << depthResult.transpositionTypeMisses << std::endl;
+        out << "      Trans. depth miss:    " << depthResult.transpositionDepthMisses << std::endl;
         out << "      Trans. collisions:    " << depthResult.transpositionCollisions << std::endl;
         out << "      Trans. overwrites:    " << depthResult.transpositionOverwrites << std::endl;
 

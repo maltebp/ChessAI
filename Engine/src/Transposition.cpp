@@ -19,7 +19,7 @@ namespace Transposition {
     }
 
     
-    InsertResult insertEntry(unsigned long long hash, int score, char depth, Move best) {
+    InsertResult insertEntry(unsigned long long hash, char depth, TranspositionEntry::Type type, int score, Move best) {
         InsertResult result;
         unsigned long long index = hashToIndex(hash);
 
@@ -30,6 +30,7 @@ namespace Transposition {
         }
         
         table[index].depth = depth;
+        table[index].type = type;
         table[index].score = score;
         table[index].move = best;
         table[index].hash = hash;

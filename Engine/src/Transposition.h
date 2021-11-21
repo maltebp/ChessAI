@@ -20,9 +20,16 @@ namespace Transposition {
 	constexpr size_t SIZE = getIndexMask() + 1;
 
 	struct TranspositionEntry {
+
+		enum class Type : int8_t {
+			EXACT,
+			BETTER
+		};
+
 		unsigned long long hash = 0;
 		char depth = -1;
-		int score = 0;
+		Type type = Type::EXACT;
+		int score = 0;		
 		Move move = Move();
 	};
 
@@ -37,7 +44,7 @@ namespace Transposition {
 
 	unsigned long long hashToIndex(unsigned long long hash);
 
-	InsertResult insertEntry(unsigned long long hash, int score, char depth, Move best);
+	InsertResult insertEntry(unsigned long long hash, char depth, TranspositionEntry::Type type, int score, Move best);
 
 	bool isDeeper(unsigned long long hash, char depth);
 

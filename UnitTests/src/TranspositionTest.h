@@ -24,7 +24,7 @@ TEST_CASE("New Hash", "[transposition]") {
 
     Transposition::initTranspositionTable();
 
-    Transposition::insertEntry(3, 27, 5, { {2,2} ,{3,3} });
+    Transposition::insertEntry(3, 5, Transposition::TranspositionEntry::Type::EXACT, 27, { {2,2} ,{3,3} });
 
     REQUIRE(Transposition::table[3].score == 27);
     REQUIRE(Transposition::table[3].depth == 5);
@@ -32,7 +32,7 @@ TEST_CASE("New Hash", "[transposition]") {
     REQUIRE(Transposition::isDeeper(3,6));
     REQUIRE(!Transposition::isDeeper(3, 4));
 
-    Transposition::insertEntry(3, 24, 7, { {2,2} ,{3,3} });
+    Transposition::insertEntry(3, 7, Transposition::TranspositionEntry::Type::EXACT, 24, { {2,2},{3,3} });
     REQUIRE(Transposition::table[3].score == 24);
     REQUIRE(Transposition::table[3].depth == 7);
 

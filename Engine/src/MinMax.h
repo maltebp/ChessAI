@@ -30,23 +30,14 @@ public:
 		unsigned long long staticEvaluations = 0;
 		unsigned long long dynamicAllocations = 0;
 		unsigned long long transpositionHits = 0; // Hits where depth matched
-		unsigned long long transpositionNearHits = 0; // Hit where it was valid, but depth did not match
+		unsigned long long transpositionTypeMisses = 0; // Hit where it was valid, but depth did not match
+		unsigned long long transpositionDepthMisses = 0; // Hit where it was valid, but depth did not match
 		unsigned long long transpositionCollisions = 0;
 		unsigned long long transpositionOverwrites = 0;
 	};
 
 
 	struct NodeResult {
-
-		enum class Type {
-			NONE,
-			EXACT, // This is the exact score
-			BETTER,  // The exact score is better than this score
-			WORSE	 // The exact score is worse than this score
-			// Better/Worse has different meaning depending on whether it is a maximizer or minimizer
-		};
-
-		Type type = Type::NONE;
 
 		int score = 0;
 
@@ -131,8 +122,7 @@ private:
 				useMoveSequence
 			);
 
-			if( (useInterrupted || !stopSearch) && rootResult.type == NodeResult::Type::EXACT ){
-				assert(rootResult.move != Move());
+			if( (useInterrupted || !stopSearch) && rootResult.move != Move() ){
 				currentResult.bestMove = rootResult.move;
 				finishedResult = currentResult;
 			}
@@ -200,13 +190,13 @@ private:
 			bool mateOrStalemate = MoveUtil::anyMovePossible(state);
 			if (mateOrStalemate) {
 				int noMovesScore = noMovesPossibleScore(state, remainingDepth, result);
-				return { NodeResult::Type::EXACT, noMovesScore, Move() };
+				return { noMovesScore, Move() };
 			}
 
 			result.staticEvaluations++;
 
 			int score = Heuristic::danielsenHeuristic(state);
-			return { NodeResult::Type::EXACT, score, Move() };
+			return { score, Move() };
 		}
 
 		// Draw rules
@@ -214,7 +204,7 @@ private:
 		unsigned long long hash = Zobrist::calcHashValue(state.board);
 		bool drawBy3FoldRep = getNumOfTimesContained(hash, previousStateHashes, isMaximizer) == 2;
 		if (drawBy3FoldRep ||drawBy50Moves) {
-			return { NodeResult::Type::EXACT, DRAW_SCORE, Move() };
+			return { DRAW_SCORE, Move() };
 		}
 
 		// Get all possible moves
@@ -224,23 +214,31 @@ private:
 		// Transposition table
 		Transposition::TranspositionEntry transpositionEntry = Transposition::getEntry(hash);
 
-		if( transpositionEntry.hash == hash && transpositionEntry.move != Move() && moves.contains(transpositionEntry.move) ) {
-			if( transpositionEntry.depth >= remainingDepth) {
-				result.transpositionHits++;
-
-				// TODO: Fix this
-				// return { transpositionEntry.move, transpositionEntry.score };
+		if( 	transpositionEntry.depth >= 0 
+			&&	transpositionEntry.hash == hash 
+			&& 	transpositionEntry.move != Move() 
+			&& 	moves.contains(transpositionEntry.move)
+		) {
+			if( transpositionEntry.type == Transposition::TranspositionEntry::Type::EXACT ) {
+				if( transpositionEntry.depth >= remainingDepth) {
+					result.transpositionHits++;
+					return { transpositionEntry.score, transpositionEntry.move };
+				}
+				else {
+					result.transpositionDepthMisses++; 
+				}
 			}
-			else if( transpositionEntry.depth != 0 ) {
-				result.transpositionNearHits++; 
+			else {
+				result.transpositionTypeMisses++;
 			}
+			
 		}
 
 		//----------------------------------SEARCH SUBTREE-------------------------------------------------------------
 
 		if (moves.size() == 0) {
 			int noMovesScore = noMovesPossibleScore(state, remainingDepth, result);
-			return { NodeResult::Type::EXACT, noMovesScore, Move() };
+			return { noMovesScore, Move() };
 		}
 
 		// Branching factor is average of all nodes
@@ -256,19 +254,14 @@ private:
 		}
 
 		// Sort the list of moves according to moveorder heuristic
-
 		MoveSorter::sortMoves(state, moves, bestMoveFromPrevious, hash);
 
 		previousStateHashes.push_back(hash);
 
-		NodeResult nodeResult;
+		int bestLocalScore = isMaximizer ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+		Move bestLocalMove = Move();
 
-		// If we find no move that is better than our starting alpha (if we are a maximizer), or beta
-		// (if we are a minimizer), then nodeResult holds information about the score that we know the
-		// the exact score is worse than.
-		nodeResult.type = NodeResult::Type::WORSE;
-		nodeResult.score = isMaximizer ? alpha : beta;
-		nodeResult.move = Move();
+		bool wasCutOff = false;
 
 		for(int i=0; i<moves.size(); i++) {
 
@@ -277,17 +270,7 @@ private:
             Move move = moves[i];
 
 			if (alpha >= beta) {
-
-				// nodeResult's move (which is the best we found so far), is now
-				// considered to be a "refutation move"
-
-				// Return the bound that the node does not touch
-				nodeResult.score = isMaximizer ? beta : alpha; 
-
-				// For the maximizer, the nodeResult.score is now the lower bound of the exact score.
-				// For the minimizer the nodeResult.score is now the upper bound of the exact score.
-				// For both it means that the exact score is better than or the same as  this nodeResult.score.
-				nodeResult.type = NodeResult::Type::BETTER;
+				wasCutOff = true;
 
 				size_t numCutOffs = moves.size() - i;
 				double currentCutOffFactor = result.cutOffFactor;
@@ -304,7 +287,7 @@ private:
 			bool useMoveSequenceAgain = useMoveSequence && move == bestMoveFromPrevious && remainingDepth -1 > 1;
 
 			NodeResult childResult = searchInternal(resultState, remainingDepth - 1, currentDepth+1, alpha, beta, result, useMoveSequenceAgain);
-			
+
 			// Considering a move from an interrupted branch may result in
 			// not choosing the optimal move.
 			if( stopSearch ) {
@@ -312,21 +295,22 @@ private:
 				break;
 			}
 
+			// Update local best move
+			if( 	 isMaximizer && childResult.score > bestLocalScore 
+				||	!isMaximizer && childResult.score < bestLocalScore
+			) {
+				bestLocalScore = childResult.score;
+				bestLocalMove = move;
+			}
+
+			// Update best alpha-beta move
 			if (isMaximizer && childResult.score > alpha) 
 			{
-				alpha = childResult.score;
-				nodeResult.score = alpha;
-				nodeResult.type = NodeResult::Type::EXACT;
-				nodeResult.move = move;
-
+				alpha = bestLocalScore;
 				deleteElementsBetween(moveList, startIndex, currentIndex);
 			} else if (!isMaximizer && childResult.score < beta) 
 			{
-				beta = childResult.score;
-				nodeResult.score = beta;
-				nodeResult.type = NodeResult::Type::EXACT;
-				nodeResult.move = move;
-
+				beta = bestLocalScore;
 				deleteElementsBetween(moveList, startIndex, currentIndex);
 			} else {
 				deleteElementsBetween(moveList, currentIndex, moveList.size());
@@ -336,16 +320,28 @@ private:
 
 		previousStateHashes.pop_back();
 
-		// TODO: Fix this
-		// Transposition::InsertResult insertResult = Transposition::insertEntry(hash, score, remainingDepth, bestMove);
-		// if( insertResult.collision ) {
-		// 	result.transpositionCollisions++;
-		// 	if( insertResult.inserted ) {
-		// 		result.transpositionOverwrites++;
-		// 	}
-		// }
+		// Update transposition entry
+		Transposition::TranspositionEntry::Type transpositionType = 
+			wasCutOff ?
+			Transposition::TranspositionEntry::Type::BETTER : 
+			Transposition::TranspositionEntry::Type::EXACT;
 
-		return nodeResult;	
+		Transposition::InsertResult transpositionInsertResult = Transposition::insertEntry(
+			hash, 
+			remainingDepth,
+			transpositionType,
+			bestLocalScore,
+			bestLocalMove
+		);
+
+		if( transpositionInsertResult.collision ) {
+			result.transpositionCollisions++;
+			if( transpositionInsertResult.inserted ) {
+				result.transpositionOverwrites++;
+			}
+		}
+
+		return { isMaximizer ? alpha : beta, bestLocalMove };	
 	}
 
 
@@ -387,5 +383,6 @@ private:
 	constexpr static int MIN_SCORE = std::numeric_limits<int>::min() + 1;
 
 };
+
 
 

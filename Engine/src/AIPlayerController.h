@@ -83,7 +83,8 @@ private:
         *outputStream << "  Checkmates found:  " << minmaxResult.checkmates << std::endl;
         *outputStream << "  Draws found:       " << minmaxResult.draws << std::endl;
         *outputStream << "  Trans. hits:       " << minmaxResult.transpositionHits << std::endl;
-        *outputStream << "  trans. near hits:  " << minmaxResult.transpositionNearHits << std::endl;
+        *outputStream << "  Trans. type miss:  " << minmaxResult.transpositionTypeMisses << std::endl;
+        *outputStream << "  Trans. depth miss: " << minmaxResult.transpositionDepthMisses << std::endl;
         *outputStream << "  Trans. collisions: " << minmaxResult.transpositionCollisions << std::endl;
         *outputStream << "  Trans. overwrites: " << minmaxResult.transpositionOverwrites << std::endl;
 
