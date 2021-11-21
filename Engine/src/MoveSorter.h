@@ -75,7 +75,7 @@ public:
 			bringMoveToFront(moves, transpoTableMove);
 		}
 		
-		int lastCaptureIndex = usingBestFromPrevious ? 1 : 0;
+		int lastCaptureIndex = usingBestFromPrevious || usingBestMoveFromTranspo ? 1 : 0;
 		int sortingStartIndex = lastCaptureIndex;
 		std::array<element, 100> moveElements;
 		//Move capture- moves to front
@@ -117,6 +117,5 @@ public:
 				break;
 			}
 		}
-
 	}
 };
