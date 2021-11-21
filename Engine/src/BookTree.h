@@ -75,7 +75,7 @@ namespace BookMoves {
 
 		Node* vienna = Node::createRoot("Vienna", { { 4, 1 }, { 4, 3 } });
 		vienna->addChild({{4,6},{4,4}});
-		vienna->children[1]->addChildren({ {{ 3, 1 }, { 3, 2 } },{{1,0},{2,2}} });
+		vienna->children[0]->addChildren({ {{ 3, 1 }, { 3, 2 } },{{1,0},{2,2}} });
 
 		Node* london = Node::createRoot("London", { { 3, 1 }, { 3, 3 } }); //d4
 		london->addChild({ {3,6},{3,4} });
@@ -86,9 +86,9 @@ namespace BookMoves {
 
 		Node* kingsIndian = Node::createRoot("King's Indian", { { 3, 1 }, { 3, 3 } }); //d4
 		kingsIndian->addChild({{6,6},{6,5}});
-		kingsIndian->children[1]->addChildren({ {{2,1},{2,3}},{{6,0},{5,2}} });
-		kingsIndian->children[1]->children[0]->addChildren({ { {5,7},{6,6} } });
-		kingsIndian->children[1]->children[1]->addChildren({ { {5,7},{6,6} } });
+		kingsIndian->children[0]->addChildren({ {{2,1},{2,3}},{{6,0},{5,2}} });
+		kingsIndian->children[0]->children[0]->addChildren({ { {5,7},{6,6} } });
+		kingsIndian->children[0]->children[1]->addChildren({ { {5,7},{6,6} } });
 	}
 
 }

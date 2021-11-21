@@ -29,15 +29,18 @@ public:
         *outputStream << "\n\n------------------------------------------------------------" << std::endl;
         *outputStream << "Starting new game!" << std::endl;
         *outputStream << "Search time: " << searchTime << std::endl;
+        *outputStream << "Using opening book: " << (useOpeningBook ? "true" : "false") << std::endl;
+        openingFinished = !useOpeningBook;
+        currentBookMove = nullptr;
         MinMaxSearcher::initialize();
         srand((unsigned int)time(NULL));
     }
 
 
     TurnResult giveTurn(const GameInfo& gameInfo) {
-        TurnResult result;
-
         *outputStream << "\n";
+        
+        TurnResult result;
         result.chosenMove = getMove(gameInfo);
 
         *outputStream << "Chosen move: " << result.chosenMove << std::endl;
@@ -94,7 +97,7 @@ private:
 
     BookMoves::Node* getBookMove(const GameInfo& gameInfo) {
 
-        if( !useOpeningBook ) return nullptr;
+        if( openingFinished ) return nullptr;
         
         std::vector<BookMoves::Node*> bookmoves;
 
@@ -114,12 +117,12 @@ private:
                     }
                 }
                 
-                if (currentBookMove != NULL) {
+                if (currentBookMove != nullptr) {
                     currentBookMove = currentBookMove->children[rand() % currentBookMove->children.size()];
                     return currentBookMove;
                 }
                 else {
-                    useOpeningBook = false;
+                    openingFinished = true;
                     return nullptr;
                 }
             }
@@ -132,7 +135,7 @@ private:
             return currentBookMove;
         }
         else {
-            useOpeningBook = false;
+            openingFinished = true;
             return nullptr;
         }
     }
@@ -140,9 +143,11 @@ private:
 
 private:
 
-    int searchTime;
+    const int searchTime;
 
-    bool useOpeningBook;
+    const bool useOpeningBook;
+
+    bool openingFinished = false;
     
     BookMoves::Node* currentBookMove = nullptr;
 

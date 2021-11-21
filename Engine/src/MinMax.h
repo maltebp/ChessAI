@@ -95,6 +95,10 @@ private:
 			if( stopSearch ) break;
 
 			Result currentResult = finishedResult;
+
+			if( i >= 11 ) {
+				std::cout << "high depth" << std::endl;
+			}
 			
 			bool useMoveSequence = i > 1;
 

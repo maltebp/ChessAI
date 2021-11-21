@@ -3,7 +3,11 @@
 #include <cassert>
 #include <sstream>
 
+#include "NullStream.h"
 #include "MoveUtil.h"
+
+
+NullStream NULLSTREAM;
 
 
 void GameController::start(State state) {
@@ -11,8 +15,8 @@ void GameController::start(State state) {
     IPlayerController::GameInfo gameInfo;
     gameInfo.currentState = state;
 
-    whitePlayer.start(&std::cout, &std::cerr);
-    blackPlayer.start(&std::cout, &std::cerr);
+    whitePlayer.start(&NULLSTREAM, &NULLSTREAM);
+    blackPlayer.start(&NULLSTREAM, &NULLSTREAM);
 
     bool running = true;
     while(running) {
