@@ -47,13 +47,13 @@ public:
 public:
 
 
-	static Result searchToDepth(const State& state, int depth, std::vector<unsigned long long>& previousStateHashes) {
+	static Result searchToDepth(const State& state, int depth, const std::vector<unsigned long long>& previousStateHashes) {
 		assert(depth > 0);
 		return iterativeSearch(state, false, previousStateHashes, depth);
 	}
 
 
-	static Result searchTimed(const State& state, long long searchTime, std::vector<unsigned long long>& previousStateHashes, bool useInterrupted = true) {
+	static Result searchTimed(const State& state, long long searchTime, const std::vector<unsigned long long>& previousStateHashes, bool useInterrupted = true) {
 		stopSearch = false;
 		
 		Result result;
@@ -78,7 +78,7 @@ private:
 	}
 
 
-	static Result iterativeSearch(const State& state, bool useInterrupted, std::vector<unsigned long long>& previousStateHashes, int depth = std::numeric_limits<int>::max()) {
+	static Result iterativeSearch(const State& state, bool useInterrupted, const std::vector<unsigned long long>& previousStateHashes, int depth = std::numeric_limits<int>::max()) {
 		
 		// Safety not to ensure we don't call this function recursively, or
 		// in a multithreaded environment
@@ -122,8 +122,6 @@ private:
 
 		finishedResult.searchTime = elapsed.count() / 1000.0;
 		finishedResult.dynamicAllocations = DynamicAllocation::numAllocations - numAllocationsAtStart;
-
-		previousStateHashes = MinMaxSearcher::previousStateHashes;
 
 		searching = false;
 
@@ -194,8 +192,6 @@ private:
 		
 
 		//----------------------------------SEARCH SUBTREE-------------------------------------------------------------
-		previousStateHashes.push_back(hash);
-
 		//Get all possible moves
 		MoveUtil::GenerationList moves;
 		MoveUtil::getAllMoves(state, moves);
@@ -216,6 +212,8 @@ private:
 
 		//Sort the list of moves according to moveorder heuristic
 		MoveSorter::sortMoves(state, moves, bestMoveFromPrevious);
+
+		previousStateHashes.push_back(hash);
 
 		Move bestMove;
 		for(int i=0; i<moves.size(); i++) {
@@ -267,8 +265,8 @@ private:
 
 		}
 
-		//Pop this state from previousStateHashes
 		previousStateHashes.pop_back();
+
 		int score = isMaximizer ? alpha : beta;
 		return { bestMove,score };
 	}
