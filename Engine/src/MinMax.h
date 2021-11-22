@@ -320,24 +320,26 @@ private:
 
 		previousStateHashes.pop_back();
 
-		// Update transposition entry
-		Transposition::TranspositionEntry::Type transpositionType = 
-			wasCutOff ?
-			Transposition::TranspositionEntry::Type::BETTER : 
-			Transposition::TranspositionEntry::Type::EXACT;
+		if( !stopSearch ) {
+			// Update transposition entry
+			Transposition::TranspositionEntry::Type transpositionType = 
+				wasCutOff ?
+				Transposition::TranspositionEntry::Type::BETTER : 
+				Transposition::TranspositionEntry::Type::EXACT;
 
-		Transposition::InsertResult transpositionInsertResult = Transposition::insertEntry(
-			hash, 
-			remainingDepth,
-			transpositionType,
-			bestLocalScore,
-			bestLocalMove
-		);
+			Transposition::InsertResult transpositionInsertResult = Transposition::insertEntry(
+				hash, 
+				remainingDepth,
+				transpositionType,
+				bestLocalScore,
+				bestLocalMove
+			);
 
-		if( transpositionInsertResult.collision ) {
-			result.transpositionCollisions++;
-			if( transpositionInsertResult.inserted ) {
-				result.transpositionOverwrites++;
+			if( transpositionInsertResult.collision ) {
+				result.transpositionCollisions++;
+				if( transpositionInsertResult.inserted ) {
+					result.transpositionOverwrites++;
+				}
 			}
 		}
 
