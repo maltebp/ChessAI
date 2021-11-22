@@ -26,6 +26,16 @@ def load_data():
     return combined_data.reset_index(drop=True)
 
 
+def remove_tags(data: pd.DataFrame, tags):
+    for tag in tags:
+        data = data.drop(data[data.tag == tag].index)
+    return data
+
+
+def num_samples_table(data: pd.DataFrame):
+    samples_df = data.groupby('tag').size().reset_index(name='samples')
+    display(samples_df)
+
 
 def win_ratio_chart(data):
     def calc_ratio(row, ratio_type):
