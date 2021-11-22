@@ -1,0 +1,15 @@
+tag,game_id,winner,white,black,half_turns,engine1_pieces,engine2_pieces,engine1_time,engine2_time,end_state
+turbo5_timed_10000,1,1,1,2,69,12,5,336.87,336.81,3B4/8/p2N4/k4B2/1n1B3p/1P6/PK1P1PrP/2R4R b - - 0 35
+turbo5_timed_10000,2,2,2,1,51,9,8,247.69,257.60,3k2nr/3Q2pp/4B3/p3p3/1bpP4/6P1/P4P1P/7K b - - 1 26
+turbo5_timed_10000,3,2,1,2,60,8,9,277.44,297.19,1k6/pp3p2/2p2p2/4p3/1P2P1r1/PQP2q1K/7P/7R w - - 2 31
+turbo5_timed_10000,4,2,2,1,99,6,4,485.48,495.33,8/3Q4/2k2p2/p4p2/1p1Q2bP/8/5K2/8 b - - 7 50
+turbo5_timed_10000,5,1,1,2,61,11,6,297.28,297.23,2R1kr2/7Q/pB2p1n1/8/4P3/1P6/P2K1pPP/5BR1 b - - 1 31
+turbo5_timed_10000,6,2,2,1,71,5,12,336.90,356.67,4k2r/4Q3/4R2p/p1B1P1p1/4P3/P6P/1P3PP1/4K2R b K - 0 36
+turbo5_timed_10000,7,1,1,2,57,11,5,277.43,277.39,1R6/6kr/3p1Q2/3N3p/6p1/8/PP1NKPPP/4R3 b - - 1 29
+turbo5_timed_10000,8,2,2,1,81,6,10,386.44,406.20,5Qk1/p6p/6p1/Pp6/2Pp2P1/3P3P/2P2R1K/5R2 b - - 0 41
+turbo5_timed_10000,9,1,1,2,133,7,1,644.13,653.92,8/7Q/8/5K1k/PP6/3P1P2/7P/8 b - - 2 67
+turbo5_timed_10000,10,1,2,1,92,8,3,445.92,455.70,5k1r/p7/1p6/3q2pp/6K1/2P1r3/8/1R6 w - h6 0 47
+turbo5_timed_10000,11,1,1,2,93,9,2,455.78,455.69,2Q5/1R6/2p2k2/8/3PNB2/7P/P2K4/6R1 b - - 4 47
+turbo5_timed_10000,12,2,2,1,67,11,8,317.08,336.81,r1b1r1k1/1p1p1pQp/4p2B/p1p1PB2/8/7N/5P1P/3K4 b - - 1 34
+turbo5_timed_10000,13,1,1,2,41,13,6,198.18,198.17,r6r/2pQkNBp/p7/8/8/P7/1PP2PPP/3RK1NR b K - 2 21
+turbo5_timed_10000,14,1,2,1,66,9,6,317.08,326.90,3n2k1/2p4R/6p1/1P1p4/4p1b1/6P1/1PPq1K2/r7 w - - 6 34
