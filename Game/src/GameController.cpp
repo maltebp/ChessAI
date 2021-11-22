@@ -2,12 +2,30 @@
 
 #include <cassert>
 #include <sstream>
+#include <fstream>
+#include <filesystem>
 
+#include "Util.h"
 #include "NullStream.h"
 #include "MoveUtil.h"
 
 
 NullStream NULLSTREAM;
+
+namespace fs = std::filesystem;
+
+const fs::path LOG_DIRECTORY = "tui_game_logs";
+
+
+void openLog(std::fstream& file, std::string name) {
+    fs::create_directories(LOG_DIRECTORY);
+    fs::path logPath = LOG_DIRECTORY / (name + ".log");
+
+   file.open(
+       logPath,
+       std::fstream::out | std::fstream::trunc
+   );
+}
 
 
 void GameController::start(State state) {
@@ -15,8 +33,22 @@ void GameController::start(State state) {
     IPlayerController::GameInfo gameInfo;
     gameInfo.currentState = state;
 
-    whitePlayer.start(&NULLSTREAM, &NULLSTREAM);
-    blackPlayer.start(&NULLSTREAM, &NULLSTREAM);
+    if( fs::exists(LOG_DIRECTORY) ) {
+        for( const auto& entry : std::filesystem::directory_iterator(LOG_DIRECTORY) ) {
+            std::filesystem::remove_all(entry.path());
+        }
+    }
+
+    std::string whiteLogName = Util::combineStrings(Util::splitString(whitePlayer.getName(), " \t\n"), "");
+    std::fstream whiteLog;
+    openLog(whiteLog, whiteLogName);
+
+    std::string blackLogName = Util::combineStrings(Util::splitString(blackPlayer.getName(), " \t\n"), "");
+    std::fstream blackLog;
+    openLog(blackLog, blackLogName);
+
+    whitePlayer.start(&whiteLog, &whiteLog);
+    blackPlayer.start(&blackLog, &blackLog);
 
     bool running = true;
     while(running) {
@@ -93,4 +125,6 @@ void GameController::start(State state) {
         }
     }   
 
+    whiteLog.close();
+    blackLog.close();
 }
