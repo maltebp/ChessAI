@@ -4,6 +4,7 @@ Debug/
 x64/
 x86/
 engine_arena_test/
+tui_game_logs/
 build/
 *.user
 arena_results/

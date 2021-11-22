@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import glob
+import statsmodels.stats.proportion
 
 
 pd.set_option('display.max_rows', None)
@@ -26,48 +27,76 @@ def load_data():
     return combined_data.reset_index(drop=True)
 
 
+def remove_tags(data: pd.DataFrame, tags):
+    for tag in tags:
+        data = data.drop(data[data.tag == tag].index)
+    return data
+
+
+def num_samples_table(data: pd.DataFrame):
+    samples_df = data.groupby('tag').size().reset_index(name='samples')
+    display(samples_df)
+
 
 def win_ratio_chart(data):
-    def calc_ratio(row, ratio_type):
-        matches = 0
-        for winner in row.winner:
-            matches += 1 if winner == ratio_type else 0
-        ratio = matches / len(row.winner)
-        return ratio
+
+    def collect_win_data(group):
+        series = pd.Series()
+
+        white_samples = group[group['white'] == 1]
+        black_samples = group[group['white'] == 2]
         
-    def calc_draw_ratio(row):
-        return calc_ratio(row, 0)
+        series['samples'] = len(group.index)
+        series['wins'] = len(group[group['winner'] == 1])
+        series['white_samples'] = len(white_samples.index)
+        series['white_wins'] = len(white_samples[white_samples['winner'] == 1])
+        series['white_draws'] = len(white_samples[white_samples['winner'] == 0])
+        series['black_samples'] = len(white_samples.index)
+        series['black_wins'] = len(black_samples[black_samples['winner'] == 1])
+        series['black_draws'] = len(black_samples[black_samples['winner'] == 0])
 
-    def calc_win_ratio(row):
-        return calc_ratio(row, 1)   
+        series['win_ratio'] = series['wins'] / series['samples']
+        series['white_win_ratio'] = series['white_wins'] / series['white_samples']
+        series['white_draw_ratio'] = series['white_draws'] / series['white_samples']
+        series['black_win_ratio'] = series['black_wins'] / series['black_samples']
+        series['black_draw_ratio'] = series['black_draws'] / series['white_samples']
 
-    version_data = data.groupby('tag').agg(list)
+        return series
 
-    version_data['overall_win_ratio'] = data.groupby('tag').agg(list).apply(calc_win_ratio, axis=1)
-    version_data['white_win_ratio'] = data[data["white"] == 1].groupby('tag').agg(list).apply(calc_win_ratio, axis=1)
-    version_data['white_draw_ratio'] = data[data["white"] == 1].groupby('tag').agg(list).apply(calc_draw_ratio, axis=1)
-    version_data['black_win_ratio'] = data[data["white"] == 2].groupby('tag').agg(list).apply(calc_win_ratio, axis=1)
-    version_data['black_draw_ratio'] = data[data["white"] == 2].groupby('tag').agg(list).apply(calc_draw_ratio, axis=1)
+    tag_data = data.groupby('tag').apply(collect_win_data)
 
-    version_data = version_data[[
-        'overall_win_ratio',
-        'white_win_ratio',
-        'white_draw_ratio',
-        'black_win_ratio',
-        'black_draw_ratio'
-    ]]
+    def calc_conf(row):
+        def _conf(samples, wins):
+            [lower, upper] = statsmodels.stats.proportion.proportion_confint(wins, samples, alpha=0.05, method='wilson')
+            return upper - lower
+        
+        intervals = [
+            _conf(row['samples'], row['wins']),
+            _conf(row['white_samples'], row['white_wins']),
+            _conf(row['black_samples'], row['black_wins'])
+        ]
 
-    table_data = version_data
+        series = pd.Series(intervals, index=['win_ratio', 'white_win_ratio', 'black_win_ratio'])
+        #print(series)
+        return series
+    
+    bar_data = tag_data[['win_ratio', 'white_win_ratio', 'black_win_ratio']]
+    bar_data.columns = ['Overall', 'As white', 'As black']
 
-    version_data = version_data.transpose();
+    conf = tag_data.apply(calc_conf, axis='columns')
+    conf.columns = ['Overall', 'As white', 'As black']
 
-    ax = version_data.plot(kind='bar', figsize=(18,8) )
-    ax.set_xticklabels(["Win ratio","Win ratio as white", "Draw ratio as white", "Win ratio as black", "Draw ratio as black"])
+    ax = bar_data.transpose().plot.bar(yerr=conf.transpose(), capsize=4, figsize=(18,8) )
     ax.set_ylim([0, 1])
     ax.set_axisbelow(True)
     ax.yaxis.grid(color='lightgray', linestyle='-')
     plt.xticks(rotation=0, fontsize=12)
-    plt.yticks(np.arange(0.0, 1, 0.1), fontsize=12)
+    plt.yticks(np.arange(0.0, 1.09, 0.1), fontsize=12)
     plt.show()
 
-    display(table_data)   
+    draw_ratios = tag_data[['white_draw_ratio', 'black_draw_ratio']]
+    draw_ratios.columns = ['As white', 'As black']
+
+    return [bar_data, conf, draw_ratios]
+    display(bar_data)
+    display(conf)
