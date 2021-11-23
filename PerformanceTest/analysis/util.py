@@ -29,14 +29,16 @@ def load_data(dir):
 
 
 
-def bar_chart(data_frame, xlabel = "", ylabel = "", ymax=None):
+def bar_chart(data_frame, xlabel = "", ylabel = "", ymax=None, logscale=False):
     
     bar = data_frame.plot(kind='bar', figsize=(16,8))
     plt.xticks(rotation = 0)
     plt.xlabel(xlabel,fontsize=12)
     plt.ylabel(ylabel,fontsize=12)
+    if logscale:
+        plt.yscale('log')
     if ymax is not None:
-        plt.ylim([0, ymax])
+            plt.ylim([0, ymax])
     plt.xticks(fontsize=11)
     plt.yticks(fontsize=11)
     bar.spines['top'].set_visible(False)
