@@ -1,0 +1,8 @@
+tag,game_id,winner,white,black,half_turns,engine1_pieces,engine2_pieces,engine1_time,engine2_time,end_state
+turbo5_timed_10000,1,1,1,2,81,13,1,386.52,396.36,k7/8/Q7/8/3P1B2/1P3N2/P1P1KPPP/1R4R1 b - - 8 41
+turbo5_timed_10000,2,2,2,1,101,3,7,485.62,505.39,4k3/4Q2R/4N3/8/4N3/P1p5/K1P5/5r2 b - - 7 51
+turbo5_timed_10000,3,1,1,2,85,10,5,416.25,416.17,4RQ2/7p/6p1/4P2k/5PPP/4BK2/1Pr5/4r2R b - g3 0 43
+turbo5_timed_10000,4,2,2,1,55,12,10,257.69,277.46,r5kr/p2p2Qp/1p2pBp1/2p1Pp2/2P5/3B1bPP/5P1K/3R4 b - - 6 28
+turbo5_timed_10000,5,2,1,2,50,8,9,237.82,247.72,4kb2/5ppQ/p3p3/8/2P1n1pP/4P3/1P3q2/R5KR w - - 2 26
+turbo5_timed_10000,6,2,2,1,103,8,7,505.48,515.26,4r3/6Qk/pp6/n1p1Br2/8/1q1B2P1/5P2/4R1K1 b - - 12 52
+turbo5_timed_10000,7,2,1,2,186,1,4,912.12,921.66,8/7r/2K1q3/1p6/1k6/8/8/8 w - - 10 94
