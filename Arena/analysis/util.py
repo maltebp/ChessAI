@@ -68,7 +68,7 @@ def win_ratio_chart(data):
     def calc_conf(row):
         def _conf(samples, wins):
             [lower, upper] = statsmodels.stats.proportion.proportion_confint(wins, samples, alpha=0.05, method='wilson')
-            return upper - lower
+            return (upper - lower) / 2.0
         
         intervals = [
             _conf(row['samples'], row['wins']),
@@ -77,7 +77,6 @@ def win_ratio_chart(data):
         ]
 
         series = pd.Series(intervals, index=['win_ratio', 'white_win_ratio', 'black_win_ratio'])
-        #print(series)
         return series
     
     bar_data = tag_data[['win_ratio', 'white_win_ratio', 'black_win_ratio']]

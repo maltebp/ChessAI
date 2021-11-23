@@ -36,7 +36,7 @@ def bar_chart(data_frame, xlabel = "", ylabel = "", ymax=None):
     plt.xlabel(xlabel,fontsize=12)
     plt.ylabel(ylabel,fontsize=12)
     if ymax is not None:
-        plt.ylim([0, ymax])
+            plt.ylim([0, ymax])
     plt.xticks(fontsize=11)
     plt.yticks(fontsize=11)
     bar.spines['top'].set_visible(False)
