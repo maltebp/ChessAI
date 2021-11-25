@@ -206,6 +206,11 @@ private:
 		// Get all possible moves
 		MoveUtil::GenerationList moves;
 		MoveUtil::getAllMoves(state, moves);
+
+		// Branching factor is average of all nodes
+		double currentBranchingFactor = result.branchingFactor;
+		result.branchingFactor =
+			currentBranchingFactor + (moves.size() - currentBranchingFactor) / result.nodesVisited;
 		
 		// Transposition table
 		Transposition::TranspositionEntry transpositionEntry = Transposition::getEntry(hash);
@@ -217,6 +222,8 @@ private:
 		) {
 			if( transpositionEntry.type == Transposition::TranspositionEntry::Type::EXACT ) {
 				if( transpositionEntry.depth >= remainingDepth) {
+					double currentCutOffFactor = result.cutOffFactor;
+					result.cutOffFactor = currentCutOffFactor + (moves.size() - currentCutOffFactor) / result.nodesVisited;
 					result.transpositionHits++;
 					return { transpositionEntry.score, transpositionEntry.move };
 				}
@@ -226,8 +233,7 @@ private:
 			}
 			else {
 				result.transpositionTypeMisses++;
-			}
-			
+			}	
 		}
 
 		//----------------------------------SEARCH SUBTREE-------------------------------------------------------------
@@ -236,11 +242,6 @@ private:
 			int noMovesScore = noMovesPossibleScore(state, remainingDepth, result);
 			return { noMovesScore, Move() };
 		}
-
-		// Branching factor is average of all nodes
-		double currentBranchingFactor = result.branchingFactor;
-		result.branchingFactor =
-			currentBranchingFactor + (moves.size() - currentBranchingFactor) / result.nodesVisited;
 
 		Move bestMoveFromPrevious = Move();
 		if (useMoveSequence) {

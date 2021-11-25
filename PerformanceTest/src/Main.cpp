@@ -35,7 +35,7 @@ const std::vector<TestCase> TEST_CASES =
         { 6, "Late game 2",     {"8/4Rp2/4P1pk/3R3p/5P2/1P6/P4BPP/7K w - - 1 44"} }, // Source: engine arena
     };
 
-const unsigned int SAMPLES = 6;
+const unsigned int SAMPLES = 5;
 
 // Our analysis assumes that we use depth 6
 const unsigned int DEPTH = 6;
