@@ -85,12 +85,12 @@ def win_ratio_chart(data):
     conf = tag_data.apply(calc_conf, axis='columns')
     conf.columns = ['Overall', 'As white', 'As black']
 
-    ax = bar_data.transpose().plot.bar(yerr=conf.transpose(), capsize=4, figsize=(18,8) )
+    ax = bar_data.transpose().plot.bar(yerr=conf.transpose(), capsize=4, figsize=(14,8) )
     ax.set_ylim([0, 1])
     ax.set_axisbelow(True)
     ax.yaxis.grid(color='lightgray', linestyle='-')
-    plt.xticks(rotation=0, fontsize=12)
-    plt.yticks(np.arange(0.0, 1.09, 0.1), fontsize=12)
+    plt.xticks(rotation=0, fontsize=14)
+    plt.yticks(np.arange(0.0, 1.09, 0.1), fontsize=14)
     plt.show()
 
     draw_ratios = tag_data[['white_draw_ratio', 'black_draw_ratio']]
