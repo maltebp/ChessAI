@@ -37,7 +37,7 @@ def remove_sessions(data: pd.DataFrame, sessions):
 
 def bar_chart(data_frame, xlabel = "", ylabel = "", ymax=None, logscale=False):
     
-    bar = data_frame.plot(kind='bar', figsize=(16,8))
+    bar = data_frame.plot(kind='bar', figsize=(12,6))
     plt.xticks(rotation = 0)
     plt.xlabel(xlabel,fontsize=12)
     plt.ylabel(ylabel,fontsize=12)
@@ -47,8 +47,10 @@ def bar_chart(data_frame, xlabel = "", ylabel = "", ymax=None, logscale=False):
             axis.set_major_formatter(ScalarFormatter())
     if ymax is not None:
             plt.ylim([0, ymax])
-    plt.xticks(fontsize=11)
-    plt.yticks(fontsize=11)
+    bar.set_axisbelow(True)
+    bar.yaxis.grid(color='lightgray', linestyle='-')
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
     bar.spines['top'].set_visible(False)
     bar.spines['right'].set_visible(False)
     bar.spines['bottom'].set_linewidth(0.5)
@@ -68,7 +70,35 @@ def graph_chart(data_frame, title="", xlabel="", ylabel="", logscale=False):
     plt.show()
 
 
-def cutoff_chart(data):
+def effective_branching_chart(data):
+
+    def calculate_effective_branching(group):
+        series = group['branching'] - group['cutoffs']
+        series.index = group['case_name']
+        return series
+        # def calc_effect_branching_group(case):
+        #     case = case.sort_values('depth')
+        #     previous = None
+        #     count = 0
+        #     branching = 0
+        #     for nodes in case['nodes']:
+        #         if previous is None:
+        #             previous = nodes
+        #             continue
+        #         count = count + 1
+        #         branching = branching + nodes / previous
+        #         previous = nodes
+        #     return branching / count             
+        
+        # branchings = group.groupby('case_name').apply(calc_effect_branching_group)       
+        # return branchings
+
+    branchings_data = data.groupby('session').apply(calculate_effective_branching)
+    bar_chart(branchings_data.transpose())
+    display(branchings_data)
+
+
+def cutoff_chart(data, ylabel=None):
 
     def calculate_cutoff(group):        
         series = group['cutoffs'] / group['branching']
@@ -76,7 +106,8 @@ def cutoff_chart(data):
         return series
 
     cutoff_data = data.groupby('session').apply(calculate_cutoff)
-    bar_chart(cutoff_data.transpose(), ymax=1.05)
+    bar_chart(cutoff_data.transpose(), ymax=1.05, ylabel=ylabel)
+    display(cutoff_data)
 
 
 def visited_nodes_at_depth(data_frame):

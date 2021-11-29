@@ -91,6 +91,10 @@ def win_ratio_chart(data):
     ax.yaxis.grid(color='lightgray', linestyle='-')
     plt.xticks(rotation=0, fontsize=14)
     plt.yticks(np.arange(0.0, 1.09, 0.1), fontsize=14)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_linewidth(0.5)
+    ax.spines['left'].set_visible(True)
     plt.show()
 
     draw_ratios = tag_data[['white_draw_ratio', 'black_draw_ratio']]
