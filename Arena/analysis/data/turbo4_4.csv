@@ -1,4 +1,4 @@
-tag,game_id,winner,white,black,half_turns,engine1_pieces,engine2_pieces,engine1_time,engine2_time,end_state
+iltag,game_id,winner,white,black,half_turns,engine1_pieces,engine2_pieces,engine1_time,engine2_time,end_state
 turbo4,1,2,1,2,76,7,8,366.79,376.55,1r6/3k4/7p/4p1b1/3p4/P2P1b2/RPK2P2/1Nr5 w - - 0 39
 turbo4,2,2,2,1,85,6,6,416.30,426.08,1n3R2/3p3p/1p6/5R2/5k2/6rP/1B5K/4R3 b - - 0 43
 turbo4,3,2,1,2,78,8,9,376.67,386.46,3r2k1/5p2/2b2bp1/1q5p/2K1B2P/3pNP1R/6P1/4Q3 w - - 5 40
