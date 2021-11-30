@@ -12,10 +12,10 @@ namespace BookMoves {
 	public:
 		
 		
-		Node* addChild(Move move) {
+		Node* addChild(Move move, std::string name = "") {
 			Node* child = new Node();
 			child->move = move;
-			child->openingName = openingName;
+			child->openingName = name != "" ? name : openingName;
 			children.push_back(child);
 			return child;
 		}
@@ -67,28 +67,27 @@ namespace BookMoves {
 
 	static void initTree() {
 		
-		Node* caroKann = Node::createRoot("Caro-Kann", { { 4, 1 }, { 4, 3 } }); //e4
-		caroKann->addChild({ { 2, 5 }, { 2, 4 } });
-		caroKann->children[0]->addChildren({ { { 1, 0 }, { 2, 2 } }, { { 3, 1 }, { 3, 3 } } });
-		caroKann->children[0]->children[0]->addChild({ {3,6},{3,4} });
-		caroKann->children[0]->children[1]->addChild({ {3,6},{3,4} });
+		Node* caroKannVienna = Node::createRoot("Caro-Kann / Vienna", { { 4, 1 }, { 4, 3 } }); //e4
+		Node* caroKann = caroKannVienna->addChild({ { 2, 6 }, { 2,5 } }, "Caro-Kann");
+		caroKann->addChildren({ { { 1, 0 }, { 2, 2 } }, { { 3, 1 }, { 3, 3 } } });
+		caroKann->children[0]->addChild({ {3,6},{3,4} });
+		caroKann->children[1]->addChild({ {3,6},{3,4} });
 
-		Node* vienna = Node::createRoot("Vienna", { { 4, 1 }, { 4, 3 } });
-		vienna->addChild({{4,6},{4,4}});
-		vienna->children[0]->addChildren({ {{ 3, 1 }, { 3, 2 } },{{1,0},{2,2}} });
+		Node* vienna = caroKannVienna->addChild({{4,6},{4,4}}, "Vienna");
+		vienna->addChildren({ {{ 3, 1 }, { 3, 2 } },{{1,0},{2,2}} });
 
-		Node* london = Node::createRoot("London", { { 3, 1 }, { 3, 3 } }); //d4
-		london->addChild({ {3,6},{3,4} });
-		london->children[0]->addChildren({ {{2,0},{5,3}} });
-		london->children[0]->children[0]->addChildren({ { {2,7},{5,4} },{{6,7},{5,5}} });
-		london->children[0]->children[0]->children[0]->addChild({ {6,0},{5,2} });
-		london->children[0]->children[0]->children[1]->addChild({ {6,0},{5,2} });
+		Node* londonKingsIndian = Node::createRoot("London / King's Indian", { { 3, 1 }, { 3, 3 } }); //d4
 
-		Node* kingsIndian = Node::createRoot("King's Indian", { { 3, 1 }, { 3, 3 } }); //d4
-		kingsIndian->addChild({{6,6},{6,5}});
-		kingsIndian->children[0]->addChildren({ {{2,1},{2,3}},{{6,0},{5,2}} });
-		kingsIndian->children[0]->children[0]->addChildren({ { {5,7},{6,6} } });
-		kingsIndian->children[0]->children[1]->addChildren({ { {5,7},{6,6} } });
+		Node* london = londonKingsIndian->addChild({ {3,6},{3,4} }, "London");
+		london->addChildren({ {{2,0},{5,3}} });
+		london->children[0]->addChildren({ { {2,7},{5,4} },{{6,7},{5,5}} });
+		london->children[0]->children[0]->addChild({ {6,0},{5,2} });
+		london->children[0]->children[1]->addChild({ {6,0},{5,2} });
+
+		Node* kingsIndian = londonKingsIndian->addChild({{6,6},{6,5}}, "King's Indian");
+		kingsIndian->addChildren({ {{2,1},{2,3}},{{6,0},{5,2}} });
+		kingsIndian->children[0]->addChildren({ { {5,7},{6,6} } });
+		kingsIndian->children[1]->addChildren({ { {5,7},{6,6} } });
 	}
 
 }
