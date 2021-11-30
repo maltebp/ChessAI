@@ -11,7 +11,7 @@ enum class PieceColor : uint8_t {
 
 enum class PieceType : uint8_t {
     NONE    = 0b00000000,
-    KING    = 0b00000001,
+    KING    = 0b00000001,   
     QUEEN   = 0b00000010,
     KNIGHT  = 0b00000100,
     BISHOP  = 0b00001000,

@@ -31,8 +31,8 @@ std::tuple<TurnResult, std::string> parseInput(const GameInfo& gameInfo, const s
 	std::string command = inputTokens[0];
 
 	if( command == "mv" ) {
-		if( inputTokens.size() != 3 ) {
-			return { {}, "Error: 'mv' needs 2 arguments"};
+		if( inputTokens.size() > 4 || inputTokens.size() < 3 ) {
+			return { {}, "Error: 'mv' needs 2 - 3 arguments"};
 		}
 
 		Position fromPosition;
@@ -46,6 +46,16 @@ std::tuple<TurnResult, std::string> parseInput(const GameInfo& gameInfo, const s
 		}
 
 		Move move = { fromPosition, toPosition };
+
+		bool isPromotionMove = inputTokens.size() == 4;
+		if( isPromotionMove ) {
+			Piece piece;
+			if( inputTokens[3].size() != 1 || !Piece::fromAlgebraicChar(inputTokens[3][0], piece) ) {
+				return { {}, "Error: 'mv' promotion type is invalid" };
+			}
+
+			move.promotesTo = piece.getType();
+		}	
 
 		if( !gameInfo.validMoves.contains(move) ) {
 			return { {}, "Error: Invalid move" };
@@ -62,7 +72,7 @@ std::tuple<TurnResult, std::string> parseInput(const GameInfo& gameInfo, const s
 
 		std::stringstream ss;
 		ss << "Valid moves:\n";
-		for( size_t i = 0; i < 100; i++ ) {
+		for( size_t i = 0; i < gameInfo.validMoves.size(); i++ ) {
 			ss << "  " << gameInfo.validMoves[i] << "\n";
 		}
 
